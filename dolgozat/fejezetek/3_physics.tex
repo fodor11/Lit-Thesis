@@ -1,0 +1,24 @@
+\Chapter{A tűz fizikája}
+
+% TODO: Leírni, hogy a tűz fizikája (beleértve a megjelenítés optikáját) hogyan működik nagyvonalakban!
+
+\section{A tűz természetéből fakadó nehézségek}
+Az égést, mint kémiai jelenséget, még ha ismernénk is minden részletet sem tudnánk elfogadható időn belül szimulálni  \cite{firestarter}.
+
+A tűz a jelenetek egyik drámai eleme, így azt a lehető legnagyobb szinten kell tudni befolyásolni amellett, hogy közben hiteles is maradjon. Kiszámíthatatlannak és összetettnek kell tűnnie, ugyanakkor az adott körülményeknek megfelelően felismerhető struktúrájúnak kell lennie. Ebből a bonyolultságból és a szemlélői elvárásokból kifolyólag nem túl életképes a tűz animálása közvetlen numerikus szimuláció segítségével, ugyanis:
+\begin{itemize}
+\item
+A numerikus szimulációk nagyban függenek a részletesség szintjétől. Ahogy egy 3D-s szimuláció felbontása finomodik, a számítási összetettsége legalább $O(n^3)$ szerint nő. Ha akár csak egy kisebb tüzet is szeretnénk részleteiben megjeleníteni, az nagyon magas számítási igényű rendereléshez vezet.
+\item
+Azok a (nagy számú) faktorok, melyek a tűz megjelenését határozzák meg különféle körülmények között, egy egymástól függő paraméterekből álló teret alkotnak. Ilyen fizikai rendszerre nehéz olyan függvényeket írni, melyek segítségével könnyen lehetne befolyásolni a tüzet. 
+\item
+A tűz maga a zűrzavar. Apró változtatások a kiinduló környezetben rendkívül eltérő eredményeket produkálnak. Az animálás szemszögéből nehéz egy kívánt eredmény felé terelni a folyamatokat \cite{ArNiStructuralModeling}.
+\end{itemize}
+
+Más-más alkalmazási területek különféle szempontokat tartanak szem előtt, mikor a tűz természetéről, megjelenéséről, és a megjelenítési időről van szó. Például:
+
+Egy videojátékban az elsődleges szempont hogy valós időben (25-60 frame per secundum) lehessen renderelni a jelenséget, a kinézetnek is a lehetőségek szerint valóságosnak kell tűnnie. A legtöbb esetben csupán díszítő funkciót tölt be, így a terjedés fizikája és az interakció kevésbé lényeges.
+
+Egy mozifilmben a legfontosabb, hogy minél élethűbb legyen, és esetlegesen lehessen kontrollálni a kinézetét. A renderelésnek itt már nem kell valós idejűnek lennie, illetve sem a tűz terjedésének fizikája, sem a vele való interakció nem játszik szerepet.
+
+Egy virtuális valóságban - például egy tűzoltó szimulációs szoftverben - ismét szempont a valós idejű renderelés, de itt a tűzzel való interakció lehetősége és a terjedésének fizikája egyaránt fontosabb, mint maga a megjelenés.
