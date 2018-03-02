@@ -7,14 +7,29 @@
 A háromdimenziós játékok felemelkedése az 1990-es években kezdődött. Az első játékmotorok az id Software feljelszőinek köszönhetőek. Ahelyett, hogy minden játékot egyenként a semmiből építettek volna fel, más fejlesztők által készített modulokat használtak fel. Megtervezték a saját grafikájukat, karaktereiket, fegyvereiket és pályáikat, melyek lényegében a játék tartalmát nyújtották. Így már szét lehetett választani a játékspecifikus szabályokat és adatokat olyan alap koncepcióktól, mint például az ütközésvizsgálat. Ennek köszönhetően a fejlesztői csapatokat lehetett bővíteni, hiszen egyszerre több modulon is lehetett párhuzamosan, egymástól függetlenül dolgozni. Ez lehetővé tette továbbá, hogy a fejlesztők külön területekre specializálódjanak.
 \cite{wikiGameEngine}
 
+A korábbi, kétdimenziós játékokban természetesen csak sprite (kétdimenziós bitmap) alapú tüzekkel találkozhatunk. Az id tech 1 motor sem kivétel, habár hármodimenziósnak tűnnek a vele készült játékok (pl.: Doom I, Doom II), a benne lévő objektumok szintén sprite-ok, melyek mindig a néző felé fordulnak. Az ilyen játékmotorokat 2.5 dimenziós motoroknak is nevezhetjük. 
+
+
 %Sprite tűz:
-%1992 wolfeinsein 3d (id software)
 %1993 id tech 1/doom engine https://en.wikipedia.org/wiki/Doom_engine +  https://doomwiki.org/wiki/Doom_rendering_engine 
 % Doom II: Hell on Earth (id tech 1 ez is)
 
 \subsection{Quake engine 1996}
+% MDL format: http://fabiensanglard.net/quakeSource/quakeSourceRendition.php
+% torch animation http://media.moddb.com/images/members/1/240/239733/qv1.gif
+A Quake motor 1996-ban készült el a Quake számítógépes játékot meghajtva. Az id tech 1 motorral ellentétben ez már igaz háromdimenziós motor, azaz háromdimenziós adatokat felhasználva állítja elő a kétdimenziós képet. A megjelenítés valós időben történik. A játékban egyaránt használtak fénytérképeket (lightmap) és 3D-s fényforrásokat is. Előbbi segítségével a statikus objektumok fényét lehetett az objektumokra égetni, ezzel rövidítve a kirajzolási időt, utóbbi pedig a dinamikus objektumok fényét adta. \cite{wikiQuake} A játékban a fáklyák tüzét vizsgáltam.\\
+A fáklyák kaphattak pislákoló fényt, ám ez rendkívül lassította a kirajzolást, így többnyire csak olyan helyen lehetett alkalmazni ahol kevés felületet világított meg. A tűz maga váltakozó modellek sorozatából állt, melyet MDL fájformátumban tároltak le.\\
+ Ez a formátum lehetővé teszi a képkockáról képkockára való animáció tárolását. Egy .mdl fájl jellemzői: 
+\begin{itemize} 
+\item A modell geimetriai adatai (háromszögekben)
+\item Textúra adatok
+\item Képkockáról képkockára való animáció
+\end{itemize} 
+ Minden képkockához külön-külön hozzá lehet rendelni egyebek mellett, hogy mely csúcsok szerepelnek benne. A forműtum lehetővé teszi egy befoglaló gömb megadását is, mely ütközésvizsgálatok esetén lehet fontos, ám ezt nem kötelező megadni benne.  \cite{MDLformat} \\
+Tehát a tűznek semmiféle külön fizikai modellezéséről sincs szó (legalábbis valós időben), előre meg van határozva a mozgása képkockákra lebontva. Mint az a mellékelt ábrán is látszik, a tűz lángjain nem lehet átlátni, illetve füstképződés sincs. A játék OpenGL-es portjában a gyorsítás érdekében a modelleket DisplayList-ekbe töltötték be (gl mesh.c).
 
-% 1996 Quake engine 
+
+
 % 1997 Quake II engine = id tech 2
 % 1998 Unreal engine 1
 % 1999 id tech 3 engine 
