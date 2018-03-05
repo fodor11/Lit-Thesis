@@ -5,3 +5,5 @@
 *.pdf
 *.thm
 *.toc
+projektek/external_libraries
+projektek/*/bin
