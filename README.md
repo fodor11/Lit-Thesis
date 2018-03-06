@@ -24,9 +24,23 @@ Tűz megvalósításának összehasonlítása (The different ways of animating f
 
 ## Saját implementációk tervezése
 
+* Assembly-s tűz effect
+* Animált textúra
+* Quake II jellegű animált modelles
+* Particle system
+* Volumetrikus tűz
+* Voxel alapú (végeselem módszeres megoldások)
+* Sugárkövetéses módszerek (nem valós idejű megjelenítés)
+
 ## Implementációk bemutatása
 
+* Az előzőek programozásáról néhány dolog. UML, API leírás, tesztek és hasonlók.
+
 ## Példák a megjelenítési módokra
+
+* Jó sok szemléletes kép.
+* Hangsúlyozni a paraméterezhetőséget. Külön képsorokat csinálni különböző paraméterezéssel.
+* Videókról néhány dolog (CD melléklet, YouTube)
 
 ## Összegzés
 
