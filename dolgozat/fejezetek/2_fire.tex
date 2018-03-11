@@ -63,20 +63,20 @@ Az id tech 2 motoron alapult az id Software következő motorja, az id tech 3. E
 
 Az id tech 2-ből ismert fénytérképen alapuló megvilágítást és multitextúrázást itt is használták. A motor egyik újítása a shader rendszer, melyet az OpenGL fix funkciójú csővezetékére (fixed function pipeline) építettek. A fixed function pipeline az OpenGL régebbi verzióiban fellelhető konfigurálható feldolgozási állapotok gyűjteményére utal. Ezeket váltották fel a modern OpenGL shader-ei később. \cite{fsQuake3}  
 
-Az id tech 3 shaderei viszont szöveges szkript fájlok, melyek egy adott felület kinézetét, tulajdonságait és viselkedését írják le. A dokumentumban a módosított textúra szettek is fel vannak sorolva. Különféle kulcsszavak segítségével vannak elkülönítve a fizikai tulajdonságokat befolyásoló paraméterek, és a kinézetre vonatkozó jellemzők. Egyszerre több shader effekt is tartozhat egy objektumhoz, de egy-egy shader használata is nagy számítási igényt von maga után, ugyanis a világnak azon részét melyet befolyásol újra kell rajzolni. \cite{quake3shaderManual} Néhány, a tűz effektek szempontjából fontos kulcsszó: 
+Az id tech 3 shader-ei viszont szöveges szkript fájlok, melyek egy adott felület kinézetét, tulajdonságait és viselkedését írják le. A dokumentumban a módosított textúra szettek is fel vannak sorolva. Különféle kulcsszavak segítségével vannak elkülönítve a fizikai tulajdonságokat befolyásoló paraméterek és a kinézetre vonatkozó jellemzők. Egyszerre több shader effekt is tartozhat egy objektumhoz, de egy-egy shader használata is nagy számítási igényt von maga után, ugyanis a világnak azon részét, melyet befolyásolja, újra kell rajzolni. \cite{quake3shaderManual} Néhány, a tűz effektek szempontjából fontos kulcsszó: 
 \begin{itemize} 
 \item
-DeformVertexes autosprite2: Segítségével bármely (2 háromszögből álló) téglalap felület sprite-ként fog funkcionálni, anélkül, hogy erre külön objektumot hoznánk létre. Ez annyit tesz, hogy a sprite, amin a textúra van, mindig a nézőpontnak megfelelően fordul a hosszabbik tengelye mentén. Ez a funkció pont tökéletes egy tűzoszlop megjelenítéséhez.
+DeformVertexes autosprite2: Segítségével bármely (2 háromszögből álló) téglalap felület sprite-ként fog funkcionálni, anélkül, hogy erre külön objektumot hoznánk létre. Ez annyit tesz, hogy a sprite, amin a textúra van, mindig a nézőpontnak megfelelően fordul a hosszabbik tengelye mentén. Ez a funkció éppen megfelelő egy tűzoszlop megjelenítéséhez.
 \item
-AnimMap <frequency> <texture1> … <texture8>: Olyan felületet határoz meg, mely a megadott textúrák sorozatának segítségével animálható. A <frequency> megadja, hogy 1 másodpercen belül hányszot játszódjon le a sorozat. A <texture1> … <texture8> segítségével adhatjuk meg a felhasználni kívánt textúrák nevét, vagy elérési útvonalait. Nem kötelező 8-at megadni. Ha például megadunk 4 textúrát 0.25-ös frekvenciával, akkor egy 4 másodperces animációt kapunk, melyben minden textúrát 1 másodpercig látni. 
+AnimMap <frequency> <texture1> … <texture8>: Olyan felületet határoz meg, mely a megadott textúrák sorozatának segítségével animálható. A <frequency> megadja, hogy 1 másodpercen belül hányszor játszódjon le a sorozat. A <texture1> … <texture8> segítségével adhatjuk meg a felhasználni kívánt textúrák nevét, vagy elérési útvonalait. Nem kötelező mind a nyolcat megadni. Ha például megadunk 4 textúrát 0.25-ös frekvenciával, akkor egy 4 másodperces animációt kapunk, melyben minden textúrát 1 másodpercig látni. 
 \item
 blendFunc: Segítségével megmondhatjuk a motornak, hogy hogyan vegyítse a különbőző grafikus rétegeket (átlátszóság esetén).
 \item
-rgbGen <func>: Segítségével különféle pulzáló effekteket lehet készíteni. Úgy éri el, hogy a megadott funkció szerint a csúcspontok (vertex) színét 2 érték között változtatja.
+rgbGen <func>: Segítségével különféle pulzáló effekteket lehet készíteni. Ezeket úgy valósítja meg, hogy a megadott funkciónak megfelelően a csúcspontok (vertex) színét 2 érték között változtatja.
 \end{itemize} 
  \cite{quake3shaderManual}
 
-A Quake III Arena játékot vettem alapul a tűz effektek vizsgálatánál (habár a \ref{fig:quake3fire}. ábrán látható felvételeket a játék QuakeJs portjában készítettem). Ebben robbanás és fáklya animáció is fellelhető volt. A két effekt megjelenítési módja közt csupán annyi különbséget véltem felfedezni, hogy amíg a robbanást sprite alapon ábrázolták, addig a fáklyák tüze csupán két, egymásra merőleges animált billboardból áll, mely jól megfigyelhető a \ref{fig:quake3fire}. ábrán. 
+A Quake III Arena játékot vettem alapul a tűz effektek vizsgálatánál (habár a \ref{fig:quake3fire}. ábrán látható felvételeket a játék QuakeJs portjában készítettem). Ebben robbanás és fáklya animáció is fellelhető volt. A két effekt megjelenítési módja közt csupán annyi különbséget véltem felfedezni, hogy amíg a robbanást sprite alapon ábrázolták, addig a fáklyák tüze csupán két, egymásra merőleges animált billboardból áll, mely jól megfigyelhető a \ref{fig:quake3fire}. ábrán. Ezen megoldásokból kifolyólag persze szükség van átlászóság használatára is. Füstöt nem kaptak az effektek, de fényt bocsátanak ki. Utóbbi megvalósítása a fáklyák esetén lehetséges statikus fénytérképekkel, de a robbanásokhoz dinamikusan változó fénytérképekre van szükség. Ütközésvizsgálat nem tartozik hozzájuk. Az effektek animációja tehát ismét egy előre meghatározott képsoron alapul. Az elődökhöz képest sokkal valósághűbbnek hatnak, pedig lényegesen kevesebb csúcspont felhasználásával lettek megvalósítva.
 
 \begin{figure}[h]
  \caption{A robbanás és a fáklya tüzének megjelenítése a Quake III Arena játékban.}
@@ -84,7 +84,13 @@ A Quake III Arena játékot vettem alapul a tűz effektek vizsgálatánál (hab�
  \label{fig:quake3fire}
 \end{figure}
 
-% 2004 id tech 4 engine 
+
+\subsection{ id tech 4 engine 2004}
+
+
+
+
+
 % 2004 CryEngine 1 https://github.com/AFCStudio/CRYENGINE-1
 % 2012 Unreal engine 4 
 % 2017 CRYENGINE 5.4.0 https://github.com/CRYTEK/CRYENGINE
