@@ -86,19 +86,24 @@ A Quake III Arena játékot vettem alapul a tűz effektek vizsgálatánál (hab�
 
 
 \subsection{ id tech 4 engine 2004}
+Az id tech 3 nagy részét átírva született meg az id tech 4 engine, mely 2004-ben mutatkozott be a nagyközönség előtt a Doom II játék motorjaként.
+Nincs elég anyag :(
+
+\subsection{Unreal engine 4 2012}
+Az Epic Games által készített Unreal engine 4 motorot elsőként 2012-ben mutatták be. A motor legfőbb újítása a valós idejű globális megvilágítás megvalósítása volt. Rengeteg új fejlesztői funkcióval látták el, mellyel lényegesen csökkentették a fejlsztési időt. Ilyen például a lehetőség, hogy a motor futása közben frissíthessük c++ kódot. Az új vizuális szkript rendszernek köszönhetően c++ kód írás nélkül is gyorsan fejleszthetővé vált a játék logikai része. Fejlesztés közben a változtatások azonnal megjeleníthetőek és tesztelhetőek. Eredményképpen egy olyan motor született, mely csökkenti az iterációs időt illetve szűkíti az űrt a műszaki művészek, tervezők és programozók között. A motort 2014-ben forráskóddal együtt ingyenesen elérhetővé tették iskolai tanulóknak, és egyetemi hallgatóknak egyaránt. \cite{wikUE4}
+
+A motorhoz alalpos dokumentáció és jónéhány mintaprogram is tartozik. Az id tech 3 óta rengeteget fejlődtek a graifkai gyorsító hardverek, így a modern játékmotorokban modell vagy képsorozatok helyett sokkal elterjedtebbek a részkecske rendszeren alapuló tűz effeketek. Ezekben már fellelhető némi fizikai modellezés is, de a tűz valóságosságát számos apró trükk segítségével érik el. Mivel a részecskék mozgása nincs beleégetve, csupán néhány szabály a sebességükre, irányukra és élettartamukra némi véletlenszerűséggel fűszerezve, a renderelt tűzben nem lehet ismétlődésekre lelni, mely rendkívül sokat javít az effekt valószerűségén. Az Unreal engine dokumentációjában megtalálható egy minta program, melyben egy fáklya tüzét jelenítik meg.
+
+A fáklya tüze részecske rendszeren alapul, és a környezetét is megvilágítja. Az utóbbira létezik egy külön fény modul a motorban, mely a részecskék helyére dinamikus fényforrásokat helyez el. A fény világossága, színe és hatótávolságának sugara paraméterezhető. A valóságosság érdekében egy másik részecske rendszer segítségével izzó parázsdarabkák is felszállnak a tűz lángjaiból. Ezek turbulens hatást keltve mozognak, amit a lokális vektormező funkcióval értek el, mely szintén a motor részét képezi. A mező háromdimenziós vektorait folyadék szimulációs adatokból nyerték ki, ezért olyan meggyőző a részecskék mozgása. Ahogy a részecskék haladnak a vektortérben, az egyes vektorok, melyek közelébe kerülnek, hatással lehetnek a sebességükre. A vektormező forgatásához a VF Rotation Rate modult használták. Mivel a vektormező maga is turbulens hatást gyakorol a részecskékre, de maga a vektormező is mozgásban van, az eredmény egy rendkívül véletlenszerű, természetes turbulens hatást keltő részecske mozgás. \cite{UEngineFireExample}
 
 
-
-
-
-% 2004 CryEngine 1 https://github.com/AFCStudio/CRYENGINE-1
-% 2012 Unreal engine 4 
 % 2017 CRYENGINE 5.4.0 https://github.com/CRYTEK/CRYENGINE
 
 
 % Not open source:
 % 1998 Unreal engine 1 
 % 2002 Unreal engine 2
+% 2004 CryEngine 1 https://github.com/AFCStudio/CRYENGINE-1 <- ez valami teljesen más
 % 2007 Unreal engine 3
 % 2012 Gamebryo 4.0  https://en.wikipedia.org/wiki/Gamebryo
 % RenderWare https://en.wikipedia.org/wiki/RenderWare
