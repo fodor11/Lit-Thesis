@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(Basic_Particle_System)
+project(Sprite_Fire)
 
 # Before CMake 3.1
 add_compile_options(-std=c++11)
@@ -29,6 +29,8 @@ set(SOURCES 	src/main.cpp
 		src/phong.vs
 		src/unifColor-Phong.fs
 		src/unifColor-Phong.vs
+		src/fireShader.fs
+		src/fireShader.vs
 
 		include/model.hpp
 		include/texture.hpp
@@ -40,7 +42,7 @@ set(SOURCES 	src/main.cpp
 		include/sphere.hpp
 		)
 
-add_executable(Basic_Particle_System ${SOURCES})
+add_executable(Sprite_Fire ${SOURCES})
 
 # Find SOIL
 FIND_PATH( SOIL_INCLUDE_DIRS SOIL.h PATH_SUFFIXES SOIL )
@@ -52,4 +54,4 @@ FIND_LIBRARY(FREEGLUT_LIBRARY NAMES freeglut)
 
 include_directories( ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS}  ${FREEGLUT_INCLUDE_DIRS} /include)
 
-target_link_libraries(Basic_Particle_System ${OPENGL_LIBRARIES} ${FREEGLUT_LIBRARY} ${SOIL_LIBRARIES} ${GLEW_LIBRARIES}) 
+target_link_libraries(Sprite_Fire ${OPENGL_LIBRARIES} ${FREEGLUT_LIBRARY} ${SOIL_LIBRARIES} ${GLEW_LIBRARIES}) 

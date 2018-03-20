@@ -1,9 +1,6 @@
 #pragma once
 #include "sky.hpp"
-#include "object.hpp"
-#include "forest.hpp"
 #include "camera.hpp"
-#include "dynamicFog.hpp"
 #include "light.hpp"
 #include "../src/tdogl/Program.h"
 
@@ -15,7 +12,7 @@ public:
 	/// empty
 	~Environment();
 	/// reads and prepares objects and textures (sky, forest, trees, terrain)
-	void initialize(HeightMapLoader* heightMap, Camera* camera, tdogl::Program* skyShaderProgram, std::vector<tdogl::Program*>& allShaders);
+	void initialize(HeightMapLoader* heightMap, Camera* camera, tdogl::Program* skyShaderProgram, std::vector<tdogl::Program*>& allShadersWithLight);
 	/// draws everything
 	void update();
 	/// TODO: adds the value to the overall lightness

@@ -25,6 +25,8 @@ class Camera
 public:
 	/// starts timer, gets heightmap, sets the middle of the map
 	Camera(HeightMapLoader* heightMap, std::vector<tdogl::Program*> shaderPrograms);
+	/// starts timer, gets heightmap, sets the middle of the map
+	Camera(HeightMapLoader* heightMap, std::vector<tdogl::Program*> shaderPrograms, tdogl::Program* fireShader);
 	/// empty
 	~Camera();
 	/// moves the camera
@@ -68,6 +70,7 @@ private:
 	float m_fFarPlane = 2000.f;
 	float m_fViewportAspectRatio = 4.f/3.f;
 	/// shader program
+	tdogl::Program* m_pFireShader = nullptr;
 	std::vector<tdogl::Program*> m_pPrograms;
 	/// rotation in the Y axis
 	//float m_fRotationAngleRadian = -M_PI_2;

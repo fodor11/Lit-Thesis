@@ -11,6 +11,18 @@ Camera::Camera(HeightMapLoader* heightMap, std::vector<tdogl::Program*> shaderPr
 	m_fCameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
 }
 
+Camera::Camera(HeightMapLoader * heightMap, std::vector<tdogl::Program*> shaderPrograms, tdogl::Program * fireShader)
+{
+	m_pFireShader = fireShader;
+#ifndef __linux__
+	QueryPerformanceFrequency(&m_liFrequency);
+#endif
+	m_pPrograms = shaderPrograms;
+	m_pHeightMap = heightMap;
+	m_fCameraX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
+	m_fCameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
+}
+
 Camera::~Camera(){}
 
 void Camera::updateCamera()
@@ -30,6 +42,12 @@ void Camera::updateCamera()
 		shader->setUniform("camera", camera);
 		shader->setUniform("viewPosition", glm::vec3(m_fCameraX, m_fCameraY, m_fCameraZ));
 		shader->stopUsing();
+	}
+	if (m_pFireShader != nullptr)
+	{
+		m_pFireShader->use();
+		m_pFireShader->setUniform("camera", camera);
+		m_pFireShader->stopUsing();
 	}
 }
 

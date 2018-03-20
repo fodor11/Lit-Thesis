@@ -13,6 +13,7 @@
 #include "../include/camera.hpp"
 #include "../include/sky.hpp"
 #include "../include/environment.hpp"
+#include "../include/fire.hpp"
 #include "tdogl/Program.h"
 
 
@@ -28,6 +29,8 @@ using namespace std;
 Camera* camera;
 //environment
 Environment* environment;
+//fire
+BillboardFire* billBoardFire;
 //mouse position
 int mouseX = 0, mouseY = 0;
 //middle of the screen
@@ -39,7 +42,9 @@ float setHeight = 0.f;
 // OGL shader programs
 tdogl::Program* phongProgram = nullptr;
 tdogl::Program* unifColorProgram = nullptr;
+tdogl::Program* fireShader = nullptr;
 std::vector<tdogl::Program*> allShaders;
+std::vector<tdogl::Program*> shadersWithLight;
 //gamma correction
 bool gamma = false;
 
@@ -121,13 +126,16 @@ void display()
 	glLoadIdentity();
 
 	camera->updateCamera();
-	glTranslatef(0.f, setHeight, 0.f);
 
 	//float scale = heightMap->getScale();
 	float maxHeight = heightMap->getMaxHeight();
 
 	heightMap->drawTerrain();
 	environment->update();
+
+	//////////////////// Fire ////////////////////
+	billBoardFire->drawFire();
+	//////////////////// Fire ////////////////////
 
 	printFps();
 
@@ -313,12 +321,20 @@ void loadShaders() {
 	shaders.push_back(tdogl::Shader::shaderFromFile(("phong.fs"), GL_FRAGMENT_SHADER));
 	phongProgram = new tdogl::Program(shaders);
 	allShaders.push_back(phongProgram);
+	shadersWithLight.push_back(phongProgram);
 
 	shaders.clear();
 	shaders.push_back(tdogl::Shader::shaderFromFile(("unifColor-Phong.vs"), GL_VERTEX_SHADER));
 	shaders.push_back(tdogl::Shader::shaderFromFile(("unifColor-Phong.fs"), GL_FRAGMENT_SHADER));
 	unifColorProgram = new tdogl::Program(shaders);
 	allShaders.push_back(unifColorProgram);
+	shadersWithLight.push_back(unifColorProgram);
+
+	shaders.clear();
+	shaders.push_back(tdogl::Shader::shaderFromFile(("fireShader.vs"), GL_VERTEX_SHADER));
+	shaders.push_back(tdogl::Shader::shaderFromFile(("fireShader.fs"), GL_FRAGMENT_SHADER));
+	fireShader = new tdogl::Program(shaders);
+	allShaders.push_back(fireShader);
 
 	std::cout << "Done." << endl;
 }
@@ -327,21 +343,24 @@ void loadObjects() {
 	//Loadheightmap
 	heightMap = new HeightMapLoader("terrain6_256.png", phongProgram);
 	//init cam, sets the current time
-	camera = new Camera(heightMap, allShaders);
+	camera = new Camera(heightMap, shadersWithLight, fireShader);
 	camera->setAspectRatio(((float)midX * 2) / ((float)midY * 2));
 	//set up environment
 	environment = new Environment();
-	environment->initialize(heightMap, camera, unifColorProgram, allShaders);
+	environment->initialize(heightMap, camera, unifColorProgram, shadersWithLight);
+	//set up fire
+	glm::vec3 firePosition(125, heightMap->getHeight(125, 125), 125);
+	billBoardFire = new BillboardFire(fireShader, camera, firePosition, true, 2.f);
 }
 void initialize()
 {
 	cout << "Init ..." << endl;
 	
 	//Alpha functions
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.5f);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_ALPHA_TEST);
+	//glAlphaFunc(GL_GREATER, 0.5f);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 
