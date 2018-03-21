@@ -9,10 +9,7 @@ BillboardFire::BillboardFire(tdogl::Program * shaderProgram, Camera * camera, gl
 	m_pCamera = camera;
 	m_vPosition = position;
 	m_mModel = glm::translate(glm::mat4(), m_vPosition);
-	//if (has2planes)
-	//	m_iNumberOfVertices = 12;
-	//else
-		m_iNumberOfVertices = 6;
+	m_iNumberOfVertices = 6;
 	m_bHas2planes = has2planes;
 	loadVAO();
 }
@@ -21,13 +18,23 @@ BillboardFire::~BillboardFire()
 {
 }
 
+void BillboardFire::drawNormalVAO() 
+{
+	m_pFireShader->setUniform("model", m_mModel);
+	glDrawArrays(GL_TRIANGLES, 0, m_iNumberOfVertices);
+}
+void BillboardFire::drawRotatedVAO() 
+{
+	m_pFireShader->setUniform("model", glm::rotate(m_mModel, glm::radians(90.f), glm::vec3(0, 1, 0)));
+	glDrawArrays(GL_TRIANGLES, 0, m_iNumberOfVertices);
+}
 void BillboardFire::drawFire()
 {
 	// set shader
 	m_pFireShader->use();
 
 	// set the "model" uniform in the vertex shader
-	m_pFireShader->setUniform("model", m_mModel);
+	//m_pFireShader->setUniform("model", m_mModel);
 
 	// set texture
 	glActiveTexture(GL_TEXTURE0);
@@ -36,11 +43,32 @@ void BillboardFire::drawFire()
 
 	// draw
 	glBindVertexArray(m_iFireVAO);
-	glDrawArrays(GL_TRIANGLES, 0, m_iNumberOfVertices);
+
+	
 	if (m_bHas2planes)
 	{
-		m_pFireShader->setUniform("model", glm::rotate(m_mModel, glm::radians(90.f), glm::vec3(0,1,0)));
-		glDrawArrays(GL_TRIANGLES, 0, m_iNumberOfVertices);
+		if (m_pCamera->getX() < m_vPosition.x && m_pCamera->getZ() < m_vPosition.z || m_pCamera->getX() > m_vPosition.x && m_pCamera->getZ() > m_vPosition.z)
+		{
+			drawNormalVAO();
+			drawRotatedVAO();
+		}
+		else if (m_pCamera->getX() < m_vPosition.x && m_pCamera->getZ() > m_vPosition.z || m_pCamera->getX() > m_vPosition.x && m_pCamera->getZ() < m_vPosition.z)
+		{
+			drawRotatedVAO();
+			drawNormalVAO();
+		}
+		else if (m_pCamera->getX() == m_vPosition.x)
+		{
+			drawRotatedVAO();
+		}
+		else if (m_pCamera->getZ() == m_vPosition.z)
+		{
+			drawNormalVAO();
+		}
+	}
+	else
+	{
+		drawNormalVAO();
 	}
 
 	// unbind everything
@@ -48,7 +76,7 @@ void BillboardFire::drawFire()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	m_pFireShader->stopUsing();
 
-	//load next frame
+	// load next frame
 	m_fElapsedTime += m_pCamera->getElapsedTime();
 	if (m_fElapsedTime >= 3.0)
 	{

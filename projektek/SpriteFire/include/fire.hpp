@@ -34,6 +34,9 @@ private:
 
 	void loadVAO();
 
+	void drawNormalVAO();
+	void drawRotatedVAO();
+
 	/// Calculates the vertices for the billboard
 	std::vector<glm::vec3> calculateBillboardVertices();
 	int m_iNumberOfVertices;
