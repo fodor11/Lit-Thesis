@@ -78,16 +78,28 @@ void drawAxis(float nullX, float nullY, float nullZ)
 HeightMapLoader *heightMap;
 
 int g_time = 0;
+int fpsCounter = 0;
+double fpsSum = 0.0;
+double currentFPS = 0.0;
+int timeSinceLastUpdate = 0;
+/// calculates fps every frame
 double calcFps() 
 {
 	int now = glutGet(GLUT_ELAPSED_TIME);
-	double fps = 1 / ((now - g_time) / 1000.0);
+	int passedTime = (now - g_time);
+	double fps = 1 / (passedTime / 1000.0);
 	g_time = now;
+
+	fpsSum += fps;
+	timeSinceLastUpdate += passedTime;
+	fpsCounter++;
 	return fps;
 }
 
+/// prints fps every 0.5 seconds
 void printFps()
 {
+	//////////// OpenGL stuff ////////////
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix(); 
 	glLoadIdentity();
@@ -96,12 +108,23 @@ void printFps()
 	glLoadIdentity();
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
+	//////////// OpenGL stuff ////////////
 
 	glColor3f(1.f, 0.f, 0.f);
 	glRasterPos2f(0.6f, -0.9f);
 
+	calcFps();
+
+	if (timeSinceLastUpdate > 500)
+	{
+		currentFPS = fpsSum / fpsCounter;
+		fpsCounter = 0;
+		fpsSum = 0.0;
+		timeSinceLastUpdate = 0;
+	}
+
     std::stringstream fpsStream;
-    fpsStream << "fps: " << calcFps();
+    fpsStream << "fps: " << currentFPS;
     std::string fpsString = fpsStream.str();
 
 	for (int i = 0; i < strlen(fpsString.c_str()); i++)
@@ -109,6 +132,7 @@ void printFps()
 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, fpsString[i]);
 	}
 
+	//////////// OpenGL stuff ////////////
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f, 1.0f, 1.0f);
 	//glEnable(GL_LIGHTING);
@@ -116,6 +140,7 @@ void printFps()
 	glPopMatrix(); 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();	
+	//////////// OpenGL stuff ////////////
 }
 
 GLenum error;
