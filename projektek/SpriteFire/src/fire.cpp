@@ -2,7 +2,6 @@
 #include "../include/texture.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
-
 BillboardFire::BillboardFire(tdogl::Program * shaderProgram, Camera * camera, glm::vec3 position, bool has2planes, float scale)
 {
 	m_fScale = scale;
@@ -10,9 +9,9 @@ BillboardFire::BillboardFire(tdogl::Program * shaderProgram, Camera * camera, gl
 	m_pCamera = camera;
 	m_vPosition = position;
 	m_mModel = glm::translate(glm::mat4(), m_vPosition);
-	if (has2planes)
-		m_iNumberOfVertices = 12;
-	else
+	//if (has2planes)
+	//	m_iNumberOfVertices = 12;
+	//else
 		m_iNumberOfVertices = 6;
 	m_bHas2planes = has2planes;
 	loadVAO();
@@ -38,6 +37,11 @@ void BillboardFire::drawFire()
 	// draw
 	glBindVertexArray(m_iFireVAO);
 	glDrawArrays(GL_TRIANGLES, 0, m_iNumberOfVertices);
+	if (m_bHas2planes)
+	{
+		m_pFireShader->setUniform("model", glm::rotate(m_mModel, glm::radians(90.f), glm::vec3(0,1,0)));
+		glDrawArrays(GL_TRIANGLES, 0, m_iNumberOfVertices);
+	}
 
 	// unbind everything
 	glBindVertexArray(0);
@@ -54,6 +58,11 @@ void BillboardFire::drawFire()
 
 		m_fElapsedTime = 0;
 	}
+}
+
+void BillboardFire::setRotation(float radians)
+{
+	m_mModel = glm::rotate(glm::translate(glm::mat4(), m_vPosition), radians, glm::vec3(0, 1, 0));
 }
 
 void BillboardFire::loadVAO()
@@ -106,16 +115,16 @@ std::vector<glm::vec3> BillboardFire::calculateBillboardVertices()
 	vertices.push_back(glm::vec3(halfWidth, 0, 0));      // 4
 	vertices.push_back(glm::vec3(halfWidth, height, 0)); // 2
 
-	if (m_bHas2planes)
-	{
-		// second plane rotated by 90 degrees
-		vertices.push_back(glm::vec3(0, 0, -halfWidth));     // 1
-		vertices.push_back(glm::vec3(0, height, halfWidth)); // 2
-		vertices.push_back(glm::vec3(0, height, -halfWidth));// 3
-		vertices.push_back(glm::vec3(0, 0, -halfWidth));     // 1
-		vertices.push_back(glm::vec3(0, 0, halfWidth));      // 4
-		vertices.push_back(glm::vec3(0, height, halfWidth)); // 2
-	}
+	//if (m_bHas2planes)
+	//{
+	//	// second plane rotated by 90 degrees
+	//	vertices.push_back(glm::vec3(0, 0, -halfWidth));     // 1
+	//	vertices.push_back(glm::vec3(0, height, halfWidth)); // 2
+	//	vertices.push_back(glm::vec3(0, height, -halfWidth));// 3
+	//	vertices.push_back(glm::vec3(0, 0, -halfWidth));     // 1
+	//	vertices.push_back(glm::vec3(0, 0, halfWidth));      // 4
+	//	vertices.push_back(glm::vec3(0, height, halfWidth)); // 2
+	//}
 	
 	return vertices;
 }
@@ -148,15 +157,15 @@ std::vector<glm::vec2> BillboardFire::calculateNextTextureCoordinates()
 	textureCoordinates.push_back(second);  //2
 
 
-	if (m_bHas2planes)
-	{
-		textureCoordinates.push_back(first);   //1
-		textureCoordinates.push_back(second);  //2
-		textureCoordinates.push_back(third);   //3
-		textureCoordinates.push_back(first);   //1
-		textureCoordinates.push_back(fourth);  //4
-		textureCoordinates.push_back(second);  //2
-	}
+	//if (m_bHas2planes)
+	//{
+	//	textureCoordinates.push_back(first);   //1
+	//	textureCoordinates.push_back(second);  //2
+	//	textureCoordinates.push_back(third);   //3
+	//	textureCoordinates.push_back(first);   //1
+	//	textureCoordinates.push_back(fourth);  //4
+	//	textureCoordinates.push_back(second);  //2
+	//}
 
 	// Next frame
 	if (++m_iActualFrame == m_iNumberOfFrames)
@@ -165,4 +174,46 @@ std::vector<glm::vec2> BillboardFire::calculateNextTextureCoordinates()
 	}
 
 	return textureCoordinates;
+}
+
+SpriteFire::SpriteFire(tdogl::Program * shaderProgram, Camera * camera, glm::vec3 position, float scale)
+{
+	m_pBillboardFire = new BillboardFire(shaderProgram, camera, position, false, scale);
+	m_vPosition = position;
+	m_pCamera = camera;
+}
+
+SpriteFire::~SpriteFire()
+{
+}
+
+void SpriteFire::drawFire()
+{
+	m_pBillboardFire->setRotation(calculateRotation());
+	m_pBillboardFire->drawFire();
+}
+
+float SpriteFire::calculateRotation()
+{
+	float angle = 0.f;
+	glm::vec2 cameraPos(m_pCamera->getX(), m_pCamera->getZ());
+	glm::vec2 firePos(m_vPosition.x, m_vPosition.z);
+
+	// the vector pointing from the fire to the camera
+	glm::vec2 eye = glm::normalize(cameraPos - firePos);
+
+	float cosAlpha = glm::dot(eye, glm::vec2(0.f, -1.f)); // cosine of the angle with the Z axis
+
+	// Angle between vetors is <= 180, so if the camera's x coordinate is grater than the fire's, 
+	// then we need to rotate the fire by (-1) * angle
+	if (cameraPos.x < firePos.x)
+	{
+		angle = glm::acos(cosAlpha);
+	}
+	else
+	{
+		angle = glm::acos(-cosAlpha);
+	}
+
+	return angle;
 }

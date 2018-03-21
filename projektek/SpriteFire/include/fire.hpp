@@ -6,7 +6,6 @@
 
 class BillboardFire {
 public:
-
 	/// Creates the VAO (scale will be the exact height of the billboard)
 	BillboardFire(tdogl::Program* shaderProgram, Camera* camera, glm::vec3 position, bool has2planes = false, float scale = 1.f);
 
@@ -15,6 +14,9 @@ public:
 
 	/// Draws fire
 	void drawFire();
+
+	/// Sets the angle of the rotation along the Y axis
+	void setRotation(float radians);
 
 private:
 	tdogl::Program* m_pFireShader;
@@ -49,22 +51,18 @@ private:
 class SpriteFire {
 public:
 	/// Creates the VAO
-	SpriteFire(tdogl::Program* shaderProgram, Camera* camera, glm::vec3 position);
-
+	SpriteFire(tdogl::Program* shaderProgram, Camera* camera, glm::vec3 position, float scale = 1.f);
+	/// Empty
 	~SpriteFire();
 
 	/// Draws fire
 	void drawFire();
 
-	/// Sets the scale for the fire (scale will be the exact height)
-	void setScale(float scale);
-
 private:
-	tdogl::Program* m_pFireShader;
-	Camera* m_pCamera;
-	glm::mat4 m_mModel = glm::mat4();
-	glm::vec3 m_vPosition = glm::vec3();
-	float m_fScale = 1.f;
+	BillboardFire* m_pBillboardFire;
 
-	BillboardFire* m_pBillboardFire();
+	/// Calculates the angle (in radians) to rotate the fire, so that it faces the camera
+	float calculateRotation();
+	glm::vec3 m_vPosition;
+	Camera* m_pCamera;
 };

@@ -31,6 +31,7 @@ Camera* camera;
 Environment* environment;
 //fire
 BillboardFire* billBoardFire;
+SpriteFire* spriteFire;
 //mouse position
 int mouseX = 0, mouseY = 0;
 //middle of the screen
@@ -135,6 +136,7 @@ void display()
 
 	//////////////////// Fire ////////////////////
 	billBoardFire->drawFire();
+	spriteFire->drawFire();
 	//////////////////// Fire ////////////////////
 
 	printFps();
@@ -349,8 +351,10 @@ void loadObjects() {
 	environment = new Environment();
 	environment->initialize(heightMap, camera, unifColorProgram, shadersWithLight);
 	//set up fire
-	glm::vec3 firePosition(125, heightMap->getHeight(125, 125), 125);
-	billBoardFire = new BillboardFire(fireShader, camera, firePosition, true, 2.f);
+	glm::vec3 firePosition1(125, heightMap->getHeight(125, 125), 125);
+	billBoardFire = new BillboardFire(fireShader, camera, firePosition1, true, 2.f);
+	glm::vec3 firePosition2(127, heightMap->getHeight(127, 125), 125);
+	spriteFire = new SpriteFire(fireShader, camera, firePosition2, 2.f);
 }
 void initialize()
 {
@@ -361,6 +365,7 @@ void initialize()
 	//glAlphaFunc(GL_GREATER, 0.5f);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 
