@@ -43,7 +43,7 @@ void BillboardFire::drawFire()
 
 	// draw
 	glBindVertexArray(m_iFireVAO);
-
+	glDisable(GL_DEPTH_TEST);
 	
 	if (m_bHas2planes)
 	{
@@ -71,6 +71,8 @@ void BillboardFire::drawFire()
 		drawNormalVAO();
 	}
 
+	glEnable(GL_DEPTH_TEST);
+
 	// unbind everything
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -91,6 +93,11 @@ void BillboardFire::drawFire()
 void BillboardFire::setRotation(float radians)
 {
 	m_mModel = glm::rotate(glm::translate(glm::mat4(), m_vPosition), radians, glm::vec3(0, 1, 0));
+}
+
+glm::vec3 BillboardFire::getPosition()
+{
+	return m_vPosition;
 }
 
 void BillboardFire::loadVAO()
@@ -219,6 +226,11 @@ void SpriteFire::drawFire()
 {
 	m_pBillboardFire->setRotation(calculateRotation());
 	m_pBillboardFire->drawFire();
+}
+
+glm::vec3 SpriteFire::getPosition()
+{
+	return m_pBillboardFire->getPosition();
 }
 
 float SpriteFire::calculateRotation()

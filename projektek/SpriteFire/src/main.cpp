@@ -160,8 +160,18 @@ void display()
 	environment->update();
 
 	//////////////////// Fire ////////////////////
-	billBoardFire->drawFire();
-	spriteFire->drawFire();
+	float billboardDist = glm::distance(billBoardFire->getPosition(), camera->getPosition());
+	float spriteDist= glm::distance(spriteFire->getPosition(), camera->getPosition());
+	if (billboardDist > spriteDist)
+	{
+		billBoardFire->drawFire();
+		spriteFire->drawFire();
+	}
+	else
+	{
+		spriteFire->drawFire();
+		billBoardFire->drawFire();
+	}
 	//////////////////// Fire ////////////////////
 
 	printFps();

@@ -53,6 +53,8 @@ public:
 	float getY() const;
 	/// returns the Z coordinate of the camera position
 	float getZ() const;
+	/// returns the position of the camera
+	glm::vec3 getPosition();
 	/// returns the height of the camera
 	float getCameraHeight() const;
 	/// returns elapsed time

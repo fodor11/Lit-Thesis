@@ -18,6 +18,9 @@ public:
 	/// Sets the angle of the rotation along the Y axis
 	void setRotation(float radians);
 
+	/// Returns the position of the fire
+	glm::vec3 getPosition();
+
 private:
 	tdogl::Program* m_pFireShader;
 	Camera* m_pCamera;
@@ -60,6 +63,9 @@ public:
 
 	/// Draws fire
 	void drawFire();
+
+	/// Returns the position of the fire
+	glm::vec3 getPosition();
 
 private:
 	BillboardFire* m_pBillboardFire;

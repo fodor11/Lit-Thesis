@@ -120,6 +120,11 @@ float Camera::getZ() const
 	return m_fCameraZ;
 }
 
+glm::vec3 Camera::getPosition()
+{
+	return glm::vec3(m_fCameraX, m_fCameraY, m_fCameraZ);
+}
+
 float Camera::getCameraHeight() const
 {
 	return m_fCameraHeight;
