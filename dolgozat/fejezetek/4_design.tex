@@ -1,3 +1,20 @@
 \Chapter{Tűz modellek}
 
 % TODO: Leírni, hogy milyen saját tűzmodellek implementálására fog majd sor kerülni!
+
+\section{2 dimenziós tűz mozgó textúra segítségével}
+A legegyszerűbb, legrégebb óta használt megjelenítési módszer 2D-s textúrák felhasználásával készül. Ebben fizikai modellek nem igazán kapnak helyet, leginkább a látványvilág tervezőinek ad munkát. A módszer leginkább egy tűzről készült videó felvétel ismételt lejátszásához hasonlítható. A tűz bizonyos állapotait egy-egy képen ábrázolják, majd ezeket a képeket egymás után megjelenítik, ezzel imitálva a tűz mozgását. Minél több állapot van megörökítve, annál folyékonyabb lesz az animáció. Az utolsó állapotnak egyben az első állapotot megelőző képet kell festenie, ugyanis a képsorozatot egymás után, folyamatosan játszuk le, tehát az utolsó képet az első kép fogja követni. 
+
+% mire húzzuk rá őket, mi az a billboard
+
+Az állapotok tárolása történhet külön-külön képeken, azaz minden állapot egy külön textúrán szerepel. Ekkor a könnyű felhasználhatóság érdekében érdemes bevezetni valamilyen elnevezési konvenciót a fájlok neveire, amelyből lehet következtetni a sorrendjükre, és olyan elnevezéseket választani, melyeket ciklusban könnyen elő lehet állítani, például campfire1.png, campfire2.png, stb. Ekkor a kirajzolásnál a csúcspontokhoz tartozó textúra koordináták nem változnak, hiszen jobb esetben minden képen ugyanazon a pozíción helyezkedik el a megjelenítendő kép. Az animációhoz viszont megadott időközönként a textúra azonosítót kell változtatni, hogy mindig a soron következő állapotot kössük a kirajzoláshoz.
+
+% egy textúrán tároljuk mindet
+
+% paraméterek?
+
+% billboard vs sprite
+
+% átlátszóság kezelése
+
+\section{3 dimenziós tűz részecske rendszerrel}

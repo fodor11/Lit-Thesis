@@ -2,3 +2,19 @@
 
 % TODO: Ide kellene sorban bemutatni az implementációkat!
 
+\section{Fejlesztői környezet}
+
+\subsection{OpenGL}
+Az OpenGL egy platform- és nyelvfüggetlen alkalmazásprogramozási felület (API) 2 és 3D-s vektorgrafikus megjelenítéshez. Az API használatán keresztül elérhetjük a grafikus kártyát, így hardveresen gyorsított megjelenítést valósíthatunk meg a számítógépen. A Silicon Graphics Inc. kezdte fejleszteni, majd 1992-ben adták ki először. Széles körben alkalmazzák az iparban, többek között számítógéppel segített tervezésben (CAD), virtuális valóságokban, tudományos vizualizációk során, információ szemléltetésben, repülő szimulációkban és végül, de nem utolsó sorban a számítógépes játékokban. 2006 óta a nonprofit Khronos csoport vette át a fejlesztését. \cite{wikiOGL}
+
+\subsection{Freeglut}
+Az OpenGL Utility Toolkit (GLUT) egy olyan platformfüggetlen könyvtár, amely gondoskodik a rendszerspecifikus feladatokról, melyekre ablak kezelés, OpenGL kontextusok inícializálása és bemeneti események (billentyűzet, egér) kezelése esetén van szükség. Használata gyorsan elterjedt, ugyanis egyszerű, széles körben elérhető és hordozható volt. Azonban 1998 augusztusa óta nem fejlesztették tovább, így a kód elöregedett. A FreeGLUT egy ingyenes, nyílt forráskódú alternatíva ehhez. Továbbra is fejlesztés alatt áll, és a GLUT-hoz képest több funkcióval, és kevesebb hibával rendelkezik.
+
+\subsection{OpenGL Extension Wrangler Library (GLEW)}
+A GLEW egy platformfüggetlen C/C++ könyvtár, amely segíti az OpenGL bővítmények (extensions) lekérdezését és betöltését. Futásidőben megállapítja, hogy az adott célhardveren mely OpenGL bővítmények támogatottak. Az összes bővítményt kigyűjti egyetlen, a számítógép által generált header fájlba, mely a hivatalos bővítmény listából készül. Több operációs rendszeren is tesztelték, többek között Windows-on, Linux-on, Mac OS X-en, FreeBSD-n, Irix-en és Solaris-on. A 2.1.0 verzió már az OpenGL 4.6-os verzióját is támogatja. 
+
+\subsection{OpenGL Mathematics}
+Az OpenGL Mathematics (GLM) egy OpenGL Shading Language (GLSL) specifikációkon alapuló, csak header fájlokból álló C++ könyvtár a grafikus szoftverekhez. Olyan osztályokkal és függvényekkel szolgál, melyek elnevezési konvenciói és funkciói megegyeznek a GLSL-ben találhatókkal, íg aki a GLSL-t ismeri, az tudja használni a GLM-et is. Ezen felül azonban olyan bővítmény rendszerrel is bír, mely szintén megfelel a GLSL bővítmény konvencióknak, és ez további képességekkel szolgál: mátrix transzformációk, random számok, zaj, stb.
+
+\subsection{Simple OpenGL Image Library}
+A Simple OpenGL Image Library (SOIL) egy platformfüggetlen C könyvtár, melyet elsősorban textúrák betöltésére használhatunk. Elvégzi a szükséges lépéseket, melyeket az OpenGL igényel textúrák előkészítésénél. A könyvtár segítségével nem csak betölteni, hanem menteni is lehet képeket. Mivel kis méretű, első sorban statikus könyvtárként való használatra szánták. Tesztelték Windows-on, Linux-on és Mac-en. 

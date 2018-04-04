@@ -96,7 +96,8 @@ double calcFps()
 	return fps;
 }
 
-/// prints fps every 0.5 seconds
+/// prints fps every refreshRate/1000 seconds
+int refreshRate = 5000;
 void printFps()
 {
 	//////////// OpenGL stuff ////////////
@@ -115,7 +116,7 @@ void printFps()
 
 	calcFps();
 
-	if (timeSinceLastUpdate > 500)
+	if (timeSinceLastUpdate > refreshRate)
 	{
 		currentFPS = fpsSum / fpsCounter;
 		fpsCounter = 0;
