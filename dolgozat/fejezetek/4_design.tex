@@ -3,18 +3,41 @@
 % TODO: Leírni, hogy milyen saját tűzmodellek implementálására fog majd sor kerülni!
 
 \section{2 dimenziós tűz mozgó textúra segítségével}
-A legegyszerűbb, legrégebb óta használt megjelenítési módszer 2D-s textúrák felhasználásával készül. Ebben fizikai modellek nem igazán kapnak helyet, leginkább a látványvilág tervezőinek ad munkát. A módszer leginkább egy tűzről készült videó felvétel ismételt lejátszásához hasonlítható. A tűz bizonyos állapotait egy-egy képen ábrázolják, majd ezeket a képeket egymás után megjelenítik, ezzel imitálva a tűz mozgását. Minél több állapot van megörökítve, annál folyékonyabb lesz az animáció. Az utolsó állapotnak egyben az első állapotot megelőző képet kell festenie, ugyanis a képsorozatot egymás után, folyamatosan játszuk le, tehát az utolsó képet az első kép fogja követni. 
+
+A legegyszerűbb, legrégebb óta használt megjelenítési módszer 2D-s textúrák felhasználásával készül. Ebben fizikai modellek nem igazán kapnak helyet, leginkább a látványvilág tervezőinek ad munkát. A módszer leginkább egy tűzről készült videó felvétel ismételt lejátszásához hasonlítható. A tűz bizonyos állapotait egy-egy képen ábrázolják, majd ezeket a képeket egymás után megjelenítik, ezzel imitálva a tűz mozgását. Minél több állapot van megörökítve, annál folyékonyabb lesz az animáció. Az utolsó állapotnak egyben az első állapotot megelőző képet kell festenie, ugyanis a képsorozatot egymás után, folyamatosan játszuk le, tehát az utolsó képet az első kép fogja követni.
 
 % mire húzzuk rá őket, mi az a billboard
+Ahhoz, hogy a textúrákat megjelenítsük, szükség van egy térbeli objektumra, amelyre a képet ráhúzzuk. Mivel egy egyszerű háromszögre nem lehet úgy ráhúzni a textúrát, hogy minden látszódjon, de mégse torzuljon a kép, célszerű egy sík téglalapot létrehozni, mely oldalainak az aránya egyezik a képek oldalainak arányával. Ezt legegyszerűbben két háromszög segítségével írhatjuk le, melyek 2-2 pontja értelemszerúen fedi egymást. Minden ponthoz meg kell határozni az oda illeszkedő textúra koordinátát. Érdemes a négyzetet úgy definiálni, hogy a koordinátarendszer origója az alsó él felezőpontjára essen, így az y tengely mentén történő forgatások esetén nem változik az objektum közepének a pozíciója. A továbbiakban az ilyen négyszögletű objektumokat nevezem billboard-nak.
 
+% külön-külön textúrán tároljuk az állapotokat
 Az állapotok tárolása történhet külön-külön képeken, azaz minden állapot egy külön textúrán szerepel. Ekkor a könnyű felhasználhatóság érdekében érdemes bevezetni valamilyen elnevezési konvenciót a fájlok neveire, amelyből lehet következtetni a sorrendjükre, és olyan elnevezéseket választani, melyeket ciklusban könnyen elő lehet állítani, például campfire1.png, campfire2.png, stb. Ekkor a kirajzolásnál a csúcspontokhoz tartozó textúra koordináták nem változnak, hiszen jobb esetben minden képen ugyanazon a pozíción helyezkedik el a megjelenítendő kép. Az animációhoz viszont megadott időközönként a textúra azonosítót kell változtatni, hogy mindig a soron következő állapotot kössük a kirajzoláshoz.
 
 % egy textúrán tároljuk mindet
-
-% paraméterek?
+Egy másik lehetőség az állapotok tárolására, hogy minden képet egyetlen textúrán ábrázolunk. Az állapotok sorrendben helyezkednek el egymás után, akár több sorban is. Mindegyik ugyanakkora helyet foglal el, hogy meg lehessen határozni az egyes képek pozícióját. Ez nagyban leegyszerűsíti a tárolást, hiszen csak egyetlen textúrát kell menteni. A betöltés is leegyszerűsödik, és nem kell különböző textúra azonosítókat tárolni, illetve váltogatni őket a kirajzolásnál. Azonban a textúra koordináták megadása lényegesen nehezebb lesz, hiszen nem a $(0, 0)$; $(0, 1)$; $(1, 0)$; $(1, 1)$ koordinátákat kell kiosztani, hanem meg kell határozni minden állapot textúráit külön-külön. Erre legtöbbször lehet ciklust írni, viszont az állapotokhoz tartozó textúra koordinátákat külön objektumokba le is kell tárolni, és az animáció megvalósításához bizonyos időközönként ezeket kell cserélgetni.
 
 % billboard vs sprite
 
+% paraméterek?
+Ez a megjelenítési mód nem kecsegtet sok befolyásolható paraméterrel. A billboard méreteit változtathatjuk, amennyiben ez szükséges, erre elegendő egyetlen skála paraméter megadása, amellyel minden pontot felszorzunk (még az eltolás előtt). Ha az adott shader engedi, akkor a szín is változtatható, a shadernek megfelelő paraméterek segítségével. A látványt azonban leginkább az animáció sebességének megválasztása befolyásolja. Mivel általánosságban minden hardver konfiguráció különbözik, nem érdemes a kirajzolt képek száma alapján változtatni az állapotokat, ugyanis ez egy gyorsabb hardver esetén gyorsabb, lassabb harver esetén pedig nyilván lomhább animációt eredményezhet. Ehelyett érdemes az eltelt időt mérni, és a jelenet felbontása (hány képből áll a sorozat) alapján beállítani egy alsó időkorlátot, amely elteltével már a következő állapotot szeretnénk ábrázolni. Kisebb korlát esetén sűrűbben váltakoznak az állapotok, így egy hevesebb égés hatását kelthetjük, nagyobb korlátok esetén pedig csendesebb, tábortűzszerű eredményt kapunk.
+
 % átlátszóság kezelése
+Amennyiben nem szeretnénk látni a megjelenített tűz körül a téglalapot, amely a textúra fennmaradó részéből fakad, valamilyen módszer segítségével a textúrán jelölni kell az átlátszó pixeleket, hogy azt le tudjuk kezelni. Erre szolgál az úgynevezett alfa csatorna az RGBA kódolású képek esetén. Ez a szám megadja, hogy átfedés esetén (pl. a háttérrel) adott pixel színe hogyan olvadjon össze az alatta lévő színnel.  A 0 (0\%) jelenti a teljes átlátszóságot, a 255 (100\%) pedig egyáltalán nem áttűnő. A kettő közti érték esetén kell a háttérben található színnel keverni az adott, előtérben lévő pixel színét, mintha csak színezett üvegen keresztül tekintenénk át. A szebb képsorok kihasználják az alfa csatorna teljes skáláját, hogy eltüntessék a megjelenített tűz körvonalát, és a háttérből is felfedjenek egy keveset, hiszen a tűz a valóságban is áttetsző valamilyen mértékben. Egyszerűbb animációk esetén azonban csak a 0 és 255 értékek segítségével tüntetik el a textúra felesleges részeit. A régebbi grafikus szoftverekben volt ez jellemzőbb. Gépigénye lényegesen kisebb, ám a korai szoftverek esetén még nem létezett alfa csatorna. Így kiválasztottak egy adott színt, amelyet csak az áttetsző pixelekre alkalmaztak, minden más átlátszatlan volt.
 
 \section{3 dimenziós tűz részecske rendszerrel}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
