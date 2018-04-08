@@ -232,7 +232,7 @@ float Camera::calcElapsedTime()
 	QueryPerformanceCounter(&m_liCurrTime);
 	float elapsed = (m_liCurrTime.QuadPart - m_liPrevTime.QuadPart) * 100.f / m_liFrequency.QuadPart;
 #else
-    static int prevTime = glutGet(GLUT_ELAPSED_TIME);
+	static int prevTime = glutGet(GLUT_ELAPSED_TIME);
     int currentTime = glutGet(GLUT_ELAPSED_TIME);
     float elapsed = (float)(currentTime - prevTime) / 1000.0;
     prevTime = currentTime;

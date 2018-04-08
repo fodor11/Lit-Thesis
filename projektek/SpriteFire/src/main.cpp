@@ -25,59 +25,33 @@
 using namespace std;
 
 //Global variables
-//camera object
+// camera object
 Camera* camera;
-//environment
+// heightmap object
+HeightMapLoader *heightMap;
+// environment
 Environment* environment;
-//fire
+// fire
 BillboardFire* billBoardFire;
 SpriteFire* spriteFire;
-//mouse position
+// mouse position
 int mouseX = 0, mouseY = 0;
-//middle of the screen
+// middle of the screen
 int midX=430, midY=320;
-//menu
+// menu
 bool menu = false;
-//for flying around
+// for flying around
 float setHeight = 0.f;
-// OGL shader programs
+// OpenGL shader programs
 tdogl::Program* phongProgram = nullptr;
 tdogl::Program* unifColorProgram = nullptr;
 tdogl::Program* fireShader = nullptr;
 std::vector<tdogl::Program*> allShaders;
 std::vector<tdogl::Program*> shadersWithLight;
-//gamma correction
+// gamma correction
 bool gamma = false;
 
-void drawAxis(float nullX, float nullY, float nullZ)
-{
-	glPushMatrix();
-	glDisable(GL_TEXTURE_2D);
-	glTranslatef(nullX, nullY, nullZ);
-	glLineWidth(10.0f);
-	glBegin(GL_LINES);	
-	//x axis RED
-	GLfloat diffuse_and_ambient[] = { 1,0,0,1 };
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse_and_ambient);
-	glColor3f(1.0f, 0.f, 0.f);  glVertex3f(0.f, 0.f, 0.f);	glVertex3f(3.0f, 0.f, 0.f);
-	//y axis GREEN
-	diffuse_and_ambient[0] = 0;
-	diffuse_and_ambient[1] = 1;
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse_and_ambient);
-	glColor3f(0.0f, 1.0f, 0.f);	glVertex3f(0.f, 0.f, 0.f);	glVertex3f(0.0f, 3.0f, 0.f);
-	//z axis BLUE
-	diffuse_and_ambient[1] = 0;
-	diffuse_and_ambient[2] = 1;
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse_and_ambient);
-	glColor3f(0.0f, 0.f, 1.f);	glVertex3f(0.f, 0.f, 0.f);	glVertex3f(0.0f, 0.f, 3.f);
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-	glPopMatrix();
-}
-
-HeightMapLoader *heightMap;
-
-int g_time = 0;
+int prevTime = 0;
 int fpsCounter = 0;
 double fpsSum = 0.0;
 double currentFPS = 0.0;
@@ -86,9 +60,9 @@ int timeSinceLastUpdate = 0;
 double calcFps() 
 {
 	int now = glutGet(GLUT_ELAPSED_TIME);
-	int passedTime = (now - g_time);
+	int passedTime = (now - prevTime);
 	double fps = 1 / (passedTime / 1000.0);
-	g_time = now;
+	prevTime = now;
 
 	fpsSum += fps;
 	timeSinceLastUpdate += passedTime;
@@ -97,7 +71,7 @@ double calcFps()
 }
 
 /// prints fps every refreshRate/1000 seconds
-int refreshRate = 5000;
+int refreshRate = 2000;
 void printFps()
 {
 	//////////// OpenGL stuff ////////////
