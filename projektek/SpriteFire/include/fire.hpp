@@ -30,6 +30,7 @@ private:
 	float m_fScale;
 	bool m_bHas2planes;
 	float m_fElapsedTime = 0.f;
+	float m_fAnimationSpeed = 3.0f;
 
 	GLuint m_iFireVAO;
 	GLuint m_iTextureID;

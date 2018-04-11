@@ -80,7 +80,7 @@ void BillboardFire::drawFire()
 
 	// load next frame
 	m_fElapsedTime += m_pCamera->getElapsedTime();
-	if (m_fElapsedTime >= 3.0)
+	if (m_fElapsedTime >= m_fAnimationSpeed)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_iFireVBO);
 		std::vector<glm::vec2> textureCoords = calculateNextTextureCoordinates();
@@ -136,29 +136,29 @@ std::vector<glm::vec3> BillboardFire::calculateBillboardVertices()
 	std::vector<glm::vec3> vertices;
 
 	float height = m_fScale;
-	float halfWidth = height / 4.f; // the sprite's height/width ratio is 2:1
+	float quarterWidth = height / 4.f; // the sprite's height/width ratio is 2:1
 
 	// 3 -- 2
 	// |  / |
 	// | /  |
 	// 1 -- 4
 	// triangles: 1 + 2 + 3; 1 + 4 + 2
-	vertices.push_back(glm::vec3(-halfWidth, 0, 0));     // 1
-	vertices.push_back(glm::vec3(halfWidth, height, 0)); // 2
-	vertices.push_back(glm::vec3(-halfWidth, height, 0));// 3
-	vertices.push_back(glm::vec3(-halfWidth, 0, 0));     // 1
-	vertices.push_back(glm::vec3(halfWidth, 0, 0));      // 4
-	vertices.push_back(glm::vec3(halfWidth, height, 0)); // 2
+	vertices.push_back(glm::vec3(-quarterWidth, 0, 0));     // 1
+	vertices.push_back(glm::vec3(quarterWidth, height, 0)); // 2
+	vertices.push_back(glm::vec3(-quarterWidth, height, 0));// 3
+	vertices.push_back(glm::vec3(-quarterWidth, 0, 0));     // 1
+	vertices.push_back(glm::vec3(quarterWidth, 0, 0));      // 4
+	vertices.push_back(glm::vec3(quarterWidth, height, 0)); // 2
 
 	//if (m_bHas2planes)
 	//{
 	//	// second plane rotated by 90 degrees
-	//	vertices.push_back(glm::vec3(0, 0, -halfWidth));     // 1
-	//	vertices.push_back(glm::vec3(0, height, halfWidth)); // 2
-	//	vertices.push_back(glm::vec3(0, height, -halfWidth));// 3
-	//	vertices.push_back(glm::vec3(0, 0, -halfWidth));     // 1
-	//	vertices.push_back(glm::vec3(0, 0, halfWidth));      // 4
-	//	vertices.push_back(glm::vec3(0, height, halfWidth)); // 2
+	//	vertices.push_back(glm::vec3(0, 0, -quarterWidth));     // 1
+	//	vertices.push_back(glm::vec3(0, height, quarterWidth)); // 2
+	//	vertices.push_back(glm::vec3(0, height, -quarterWidth));// 3
+	//	vertices.push_back(glm::vec3(0, 0, -quarterWidth));     // 1
+	//	vertices.push_back(glm::vec3(0, 0, quarterWidth));      // 4
+	//	vertices.push_back(glm::vec3(0, height, quarterWidth)); // 2
 	//}
 	
 	return vertices;
@@ -169,20 +169,14 @@ std::vector<glm::vec2> BillboardFire::calculateNextTextureCoordinates()
 	// calculate column and row numbers for the actual sprite
 	int row = m_iActualFrame / m_iColumns;
 	int column = m_iActualFrame % m_iColumns;
-	//std::cout << "Frame: " << m_iActualFrame << ", row: " << row << ", column: " << column << std::endl;
 
-	// texture coordinates accordint to the vertices (1 + 2 + 3; 1 + 4 + 2)
+	// texture coordinates according to the vertices (1 + 2 + 3; 1 + 4 + 2)
 	std::vector<glm::vec2> textureCoordinates;
 
 	glm::vec2 first(column * m_fColumnstep, (row + 1) * m_fRowstep);
 	glm::vec2 second((column + 1) * m_fColumnstep, row * m_fRowstep);
 	glm::vec2 third(column * m_fColumnstep, row * m_fRowstep);
 	glm::vec2 fourth((column + 1) * m_fColumnstep, (row + 1) * m_fRowstep);
-	//std::cout << "1.: "<< first.x << ", "<< first.y << std::endl;
-	//std::cout << "2.: " << second.x << ", " << second.y << std::endl;
-	//std::cout << "3.: " << third.x << ", " << third.y << std::endl;
-	//std::cout << "4.: " << fourth.x << ", " << fourth.y << std::endl;
-
 
 	textureCoordinates.push_back(first);   //1
 	textureCoordinates.push_back(second);  //2
