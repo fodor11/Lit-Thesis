@@ -53,7 +53,9 @@ Annak érdekében, hogy a kirajzolt jelenetek számításigényéről informáci
 
 
 \section{Kétdimenziós sprite, illetve billboard tűz}
+
 % billboard konstruktor
+\subsection{BillboardFire osztály}
 A két kétdimenziós megvalósítások közül a billboard változat az alapvetőbb, így azzal kezdtem az implemntációt. A BillboardFire osztály konstruktorának meg kell adni a tűz árnyalására készített shader program pointerét, a camera objektum pointerét, illetve a pozíciót, ahol szeretnénk megjeleníteni. Opcionális paraméterként megadható, hogy szeretnénk-e a 90 fokkal elfordítva is kirajzolni, illetve a skála paramétert, amellyel nagyítani vagy kicsinyíteni szeretnénk a tüzet. Mivel az objektum magassága alapártelmezetten 1 lesz, utóbbi paraméterrel tulajdonképpen egyben a magasságát is megadjuk. A konstruktor letárolja ezen paramétereket, majd beállítja a modell transzformációs mátrixot (az egységmátrixot eltolja a pozíció vektorral) és a csúcspontok számát, végül meghívja a loadVAO() metódust.
 
 % LoadVAO()
@@ -99,10 +101,41 @@ A kirajzolást a drawFire metódus végzi. Először be kell állítani a haszn�
 A vertex és fragmet shaderek itt rendkívül egyszerűek. A vertex shader csak a csúcspontokat és a textúra koordinátákat kapja meg a szükséges transzformációs mátrixok mellett. A pontokat továbbadja a fragment shader-nek, a pozíciót (gl\_Position) pedig a kamera és modell mátrixokkal megszorzott homogén koordinátával kibővített (TODO: helyes ez így?) csúcspont helye adja meg. A fragment shader pedig a uniform-ként kapott textúrából a textúra koordináta alapján kiolvasott értéket adja meg a pixel színeként. 
 
 %Sprite osztály
+\subsection{SpriteFire osztály}
+A sprite tűzhöz külön osztályt készítettem. A SpriteFire osztály egyik adattagja BillboardFire típusú, hiszen abban már implementálva van az egyszerű 1 téglalapon alapuló megjelenítés is. A SpriteFire konstruktorának szüksége van a tűzhöz használt shader program, a camera objektum és a tűz megjelenítési pozíciójára is. A skála paraméter itt is opcionális. Ezen paraméterek segítségével inícializálom a BillboardFire adattagot úgy, hogy csak egy felületet rajzoljon ki. A drawFire metódus itt csak beállítja a BillboardFire adattag elfordulását a setRotation metódusával, majd meghívja annak a drawFire metódusát. Az elfordulást a calculateRotation metódus állapítja meg:
+\begin{lstlisting}
+float angle = 0.f;
+glm::vec2 cameraPos(m_pCamera->getX(), m_pCamera->getZ());
+glm::vec2 firePos(m_vPosition.x, m_vPosition.z);
+
+glm::vec2 eye = glm::normalize(cameraPos - firePos);
+
+float cosAlpha = glm::dot(eye, glm::vec2(0.f, -1.f)); 
+
+if (cameraPos.x < firePos.x)
+{
+	angle = glm::acos(cosAlpha);
+}
+else
+{
+	angle = glm::acos(-cosAlpha);
+}
+
+return angle;
+\end{lstlisting}
+Mivel a tűz alap esetben a -Z tengely felé néz, ehhez a tengelyhez kell mérni az elfordulást is. Ehhez szükség van a kamera és a tűz XZ sík menti pozícióira (cameraPos, firePos). Az eye vektor a tűz pozíciójából a kamera pozíciójába bocsátott vektor. Az $\bar{a}$ és $\bar{b}$ vektor által bezárt szög koszinuszát a következő egyenlet alapján kaphatjuk meg: 
+\begin{center}
+$\cos \alpha = \frac{\bar{a} \cdot \bar{b}}{|\bar{a}| \cdot |\bar{b}|}$
+\end{center}
+Amennyiben a két vektor normalizált, azaz a hosszuk egységnyi hosszú, az egyenletben az osztó értéke 1, tehát azt el is hagyhatjuk. Ezért a cosAlpha változó értékéhez elég a két vektor (eye és -Z) skaláris szorzatát venni. Mivel a két vektor által bezárt szög definíció szerint kisebb, vagy egyenlő, mint 180$^{\circ}$, a két pozíció X tengely menti helyzetéhez viszonyítva el kell dönteni, hogy mikor kell a szög -1-szeresével számolni. 
 
 % átlátszóság, mélység puffer
+\subsection{Az átlátszóság kezelése}
 
-%fps
+% fps, pontok száma, 
+\subsection{Számításigény}
+
+% Képek
 
 \section{Háromdimenziós részecskerendszer alapú tűz}
 
