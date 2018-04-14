@@ -43,7 +43,7 @@ void BillboardFire::drawFire()
 
 	// draw
 	glBindVertexArray(m_iFireVAO);
-	glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_DEPTH_TEST);
 	
 	if (m_bHas2planes)
 	{

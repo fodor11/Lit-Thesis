@@ -102,7 +102,9 @@ A vertex és fragmet shaderek itt rendkívül egyszerűek. A vertex shader csak 
 
 %Sprite osztály
 \subsection{SpriteFire osztály}
-A sprite tűzhöz külön osztályt készítettem. A SpriteFire osztály egyik adattagja BillboardFire típusú, hiszen abban már implementálva van az egyszerű 1 téglalapon alapuló megjelenítés is. A SpriteFire konstruktorának szüksége van a tűzhöz használt shader program, a camera objektum és a tűz megjelenítési pozíciójára is. A skála paraméter itt is opcionális. Ezen paraméterek segítségével inícializálom a BillboardFire adattagot úgy, hogy csak egy felületet rajzoljon ki. A drawFire metódus itt csak beállítja a BillboardFire adattag elfordulását a setRotation metódusával, majd meghívja annak a drawFire metódusát. Az elfordulást a calculateRotation metódus állapítja meg:
+A sprite tűzhöz külön osztályt készítettem. A SpriteFire osztály egyik adattagja BillboardFire típusú, hiszen abban már implementálva van az egyszerű 1 téglalapon alapuló megjelenítés is. A SpriteFire konstruktorának szüksége van a tűzhöz használt shader program, a camera objektum és a tűz megjelenítési pozíciójára is. A skála paraméter itt is opcionális. Ezen paraméterek segítségével inícializálom a BillboardFire adattagot úgy, hogy csak egy felületet rajzoljon ki. 
+
+A billboard tűzhöz képest tehát annyi a különbség, hogy az objektum mindig a kamerával szembe fordulva van kirajzolva. A drawFire metódus itt csak beállítja a BillboardFire adattag elfordulását a setRotation metódusával, majd meghívja annak a drawFire metódusát. Az elfordulást a calculateRotation metódus állapítja meg:
 \begin{lstlisting}
 float angle = 0.f;
 glm::vec2 cameraPos(m_pCamera->getX(), m_pCamera->getZ());
@@ -127,10 +129,46 @@ Mivel a tűz alap esetben a -Z tengely felé néz, ehhez a tengelyhez kell mérn
 \begin{center}
 $\cos \alpha = \frac{\bar{a} \cdot \bar{b}}{|\bar{a}| \cdot |\bar{b}|}$
 \end{center}
-Amennyiben a két vektor normalizált, azaz a hosszuk egységnyi hosszú, az egyenletben az osztó értéke 1, tehát azt el is hagyhatjuk. Ezért a cosAlpha változó értékéhez elég a két vektor (eye és -Z) skaláris szorzatát venni. Mivel a két vektor által bezárt szög definíció szerint kisebb, vagy egyenlő, mint 180$^{\circ}$, a két pozíció X tengely menti helyzetéhez viszonyítva el kell dönteni, hogy mikor kell a szög -1-szeresével számolni. 
+Amennyiben a két vektor normalizált, azaz a hosszuk egységnyi hosszú, az egyenletben az osztó értéke 1, tehát azt el is hagyhatjuk ha normalizált vektorokkal számolunk. Ezért a cosAlpha változó értékéhez elég a két vektor (eye és -Z) skaláris szorzatát venni. Mivel a két vektor által bezárt szög definíció szerint kisebb, vagy egyenlő, mint 180$^{\circ}$, a két pozíció X tengely menti helyzetéhez viszonyítva el kell dönteni, hogy mikor kell a szög -1-szeresével számolni. 
 
-% átlátszóság, mélység puffer
+% átlátszóság
 \subsection{Az átlátszóság kezelése}
+Ha a tűz állapotait tároló képen csak teljesen áttetsző, és teljesen átlátszatlan pixelek lennének, akkor az átlátszóságot egy egyszerű OpenGL-es alfa teszt funkció segítségével meg lehetne oldani. Ez a neki megadott paraméterek alapján bizonyos alfa értékek felett kirajzolja az adott pixelt, alatta viszont nem. Színkeverést tehát nem végez, így kicsivel gyorsabb is, mint a blending funkciók.
+
+Az általam letöltött textúra azonban az alfa csatorna teljes skáláját kihasználja, így muszáj valamilyen blending funkciót használni. A blending az OpenGL-ben a fragment shader kimeneti színét (forrás szín) keveri a színbufferben a megfelelő helyen található színnel (cél szín). Ennek működése két, paraméterekkel befolyásolható függvény segítségével adható meg. Mindenek előtt a glEnable(GL\_BLEND) parancs segítségével engedélyezni kell a blending-et.
+
+A glBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha) függvény határozza meg a keveréskor elvégzendő alapműveletet külön az RGB komponenseken, és külön az alfa csatornán. Az én esetemben a forrás és a cél színeket össze kell majd adni, így mindkét paraméternek a GL\_FUNC\_ADD konstanst kell átadni.
+
+A glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha) függvény segítségével adhatjuk meg, hogy mely komponenseket mivel szorozzuk meg az összeadás előtt. Az első két paraméter a forrás és a cél RGB komponenseire utal, az utolsó kettő pedig ezek alfa csatornáira, így a kimeneti színt a következőképpen kaphatjuk meg: 
+\begin{center}
+$\text{OutputRGB} = \text{srcRGB} \cdot \text{forrásRGB} + \text{dstRGB} \cdot \text{célRGB}$
+$\text{OutputAlfa} = \text{srcAlpha} \cdot \text{forrásAlfa} + \text{dstAlpha} \cdot \text{célAlfa}$
+\end{center}
+A cél a tűz megjelenítése során, hogy a tűz pixelének a színe a saját (forrás) alfa komponensével legyen megszorozva, és hogy a [0, 1] tartományon belül maradjon a kimeneti érték, a háttérszínt (cél) az 1 - forrás alfa komponenssel szorozzuk meg. Az alfa csatornák értéke ebben az esetben nem játszik sok szerepet, így a hagyományos blendingnek megfelelően a forrás alfa értéke lesz a kimeneti alfa is. A két függvény tehát a következőképpen fog kinézni:
+\begin{lstlisting}
+glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+	 GL_ZERO, GL_ONE);
+\end{lstlisting}
+
+% Kitakarás, depth buffer probléma
+Így már egészen valósághű eredményt kapunk. Azonban mikor a színbuffert írjuk, gondoskodni kell róla, hogy a színbufferben már minden, a tűz hátterében feltűnő objektum színe jelen legyen.
+
+\begin{wrapfigure}{r}{0.25\textwidth}
+ \caption{Kitakarás a blending után}
+ \centering
+ \includegraphics[width=0.25\textwidth]{kepek/billboardOverlap.png}
+ \label{fig:billboardOverlap}
+\end{wrapfigure}
+ Ha ugyanis valamely objektum még nem került kirajzolásra a háttér elemek közül, akkor a billboard teljesen áttetsző részein sem fog szerepelni, így egy része lehet hogy átlátszósággal lesz kitakarva. Ezt figyelhetjük meg a \ref{fig:billboardOverlap}. ábrán is, ahol a közelebbi sprite korábban kerül kirajzolásra, mint a mögötte lévő. A kirajzolandó objektumokat ezért a kamerától mért távolságuk alapján csökkenő sorrendben kell kirajzolni, azaz a legtávolabbiakkal kell kezdeni. Ezzel az egyszerűbb esetek meg is vannak oldva, azonban ha két objektum keresztezi egymást, mint például a 2 síkból álló billboard (\ref{fig:doubleBillboard}. ábra), akkor nincs olyan kirajzolási sorrend, amely kiküszöbölné a kitakarást . 
+
+\begin{wrapfigure}{l}{0.25\textwidth}
+ \caption{2 síkból álló billboard probléma}
+ \centering
+ \includegraphics[width=0.25\textwidth]{kepek/doubleBillboard1.png}
+ \label{fig:doubleBillboard}
+\end{wrapfigure}
+Erre az egyik megoldás a mélység puffer (depth buffer) írásának kikapcsolása a rajzolás idejére.
 
 % fps, pontok száma, 
 \subsection{Számításigény}
