@@ -32,14 +32,19 @@ private:
 	float m_fElapsedTime = 0.f;
 	float m_fAnimationSpeed = 3.0f;
 
-	GLuint m_iFireVAO;
 	GLuint m_iTextureID;
+
+	GLuint m_iFireVAO;
 	GLuint m_iFireVBO;
+
+	GLuint m_iFireSecondaryVAO;
+	GLuint m_iFireSecondaryVBO;
 
 	void loadVAO();
 
 	void drawNormalVAO();
-	void drawRotatedVAO();
+	void drawSecondary1VAO();
+	void drawSecondary2VAO();
 
 	/// Calculates the vertices for the billboard
 	std::vector<glm::vec3> calculateBillboardVertices();

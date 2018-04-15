@@ -31,8 +31,8 @@ Egy MDL fájlban több textúra is lehet. Minden képkockához külön-külön h
 Tehát a tűznek semmiféle külön fizikai modellezéséről sincs szó (legalábbis valós időben), előre meg van határozva a mozgása képkockákra lebontva. A fáklyák kaphattak pislákoló fényt, ám ez rendkívül lassította a kirajzolást, így többnyire csak olyan helyen lehetett alkalmazni ahol kevés felületet világított meg. Mint az a mellékelt ábrán is látszik, a tűz lángjain nem lehet átlátni, illetve füstképződés sincs. Kipróbálni nem tudtam, de az interneten fellelhető videók alapján arra a következtetésre jutottam, hogy a lánggal való ütközés nincs külön vizsgálva. Azt is sikerült megfigyelnem, hogy amennyiben egyszerre több helyen is meg van jelenítve a láng modellje, mindenhol ugyanaz a modell látszik. Ebből arra lehet következtetni, hogy nem volt több külön betöltött példány, csupán egyetlen egy láng objektum, melyet egyszerre több helyen is megjelenítettek (\ref{fig:quakeTorch}. ábra). Ennek oka a korabeli számítógépek korlátozott memóriájára vezethető vissza. A játék OpenGL-es portjában a gyorsítás érdekében a modelleket DisplayList-ekbe töltötték be (gl\_mesh.c).
 
 \begin{figure}[h]
- \caption{Ugyanazon modell megjelenítése egyszrre több helyen a Quake motorban}
  \includegraphics[width=\textwidth]{kepek/quake_torches2.jpg}
+ \caption{Ugyanazon modell megjelenítése egyszrre több helyen a Quake motorban}
  \label{fig:quakeTorch}
 \end{figure}
 
@@ -42,8 +42,8 @@ Tehát a tűznek semmiféle külön fizikai modellezéséről sincs szó (legal�
 A Quake motor utódjaként született meg a Quake 2 avagy az id tech 2 motor, melyen elsőként az 1997-ben megjelent Quake II játék alapult. Ez a motor már a szoftveres megjelenítés mellett az OpenGL segítségével a megjelenítés hardveres gyorsítását is támogatta. Utóbbinak köszönhetően színezett fény effektusok használata, illetve bilineáris textúra szűrés (4 pont közötti interpoláció) is lehetővé vált. Fénytérképeket itt is használtak, ám ezek már dinamikusan változtathatóak voltak. \cite{wikiQuake2, fsQuake2} Tűz megjelenítés szempontjából a Quake II játékot vizsgáltam, melyben fáklya nem volt, viszont robbanás effekt igen (\ref{fig:quake2explosion}. ábra).
 
 \begin{figure}[h]
- \caption{A robbanás folyamatának néhány szemléltető állomása a Quake II-ben}
  \includegraphics[width=\textwidth]{kepek/quake2explosion9.png}
+ \caption{A robbanás folyamatának néhány szemléltető állomása a Quake II-ben}
  \label{fig:quake2explosion}
 \end{figure}
 
@@ -79,8 +79,8 @@ rgbGen <func>: Segítségével különféle pulzáló effekteket lehet készíte
 A Quake III Arena játékot vettem alapul a tűz effektek vizsgálatánál (habár a \ref{fig:quake3fire}. ábrán látható felvételeket a játék QuakeJs portjában készítettem). Ebben robbanás és fáklya animáció is fellelhető volt. A két effekt megjelenítési módja közt csupán annyi különbséget véltem felfedezni, hogy amíg a robbanást sprite alapon ábrázolták, addig a fáklyák tüze csupán két, egymásra merőleges animált billboardból áll, mely jól megfigyelhető a \ref{fig:quake3fire}. ábrán. Ezen megoldásokból kifolyólag persze szükség van átlászóság használatára is. Füstöt nem kaptak az effektek, de fényt bocsátanak ki. Utóbbi megvalósítása a fáklyák esetén lehetséges statikus fénytérképekkel, de a robbanásokhoz dinamikusan változó fénytérképekre van szükség. Ütközésvizsgálat nem tartozik hozzájuk. Az effektek animációja tehát ismét egy előre meghatározott képsoron alapul. Az elődökhöz képest sokkal valósághűbbnek hatnak, pedig lényegesen kevesebb csúcspont felhasználásával lettek megvalósítva.
 
 \begin{figure}[h]
- \caption{A robbanás és a fáklya tüzének megjelenítése a Quake III Arena játékban.}
  \includegraphics[width=\textwidth]{kepek/quake3fire.png}
+ \caption{A robbanás és a fáklya tüzének megjelenítése a Quake III Arena játékban.}
  \label{fig:quake3fire}
 \end{figure}
 
@@ -101,8 +101,8 @@ A valóságosság érdekében egy másik részecskerendszer segítségével izz�
 A \ref{fig:UE4fire}. ábrán jól látható, hogy a lángok áttetszőek, és habár ebben a minta programban füst nem is tartozik hozzá, hasonló elven egy másik emitter segítségével azt is meg lehetne valósítani. Ütközéstvizsgálat viszont nem tartozik hozzá.
 
 \begin{figure}[h]
- \caption{Az Unreal engine 4 tűz effektje mely a dokumentáció alapján került megvalósításra. \cite{UEngineFireExample}}
  \includegraphics[width=\textwidth]{kepek/UE4flame.png}
+ \caption{Az Unreal engine 4 tűz effektje mely a dokumentáció alapján került megvalósításra. \cite{UEngineFireExample}}
  \label{fig:UE4fire}
 \end{figure}
 

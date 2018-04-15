@@ -26,7 +26,7 @@ Az következő implementációkat egy már elkészült, korábbi projekt keretei
 
 A projekt egy általam készített domborzatot tölt be, melyhez az adatokat különböző képfájlokból olvassa be. A magasságértékeket egy szürkeárnyalatos kép képpontjaiban tároltam, a hozzájuk tartozó nedvesség értékeket pedig egy másik, szintén szürkeárnyalatos képfájlban. A színeket egy olyan képből olvastam ki, ahol az egyik tengely a magasságot, a másik pedig a nedvességet jelölte, így az adott csúcspont színe a magasság és nedvesség értékéből kapható meg. A domborzathoz 260100 darab csúcspontot használtam fel. Az égbolt és a hold is gömb alakú, melyekhez a csúcspontokat, textúra koordinátákat, normál vektorokat és az ezekhez szükséges indexeket is az általam készített Sphere osztály generálja. Az ég 4225, a hold 1089 csócspontból áll. Mindezek megjelnítéséért és aktualizálásáért az Environment osztály felel.
 
-A program így 430 és 460 fps (frame per secundum) között fut, azaz másodpercenként nagyjából ennyiszer rajzolja ki a jelenetet.
+A program így 400 és 450 fps (frame per secundum) között fut, azaz másodpercenként nagyjából ennyiszer rajzolja ki a jelenetet.
 
 \subsection{Textúrák}
 A textúrák betöltéséért, paraméterezéséért, illetve az egyéb információkkal szolgáló képek beolvasásáért a TextureLoader osztályom felel a SOIL könyvtár segítségével. 
@@ -56,7 +56,7 @@ Annak érdekében, hogy a kirajzolt jelenetek számításigényéről informáci
 
 % billboard konstruktor
 \subsection{BillboardFire osztály}
-A két kétdimenziós megvalósítások közül a billboard változat az alapvetőbb, így azzal kezdtem az implemntációt. A BillboardFire osztály konstruktorának meg kell adni a tűz árnyalására készített shader program pointerét, a camera objektum pointerét, illetve a pozíciót, ahol szeretnénk megjeleníteni. Opcionális paraméterként megadható, hogy szeretnénk-e a 90 fokkal elfordítva is kirajzolni, illetve a skála paramétert, amellyel nagyítani vagy kicsinyíteni szeretnénk a tüzet. Mivel az objektum magassága alapártelmezetten 1 lesz, utóbbi paraméterrel tulajdonképpen egyben a magasságát is megadjuk. A konstruktor letárolja ezen paramétereket, majd beállítja a modell transzformációs mátrixot (az egységmátrixot eltolja a pozíció vektorral) és a csúcspontok számát, végül meghívja a loadVAO() metódust.
+A két kétdimenziós megvalósítások közül a billboard változat az alapvetőbb, így azzal kezdtem az implementációt. A BillboardFire osztály konstruktorának meg kell adni a tűz árnyalására készített shader program pointerét, a camera objektum pointerét, illetve a pozíciót, ahol szeretnénk megjeleníteni. Opcionális paraméterként megadható, hogy szeretnénk-e a 90 fokkal elfordítva is kirajzolni, illetve a skála paramétert, amellyel nagyítani vagy kicsinyíteni szeretnénk a tüzet. Mivel az objektum magassága alapártelmezetten 1 lesz, utóbbi paraméterrel tulajdonképpen egyben a magasságát is megadjuk. A konstruktor letárolja ezen paramétereket, majd beállítja a modell transzformációs mátrixot (az egységmátrixot eltolja a pozíció vektorral) és a csúcspontok számát, végül meghívja a loadVAO() metódust.
 
 % LoadVAO()
 Az internetről egy olyan textúrát töltöttem le, melyen egy tűz összes állapota szerepel egy képen. Összesen 32 jelenetből áll majd az animáció, így egészen folyékony hatást kelt. Ezt a loadVAO() metódus a TextureLoader osztály loadMipMappedTexture metódusa segítségével tölti be. 
@@ -66,9 +66,9 @@ A loadVAO() metódus elkészíti a vertex array object-et (VAO). A VAO egy olyan
 
 %calculateBillboardVertices()
 \begin{wrapfigure}{r}{0.25\textwidth}
- \caption{A billboard váza a csúcspontokkal.}
  \centering
  \includegraphics[width=0.25\textwidth]{kepek/billboardFrame.png}
+ \caption{A billboard váza a csúcspontokkal.}
  \label{fig:billboardFrame}
 \end{wrapfigure}
 A pontok meghatározását a calculateBillboardVertices() metódus végzi. A textúrán 4 sorban és 8 oszlopban helyezkednek el rajta az állapotok, tehát egy állapot oldalainak aránya 2:1. Ez azt jelenti hogy a megjelenítésnél egy téglalapra kell ráhúzni képeket. A téglalapot természetesen 2 háromszög alkotja, amint az a \ref{fig:billboardFrame}. ábrán is látszik. 
@@ -95,7 +95,7 @@ A glGenBuffers generál egy VBO-t és az azonosítóját beírja a második para
 A loadVAO metódus tehát betöltött minden szükséges adatot, amely a kirajzoláshoz szükséges.
 
 % DRAW
-A kirajzolást a drawFire metódus végzi. Először be kell állítani a használni kívánt shader-t, majd bind-elni kell a használni kívánt textúrát. Ezt át is kell adni a shader-nek, esetemben a tex uniform-on keresztül. Ezt követően bind-eljük a VAO-t, amelyben a pontok adatait tároljuk. Az átlátszóság kezelése miatt a mélység puffer írását kikapcsoljuk a rajzolás idejére, ennek pontos okára a későbbiekben térek majd ki. Ha csupán egy billboardot szeretnénk kirajzolni, akkor megadjuk a shader-nek a modell mátrixot (amely az eltolást és az esetleges forgatást végzi el a pontokon), majd a glDrawArrays segítségével kirajzoljuk a háromszögeket. Ha szeretnénk 90 fokkal elforgatva is kirajzolni a billboardot, akkor a modell mátrixot még 90 fokkal elforgatjuk a GLM könyvtár rotate metódusának segítségével, ezt ismét átadjuk a shader-nek, eztán pedig megint kirajzoljuk a VAO-t. Az átlátszóság kezelése miatt itt már a sorrendre is figyelni kell, de ezt is a későbbiekben fejtem majd ki. A rajzolások után engedélyezzük a méylség puffer írását, kikapcsoljuk az adott VAO, textúra és shader használatát. A drawFire metódus végén az m\_fElapsedTime adattaghoz hozzáadjuk az előző kirajzolás óta eltelt időt, melyet a camera onjektumtól kérdezhetünk le. Ebben az adattagban számoljuk az előző állapotváltás óta eltelt időt. Amennyiben ez átlépi a határt (m\_fAnimationSpeed), a következő állapot textúra koordinátáit kell betöltenünk. Ehhez bind-elni kell az adott VBO-t, majd a calculateNextTextureCoordinates metódus segítségével előállítani a megfelelő textúra koordinátákat. A buffer tartalmát a glBufferSubData függvény segítségével írhatjuk át. Ezzel a buffer tartalmának egy részét is át lehetne írni, de nekem az egészet át kell. Ennek ellenére is hatásosabb ezt használni a glBufferData helyett, ugyani így a szükséges memória újraallokálását el lehet kerülni. Végül nullázzuk az m\_fElapsedTime adattagot.
+A kirajzolást a drawFire metódus végzi. Először be kell állítani a használni kívánt shader-t, majd bind-elni kell a használni kívánt textúrát. Ezt át is kell adni a shader-nek, esetemben a tex uniform-on keresztül. Ezt követően bind-eljük a VAO-t, amelyben a pontok adatait tároljuk. Ha csupán egy billboardot szeretnénk kirajzolni, akkor megadjuk a shader-nek a modell mátrixot (amely az eltolást és az esetleges forgatást végzi el a pontokon), majd a glDrawArrays segítségével kirajzoljuk a háromszögeket. Ha szeretnénk 90 fokkal elforgatva is kirajzolni a billboardot, akkor a modell mátrixot még 90 fokkal elforgatjuk a GLM könyvtár rotate metódusának segítségével, ezt ismét átadjuk a shader-nek, eztán pedig megint kirajzoljuk a VAO-t. Az átlátszóság kezelése miatt itt már a sorrendre is figyelni kell, de ezt is a későbbiekben fejtem majd ki. A rajzolások után kikapcsoljuk az adott VAO, textúra és shader használatát. A drawFire metódus végén az m\_fElapsedTime adattaghoz hozzáadjuk az előző kirajzolás óta eltelt időt, melyet a camera objektumtól kérdezhetünk le. Ebben az adattagban számoljuk az előző állapotváltás óta eltelt időt. Amennyiben ez átlépi a határt (m\_fAnimationSpeed), a következő állapot textúra koordinátáit kell betöltenünk. Ehhez bind-elni kell az adott VBO-t, majd a calculateNextTextureCoordinates metódus segítségével előállítani a megfelelő textúra koordinátákat. A buffer tartalmát a glBufferSubData függvény segítségével írhatjuk át. Ezzel a buffer tartalmának egy részét is át lehetne írni, de nekem az egészet át kell. Ennek ellenére is hatásosabb ezt használni a glBufferData helyett, ugyani így a szükséges memória újraallokálását el lehet kerülni. Végül nullázzuk az m\_fElapsedTime adattagot.
 
 % shaderek
 A vertex és fragmet shaderek itt rendkívül egyszerűek. A vertex shader csak a csúcspontokat és a textúra koordinátákat kapja meg a szükséges transzformációs mátrixok mellett. A pontokat továbbadja a fragment shader-nek, a pozíciót (gl\_Position) pedig a kamera és modell mátrixokkal megszorzott homogén koordinátával kibővített (TODO: helyes ez így?) csúcspont helye adja meg. A fragment shader pedig a uniform-ként kapott textúrából a textúra koordináta alapján kiolvasott értéket adja meg a pixel színeként. 
@@ -151,30 +151,69 @@ glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
 	 GL_ZERO, GL_ONE);
 \end{lstlisting}
 
-% Kitakarás, depth buffer probléma
-Így már egészen valósághű eredményt kapunk. Azonban mikor a színbuffert írjuk, gondoskodni kell róla, hogy a színbufferben már minden, a tűz hátterében feltűnő objektum színe jelen legyen.
-
-\begin{wrapfigure}{r}{0.25\textwidth}
+% Kitakarás
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/billboardOverlap.png}
  \caption{Kitakarás a blending után}
- \centering
- \includegraphics[width=0.25\textwidth]{kepek/billboardOverlap.png}
  \label{fig:billboardOverlap}
-\end{wrapfigure}
- Ha ugyanis valamely objektum még nem került kirajzolásra a háttér elemek közül, akkor a billboard teljesen áttetsző részein sem fog szerepelni, így egy része lehet hogy átlátszósággal lesz kitakarva. Ezt figyelhetjük meg a \ref{fig:billboardOverlap}. ábrán is, ahol a közelebbi sprite korábban kerül kirajzolásra, mint a mögötte lévő. A kirajzolandó objektumokat ezért a kamerától mért távolságuk alapján csökkenő sorrendben kell kirajzolni, azaz a legtávolabbiakkal kell kezdeni. Ezzel az egyszerűbb esetek meg is vannak oldva, azonban ha két objektum keresztezi egymást, mint például a 2 síkból álló billboard (\ref{fig:doubleBillboard}. ábra), akkor nincs olyan kirajzolási sorrend, amely kiküszöbölné a kitakarást . 
-
-\begin{wrapfigure}{l}{0.25\textwidth}
- \caption{2 síkból álló billboard probléma}
+\end{figure}
+\begin{figure}[h!]
  \centering
- \includegraphics[width=0.25\textwidth]{kepek/doubleBillboard1.png}
+ \includegraphics[width=\textwidth]{kepek/doubleBillboard1.png}
+ \caption{2 síkból álló billboard probléma}
  \label{fig:doubleBillboard}
-\end{wrapfigure}
-Erre az egyik megoldás a mélység puffer (depth buffer) írásának kikapcsolása a rajzolás idejére.
+\end{figure}
+
+Így már egészen valósághű eredményt kapunk. Azonban mikor a színbuffert írjuk, gondoskodni kell róla, hogy a színbufferben már minden, a tűz hátterében feltűnő objektum színe jelen legyen.
+ Ha ugyanis valamely objektum még nem került kirajzolásra a háttér elemek közül, akkor a billboard teljesen áttetsző részein sem fog szerepelni, így egy része lehet hogy átlátszósággal lesz kitakarva. Ezt figyelhetjük meg a \ref{fig:billboardOverlap}. ábrán is, ahol a közelebbi sprite korábban kerül kirajzolásra, mint a mögötte lévő. A kirajzolandó objektumokat ezért a kamerától mért távolságuk alapján csökkenő sorrendben kell kirajzolni, azaz a legtávolabbiakkal kell kezdeni. Ezzel az egyszerűbb esetek meg is vannak oldva, azonban ha két objektum keresztezi egymást, mint például a 2 síkból álló billboard (\ref{fig:doubleBillboard}. ábra), akkor nincs olyan kirajzolási sorrend, amely kiküszöbölné a kitakarást. 
+
+Az egyik megoldás, hogy valamelyik síkot két részre kell bontani a közepénél, így lesz 3 különböző objektum, melyeket már könnyebben sorba lehet rendezni. Hogy a SpriteFire osztály működését ne befolyásoljam, a BillboardFire osztályban a második, elforgatott sík nem az eredeti újrakirajzolásából áll majd elő, hanem egy új VAO-t hozok létre erre a célra, melyet majd két részletben rajzolok ki. Hogy ne kelljen külön forgatni, eleve az YZ síkkal lesz párhuzamos. 
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=0.5\textwidth]{kepek/billboardUVcoords.png}
+ \caption{$(u, v)$ koordináták az Y tengely mentén}
+ \label{fig:billboardUVcoords}
+\end{figure}
+
+A calculateBillboardVertices metódust kibővítettem, hogy amennyiben 2 síkot kell kirajzolni, a további 12 pontot (két külön billboard) is csatolja a visszatérési tárolóba. A pontok sorrendje itt is pontosan úgy van megadva, ahogyan az az eredeti síkon van (\ref{fig:billboardFrame}. ábra). A calculateNextTextureCoordinates metódust is hasonlóképpen egészítettem ki, viszont itt a $(0, y, 0)$ koordinátájú pontok textúra koordinátáit az adott ponttal egy magasságban lévő textúra koordináták közti lineáris interpoláció segítségével lehet megadni (\ref{fig:billboardUVcoords}. ábra). Ezt a 12 pontot szintén csatolja a vektor gyűjteményhez mellyel visszatér.
+
+Tehát ha kétsíkú billboardot kell kirajzolni, akkor a loadVAO metódusban a vertices és a textureCoordinates változók már 6 helyett 18 elemből állnak, melyekből két külön VAO-t kell csinálni. Az eredeti sík VAO-jában csak annyi változás történik, hogy a glBufferData függvény méretre vonatkozó paraméterét nem a vektor gyűjtemény méretéből számoljuk ki, hanem megadjuk, hogy 6-szor kell venni a gyűjtemény egy elemének méretét. Így csupán az első 6 elem kerül bele, ahogy az eddig is történt. A második VAO-t ehhez hasonlóan hozzuk létre, ám a glBufferData második (méret) és harmadik (az első elem pointere) paraméterében meg kell adni, hogy 12 elemet tároljon le a puffer 6-os indexű elemétől kezdve. Ez a csúcspontok VBO-ja esetén a következőképpen néz ki:
+\begin{lstlisting}
+glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(glm::vec3), 
+	&vertices[6], GL_STATIC_DRAW);
+\end{lstlisting}
+
+A drawFire metódus mellé segédmetódusoknak külön elkészítettem a drawNormalVAO, drawSecondary1VAO és drawSecondary2VAO metódusokat. Az első az eredeti síkot rajzolja ki, a második a (szemből nézve) bal oldali ``fél'' billboardot, a harmadik pedig a jobb oldalit. Ezekben csupán a VAO bindelés, valamint a glDrawArrays hívás található. A másodlagos kirajzoló függvények között csupán a glDrawArrays hívás különbözik, az első ugyanis az első 6 elemét, a második pedig a VAO második 6 elemét rajzolja ki (glDrawArrays(GL\_TRIANGLES, 6, 6)). 
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/billboardSorting.png}
+ \caption{Kirajzolási sorrend a ``kétsíkú'' billboard estén}
+ \label{fig:billboardSorting}
+\end{figure}
+A kirajzoláskor a \ref{fig:billboardSorting}. ábrán látható esetek fordulhatnak elő. A piros folt a kamera helyzete, a fekete kereszt a tűz 3 külön kirajzolt billboardját jelképezi. A blending kedvéért a kamerától legtávolabb eső objektumokkal kell kezdeni. A renderelés sorrendjét a számok jelzik. Ez alapján jól látszik, hogy esetemebn a kamera és a tűz pozíciójának Z koordinátáit kell csupán összevetni, és ezek alapján két különböző kirajzolás sorrend lehetséges. 
+Például az első eset (bal szélső kettő) kirajzolása: 
+\begin{lstlisting}
+if (m_pCamera->getZ() < m_vPosition.z)
+{
+	drawSecondary2VAO();
+	drawNormalVAO();
+	drawSecondary1VAO();
+}
+\end{lstlisting}
+Így már kirajzoláskor minden nézőpontből helyes képet kapunk.
+
+Ha egymás mellé kirajzolunk egy sprite és egy kétsíkú billboard objektumot, akkor a következő eredményeket kapjuk: 
+% TODO: képek, megfigyelések
 
 % fps, pontok száma, 
 \subsection{Számításigény}
+A másodpercenként kirajzolt képek számát egy sprite és egy 2 síkú billboard tűz nem befolyásolja, hiszen komolyabb számítást nem kell végeznie a gépnek, összesen csupán $6 \cdot 4 = 24$ pontot kell kirajzolni.
 
-% Képek
 
+%Erre az egyik megoldás lehet a mélység puffer (depth buffer) írásának kikapcsolása a rajzolás idejére. A mélység puffer a színpufferhez hasonlóan pixelenként tárolja az információt. A feladata, hogy a nézőponthoz közelebbi objektumokat ne takarják ki az attól távolabbiak. Ha engedélyezve van a használata, akkor a fragment shader kimeneti értékének a mélységét összeveti a pufferben az annak megfelelő helyen tárolt értékkel. Ha az új kimenet értéke nagyobb, azaz távolabb van a kamerától, akkor nem íródik be az érték sem a mélység, sem a szín pufferbe. Ezt a funkcionalitást a glDepthMask(GL_FALSE) függvény segítségével lehet felfüggeszteni. Ekkor a színeket bármiféle vizsgálat nélkül írja a szín pufferbe.
 \section{Háromdimenziós részecskerendszer alapú tűz}
 
 

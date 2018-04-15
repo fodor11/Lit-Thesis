@@ -46,7 +46,7 @@ private:
 	Light *m_pLight;
 	tdogl::Program *m_pSkyShader;
 	std::vector<tdogl::Program*> m_vAllShaders;
-	bool m_bMoonlight = true;
+	bool m_bMoonlight = false;
 	glm::vec3 m_LightPosition = glm::vec3(-50.f, 450.f, 120.f);
 
 
