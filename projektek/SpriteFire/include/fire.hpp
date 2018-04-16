@@ -33,6 +33,7 @@ private:
 
 	glm::mat4 m_mModel;
 	glm::vec3 m_vPosition;
+	float m_fRotation = 0.f;
 	float m_fScale;
 	bool m_bHas2planes;
 	float m_fElapsedTime = 0.f;

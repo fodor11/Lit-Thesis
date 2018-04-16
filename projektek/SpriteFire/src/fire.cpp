@@ -98,6 +98,7 @@ void BillboardFire::drawFire()
 void BillboardFire::setRotation(float radians)
 {
 	m_mModel = glm::rotate(glm::translate(glm::mat4(), m_vPosition), radians, glm::vec3(0, 1, 0));
+	m_fRotation = radians;
 }
 
 glm::vec3 BillboardFire::getPosition()
@@ -114,6 +115,7 @@ void BillboardFire::DecreaseSpeed()
 {
 	m_fAnimationSpeed += 0.1f;
 }
+
 
 void BillboardFire::loadVAO()
 {
