@@ -21,6 +21,12 @@ public:
 	/// Returns the position of the fire
 	glm::vec3 getPosition();
 
+	/// Increase speed of the fire
+	void IncreaseSpeed();
+
+	/// Decrease speed of the fire
+	void DecreaseSpeed();
+
 private:
 	tdogl::Program* m_pFireShader;
 	Camera* m_pCamera;
@@ -72,6 +78,12 @@ public:
 
 	/// Returns the position of the fire
 	glm::vec3 getPosition();
+
+	/// Increase speed of the fire
+	void IncreaseSpeed();
+
+	/// Decrease speed of the fire
+	void DecreaseSpeed();
 
 private:
 	BillboardFire* m_pBillboardFire;

@@ -105,6 +105,16 @@ glm::vec3 BillboardFire::getPosition()
 	return m_vPosition;
 }
 
+void BillboardFire::IncreaseSpeed()
+{
+	m_fAnimationSpeed -= 0.1f;
+}
+
+void BillboardFire::DecreaseSpeed()
+{
+	m_fAnimationSpeed += 0.1f;
+}
+
 void BillboardFire::loadVAO()
 {
 	// Load fire spritesheet
@@ -267,6 +277,16 @@ void SpriteFire::drawFire()
 glm::vec3 SpriteFire::getPosition()
 {
 	return m_pBillboardFire->getPosition();
+}
+
+void SpriteFire::IncreaseSpeed()
+{
+	m_pBillboardFire->IncreaseSpeed();
+}
+
+void SpriteFire::DecreaseSpeed()
+{
+	m_pBillboardFire->DecreaseSpeed();
 }
 
 float SpriteFire::calculateRotation()

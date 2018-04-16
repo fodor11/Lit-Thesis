@@ -205,12 +205,53 @@ if (m_pCamera->getZ() < m_vPosition.z)
 \end{lstlisting}
 Így már kirajzoláskor minden nézőpontből helyes képet kapunk.
 
-Ha egymás mellé kirajzolunk egy sprite és egy kétsíkú billboard objektumot, akkor a következő eredményeket kapjuk: 
-% TODO: képek, megfigyelések
+Ha egymás mellé kirajzolunk egy sprite és egy kétsíkú billboard objektumot, akkor az \ref{fig:billboardFinal1}. ábrán látható eredményt kapjuk.
+
+Az \ref{fig:billboardFinal2}. ábrán megfigyelhetjük, hogy a helyes sorrendbeli kirajzolásnak köszönhetően a blending szép kitakarást eredményez minden irányból.
+
+Az \ref{fig:billboardFinal3}. ábrán mutatkozik a kétsíkú billboard egyik gyengesége. Ha ugyanazt a textúrasorozatot használjuk fel, akkor bizonyos szögekből a kép ugyanazon fele kerül egymással szembe, mely feltűnő lehet. Erre egy megoldás lehet a második síkra egy külön textúra sorozat készítése.
+
+Az \ref{fig:billboardFinal4}. ábrán pedig megfigyelhető a kétsíkú billboard másik gyengepontja. Ha valamelyik síkra nagy szögben tekintünk, akkor feltűnővé válhat a körvonala, rombolva ezzel a látványt.
+
+Az \ref{fig:billboardFinal5}. ábrán enyhe felülnézetből látszik igazán a két megjelenítési mód közötti különbség. Ebből a perspektívából egyik sem szerepel túl jól.
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=0.7\textwidth]{kepek/billboardFinal1.png}
+ \caption{Bal oldalon a kétsíkú billboard, jobb oldalon a sprite látszik.}
+ \label{fig:billboardFinal1}
+\end{figure}
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=0.7\textwidth]{kepek/billboardFinal2.png}
+ \caption{Bal oldalon a sprite takar ki, jobb oldalon pedig a billboard}
+ \label{fig:billboardFinal2}
+\end{figure}
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=0.7\textwidth]{kepek/billboardFinal3.png}
+ \caption{A bal oldali kép esztétikusabb, a jobb oldalin feltűnő a tükröződés}
+ \label{fig:billboardFinal3}
+\end{figure}
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=0.7\textwidth]{kepek/billboardFinal4.png}
+ \caption{Bal oldalon a sprite takar ki, jobb oldalon pedig a billboard}
+ \label{fig:billboardFinal4}
+\end{figure}
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=0.7\textwidth]{kepek/billboardFinal5.png}
+ \caption{Bal oldalon a sprite, jobb oldalon a billboard tűz}
+ \label{fig:billboardFinal5}
+\end{figure}
+% Videón körbejárás, és a sebesség paraméter hatása
 
 % fps, pontok száma, 
 \subsection{Számításigény}
 A másodpercenként kirajzolt képek számát egy sprite és egy 2 síkú billboard tűz nem befolyásolja, hiszen komolyabb számítást nem kell végeznie a gépnek, összesen csupán $6 \cdot 4 = 24$ pontot kell kirajzolni.
+
+
 
 
 %Erre az egyik megoldás lehet a mélység puffer (depth buffer) írásának kikapcsolása a rajzolás idejére. A mélység puffer a színpufferhez hasonlóan pixelenként tárolja az információt. A feladata, hogy a nézőponthoz közelebbi objektumokat ne takarják ki az attól távolabbiak. Ha engedélyezve van a használata, akkor a fragment shader kimeneti értékének a mélységét összeveti a pufferben az annak megfelelő helyen tárolt értékkel. Ha az új kimenet értéke nagyobb, azaz távolabb van a kamerától, akkor nem íródik be az érték sem a mélység, sem a szín pufferbe. Ezt a funkcionalitást a glDepthMask(GL_FALSE) függvény segítségével lehet felfüggeszteni. Ekkor a színeket bármiféle vizsgálat nélkül írja a szín pufferbe.

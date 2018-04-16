@@ -256,11 +256,15 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 43:
 		// + key
-		environment->changeAmbientLight(0.1f);
+		/*environment->changeAmbientLight(0.1f);*/
+		billBoardFire->IncreaseSpeed();
+		spriteFire->IncreaseSpeed();
 		break;
 	case 45:
 		// - key
-		environment->changeAmbientLight(-0.1f);
+		/*environment->changeAmbientLight(-0.1f);*/
+		billBoardFire->DecreaseSpeed();
+		spriteFire->DecreaseSpeed();
 		break;
 	case 'm':
 		environment->toggleMoonlight();
