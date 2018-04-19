@@ -29,6 +29,7 @@ set(SOURCES 	src/main.cpp
 		src/phong.vs
 		src/unifColor-Phong.fs
 		src/unifColor-Phong.vs
+		src/fire.cpp
 		src/fireShader.fs
 		src/fireShader.vs
 
@@ -40,6 +41,7 @@ set(SOURCES 	src/main.cpp
 		include/environment.hpp
 		include/light.hpp
 		include/sphere.hpp
+		include/fire.hpp
 		)
 
 add_executable(Sprite_Fire ${SOURCES})
