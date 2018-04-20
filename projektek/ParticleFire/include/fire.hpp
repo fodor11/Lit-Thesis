@@ -12,7 +12,7 @@ public:
 
 	FireParticle(const FireParticle& other);
 
-	FireParticle(glm::vec3 startingPosition, glm::vec3 speed, float rotation, float lifeTime, Camera* camera);
+	FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection, float rotation, float lifeTime, Camera* camera);
 
 	bool isAlive();
 
@@ -40,12 +40,14 @@ private:
 
 	glm::vec3 m_vPosition;
 
-	float m_fSlowingRate = 0.8f;
-	glm::vec3 m_vSpeed;
+	glm::vec3 m_vSlowing = glm::vec3(-0.05f, -0.01f, -0.05f);
+	glm::vec3 m_vSpeedDirection;
+	float m_fSpeedRate = 1.f;
 
 	float m_fDistanceToCamera;
 
 	float m_fScale = 1.f;
+	float m_fScaleRate = 0.1f;
 
 	glm::vec4 m_vColor;
 
@@ -69,7 +71,8 @@ private:
 
 	int m_iMaxParticles;
 	int m_iNumberOfParticles = 0;
-	float m_fParticlesPerSecond = 50.f;
+	float m_fParticlesPerSecond = 200.f;
+	int m_iParticleLifetime = 10000;	// ms
 	float m_fTimeSinceLastEmittedParticle = 0.f;
 
 	float m_fScale;

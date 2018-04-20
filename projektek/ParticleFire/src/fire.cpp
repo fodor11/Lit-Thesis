@@ -8,6 +8,7 @@
 FireParticle::FireParticle()
 {
 	m_fLifeTime = 0.f;
+	m_fAge = m_fLifeTime;
 }
 
 FireParticle::FireParticle(const FireParticle & other)
@@ -19,39 +20,48 @@ FireParticle::FireParticle(const FireParticle & other)
 	m_fLifeTime = other.m_fLifeTime;
 	m_fRotation = other.m_fRotation;
 	m_fScale = other.m_fScale;
-	m_fSlowingRate = other.m_fSlowingRate;
+	m_vSlowing = other.m_vSlowing;
 	m_vColor = other.m_vColor;
 	m_vPosition = other.m_vPosition;
-	m_vSpeed = other.m_vSpeed;
+	m_vSpeedDirection = other.m_vSpeedDirection;
 }
 
-FireParticle::FireParticle(glm::vec3 startingPosition, glm::vec3 speed, float rotation, float lifeTime, Camera* camera)
+FireParticle::FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection, float rotation, float lifeTime, Camera* camera)
 {
 	m_pCamera = camera;
 	m_vPosition = startingPosition;
-	m_vSpeed = speed;
+	m_vSpeedDirection = speedDirection;
 	m_fRotation = rotation;
 	m_fLifeTime = lifeTime;
+	m_fAge = m_fLifeTime;
 	m_vColor = glm::vec4(0.f, 0.f, 0.f, 0.f);
 
 }
 
 bool FireParticle::isAlive()
 {
-	return m_fLifeTime > 0.f;
+	return m_fAge > 0.f;
 }
 
 bool FireParticle::update(float elapsedTime)
 {
 	// decay
-	m_fLifeTime -= elapsedTime * m_fDecayRate;
+	m_fAge -= elapsedTime * m_fDecayRate;
 	float step = elapsedTime / 10.f;
+
 	// check if still alive
-	if (m_fLifeTime > 0.f)
+	if (m_fAge > 0.f)
 	{
-		m_vPosition = m_vPosition + m_vSpeed * step;
-		//TODO: slowvector, slowing x and z much faster than y
-		//m_vSpeed = m_vSpeed * (m_fSlowingRate/(elapsedTime/1000.f));
+		float relativeAge = m_fAge / m_fLifeTime;
+		m_vPosition = m_vPosition + m_vSpeedDirection * step * m_fSpeedRate;
+		
+		// m_fSpeedRate *= step * 2;
+		// slowing x and z much faster than y
+		m_vSpeedDirection.x /= 1.f + step * 0.05f * relativeAge;
+		m_vSpeedDirection.z /= 1.f + step * 0.05f * relativeAge;
+
+		m_fScale += m_fScaleRate * step * relativeAge;
+
 		m_fDistanceToCamera = glm::distance2(m_vPosition, m_pCamera->getPosition());
 		return true;
 	}
@@ -104,11 +114,14 @@ FireParticleSystem::FireParticleSystem(Camera * camera, tdogl::Program * fireSha
 	m_pParticleContainer = new FireParticle[maxParticles];
 	m_pPositionsBuffer = new float[maxParticles * m_iPositionElementCount];
 	m_pRotationsBuffer = new float[maxParticles];
-
+	m_fParticlesPerSecond = m_iMaxParticles / (m_iParticleLifetime / 1000);
+	std::cout << "max: " << m_iMaxParticles << std::endl;
+	std::cout << "life: " << m_iParticleLifetime/1000 << std::endl;
+	std::cout << "persec: " << m_fParticlesPerSecond << std::endl;
 	std::random_device randDev;
 	m_rGenerator = std::mt19937(randDev());
 	m_rRandomY = std::uniform_real_distribution<float>(0.5f, 1.0f);
-	m_rRandomXZ = std::uniform_real_distribution<float>(-0.5f, 0.5f);
+	m_rRandomXZ = std::uniform_real_distribution<float>(-0.3f, 0.3f);
 	m_rRandomAngle = std::uniform_real_distribution<float>(0.f, M_PI);
 
 	loadBaseVAO();
@@ -265,11 +278,17 @@ void FireParticleSystem::killParticle(int index)
 
 void FireParticleSystem::addParticle()
 {
-	// TODO: refine (random rotation)
 	if (m_iNumberOfParticles < m_iMaxParticles)
 	{
+		// gives direction and speed
 		glm::vec3 initialSpeed(m_rRandomXZ(m_rGenerator), m_rRandomY(m_rGenerator), m_rRandomXZ(m_rGenerator));
-		m_pParticleContainer[m_iNumberOfParticles] = FireParticle(m_vPosition, initialSpeed, m_rRandomAngle(m_rGenerator), 10000, m_pCamera);
+
+		float alpha = m_rRandomAngle(m_rGenerator);
+
+		// makes them start within a circle (helical coords), instead of 1 point
+		glm::vec3 offset = glm::vec3(m_fScale * cos(alpha), 0.f, m_fScale * sin(alpha));
+		
+		m_pParticleContainer[m_iNumberOfParticles] = FireParticle(m_vPosition + offset, initialSpeed, alpha, m_iParticleLifetime, m_pCamera);
 		m_iNumberOfParticles++;
 		m_fTimeSinceLastEmittedParticle = 0.f;
 	}
