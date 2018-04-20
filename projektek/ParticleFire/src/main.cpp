@@ -352,8 +352,8 @@ void loadObjects() {
 	environment = new Environment();
 	environment->initialize(heightMap, camera, unifColorProgram, shadersWithLight);
 	//set up fire
-	glm::vec3 firePosition1(125, heightMap->getHeight(125, 125), 125);
-	particleFire = new FireParticleSystem(camera, fireShader, firePosition1);
+	glm::vec3 firePosition1(130, heightMap->getHeight(130, 130), 130);
+	particleFire = new FireParticleSystem(camera, fireShader, firePosition1, 10000, 0.5f);
 }
 void initialize()
 {

@@ -25,13 +25,15 @@ FireParticle::FireParticle(const FireParticle & other)
 	m_vSpeed = other.m_vSpeed;
 }
 
-FireParticle::FireParticle(glm::vec3 startingPosition, glm::vec3 speed, float lifeTime, Camera* camera)
+FireParticle::FireParticle(glm::vec3 startingPosition, glm::vec3 speed, float rotation, float lifeTime, Camera* camera)
 {
 	m_pCamera = camera;
 	m_vPosition = startingPosition;
 	m_vSpeed = speed;
+	m_fRotation = rotation;
 	m_fLifeTime = lifeTime;
 	m_vColor = glm::vec4(0.f, 0.f, 0.f, 0.f);
+
 }
 
 bool FireParticle::isAlive()
@@ -87,6 +89,11 @@ float FireParticle::getScale()
 	return m_fScale;
 }
 
+float FireParticle::getRotation()
+{
+	return m_fRotation;
+}
+
 FireParticleSystem::FireParticleSystem(Camera * camera, tdogl::Program * fireShader, glm::vec3 position, int maxParticles, float scale)
 {
 	m_pCamera = camera;
@@ -96,11 +103,13 @@ FireParticleSystem::FireParticleSystem(Camera * camera, tdogl::Program * fireSha
 	m_fScale = scale;
 	m_pParticleContainer = new FireParticle[maxParticles];
 	m_pPositionsBuffer = new float[maxParticles * m_iPositionElementCount];
+	m_pRotationsBuffer = new float[maxParticles];
 
 	std::random_device randDev;
 	m_rGenerator = std::mt19937(randDev());
 	m_rRandomY = std::uniform_real_distribution<float>(0.5f, 1.0f);
 	m_rRandomXZ = std::uniform_real_distribution<float>(-0.5f, 0.5f);
+	m_rRandomAngle = std::uniform_real_distribution<float>(0.f, M_PI);
 
 	loadBaseVAO();
 }
@@ -126,6 +135,7 @@ void FireParticleSystem::draw()
 	//m_pFireShader->setUniform("mvpMatrix", m_pCamera->getProjectionMatrix() * viewMatrix * modelMatrix);
 	m_pFireShader->setUniform("viewProjection", m_pCamera->getProjectionMatrix() * viewMatrix);
 	m_pFireShader->setUniform("model", modelMatrix);
+	m_pFireShader->setUniform("scale", m_fScale);
 
 
 	//TODO: bind textures, send them to shaders
@@ -161,6 +171,14 @@ void FireParticleSystem::loadBaseVAO()
 	glEnableVertexAttribArray(m_pFireShader->attrib("positionAndSize"));
 	glVertexAttribPointer(m_pFireShader->attrib("positionAndSize"), m_iPositionElementCount, GL_FLOAT, GL_FALSE, 0, NULL);
 	glVertexAttribDivisor(m_pFireShader->attrib("positionAndSize"), 1);  // 1, because 1 per particle
+							
+    // rotations
+	glGenBuffers(1, &m_iRotationsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_iRotationsVBO);
+	glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * sizeof(float), NULL, GL_STREAM_DRAW);
+	glEnableVertexAttribArray(m_pFireShader->attrib("angle"));
+	glVertexAttribPointer(m_pFireShader->attrib("angle"), 1, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribDivisor(m_pFireShader->attrib("angle"), 1);  // 1, because 1 per particle
 }
 
 std::vector<glm::vec3> FireParticleSystem::generateVertices()
@@ -224,13 +242,18 @@ void FireParticleSystem::update()
 		m_pPositionsBuffer[i*m_iPositionElementCount] = fp.getX();
 		m_pPositionsBuffer[i*m_iPositionElementCount + 1] = fp.getY();
 		m_pPositionsBuffer[i*m_iPositionElementCount + 2] = fp.getZ();
-		// TODO: m_fScale as uniform!
-		m_pPositionsBuffer[i*m_iPositionElementCount + 3] = fp.getScale() * m_fScale;
+		m_pPositionsBuffer[i*m_iPositionElementCount + 3] = fp.getScale();
+
+		m_pRotationsBuffer[i] = fp.getRotation();
 	}
 	glBindVertexArray(m_iParticleVAO); // TODO: is this needed?
 	glBindBuffer(GL_ARRAY_BUFFER, m_iPositionsVBO);
 	glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * m_iPositionElementCount * sizeof(float), NULL, GL_STREAM_DRAW);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_iMaxParticles * m_iPositionElementCount * sizeof(float), m_pPositionsBuffer);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_iRotationsVBO);
+	glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * sizeof(float), NULL, GL_STREAM_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, m_iMaxParticles * sizeof(float), m_pRotationsBuffer);
 	glBindVertexArray(0);
 }
 
@@ -242,11 +265,11 @@ void FireParticleSystem::killParticle(int index)
 
 void FireParticleSystem::addParticle()
 {
-	// TODO: refine
+	// TODO: refine (random rotation)
 	if (m_iNumberOfParticles < m_iMaxParticles)
 	{
 		glm::vec3 initialSpeed(m_rRandomXZ(m_rGenerator), m_rRandomY(m_rGenerator), m_rRandomXZ(m_rGenerator));
-		m_pParticleContainer[m_iNumberOfParticles] = FireParticle(m_vPosition, initialSpeed, 10000, m_pCamera);
+		m_pParticleContainer[m_iNumberOfParticles] = FireParticle(m_vPosition, initialSpeed, m_rRandomAngle(m_rGenerator), 10000, m_pCamera);
 		m_iNumberOfParticles++;
 		m_fTimeSinceLastEmittedParticle = 0.f;
 	}

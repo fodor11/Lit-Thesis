@@ -12,7 +12,7 @@ public:
 
 	FireParticle(const FireParticle& other);
 
-	FireParticle(glm::vec3 startingPosition, glm::vec3 speed, float lifeTime, Camera* camera);
+	FireParticle(glm::vec3 startingPosition, glm::vec3 speed, float rotation, float lifeTime, Camera* camera);
 
 	bool isAlive();
 
@@ -28,6 +28,7 @@ public:
 	float getY();
 	float getZ();
 	float getScale();
+	float getRotation();
 	
 private:
 
@@ -76,18 +77,23 @@ private:
 	GLuint m_iParticleVAO;
 	// base mesh
 	GLuint m_iVertexVBO;
-	// base texture coordinates
-	GLuint m_iTextureVBO;
 	// center positions and sizes of the particles
-	//TODO: rotation
 	GLuint m_iPositionsVBO;
 	int m_iPositionElementCount = 4; // x,y,z, size
 	float *m_pPositionsBuffer;
+	// TODO: texture coordiantes
+	GLuint m_iTexturesVBO;
+	int m_iTexturesElementCount = 2;
+	float *m_pTexturesBuffer;
+	// rotations
+	GLuint m_iRotationsVBO;
+	float *m_pRotationsBuffer;
 
 	// random
 	std::mt19937 m_rGenerator;
 	std::uniform_real_distribution<float> m_rRandomY;
 	std::uniform_real_distribution<float> m_rRandomXZ;
+	std::uniform_real_distribution<float> m_rRandomAngle;
 
 	// loads the base VAO
 	void loadBaseVAO();
