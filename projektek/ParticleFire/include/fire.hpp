@@ -10,7 +10,7 @@ class FireParticle
 public:
 	FireParticle();
 
-	FireParticle(const FireParticle& other);
+	//FireParticle(const FireParticle& other); // needs update anyway
 
 	FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection, float rotation, float lifeTime, Camera* camera);
 
@@ -29,6 +29,10 @@ public:
 	float getZ();
 	float getScale();
 	float getRotation();
+	GLubyte getCurrentTexture();
+	float getCurrentAlpha();
+
+	static const int textureRowCount = 8;
 	
 private:
 
@@ -49,6 +53,10 @@ private:
 	float m_fScale = 1.f;
 	float m_fScaleRate = 0.1f;
 
+	GLubyte m_cNumberOfTextures = textureRowCount * textureRowCount - 1; // 2 textures are used at the same time, last texture is only for the fade out effect, no need to display it on its own
+	int m_cCurrentTexture;
+	float m_fSceneTime; // milliseconds, that 1 texturescene is alive
+	float m_fCurrentAlpha;
 	glm::vec4 m_vColor;
 
 	float m_fRotation = 0.f;
@@ -58,7 +66,7 @@ class FireParticleSystem
 {
 public:
 	FireParticleSystem(Camera * camera, tdogl::Program* fireShader, glm::vec3 position, int maxParticles = 10000, float scale = 1.f);
-	// TODO: particle container cleanup?
+	// TODO: particle container cleanup
 	~FireParticleSystem();
 	void draw();
 private:
@@ -72,7 +80,7 @@ private:
 	int m_iMaxParticles;
 	int m_iNumberOfParticles = 0;
 	float m_fParticlesPerSecond = 200.f;
-	int m_iParticleLifetime = 10000;	// ms
+	int m_iParticleLifetime = 1000;	// ms
 	float m_fTimeSinceLastEmittedParticle = 0.f;
 
 	float m_fScale;
@@ -84,13 +92,14 @@ private:
 	GLuint m_iPositionsVBO;
 	int m_iPositionElementCount = 4; // x,y,z, size
 	float *m_pPositionsBuffer;
-	// TODO: texture coordiantes
+	// texture number
 	GLuint m_iTexturesVBO;
-	int m_iTexturesElementCount = 2;
-	float *m_pTexturesBuffer;
-	// rotations
-	GLuint m_iRotationsVBO;
-	float *m_pRotationsBuffer;
+	int *m_pTexturesBuffer;
+	GLuint m_iTextureID;
+	// rotations and current texture alpha
+	GLuint m_iRotationAndAlphaVBO;
+	int m_iRotationAndAlphaElements = 2;
+	float *m_pRotationAndAlphaBuffer;
 
 	// random
 	std::mt19937 m_rGenerator;
@@ -107,5 +116,5 @@ private:
 	// swaps dead particle with the last active one
 	void killParticle(int index);
 	// adds new particle to the container
-	void addParticle();
+	void addParticle(float elapsedTime);
 };

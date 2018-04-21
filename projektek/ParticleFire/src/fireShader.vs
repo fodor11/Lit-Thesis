@@ -1,20 +1,49 @@
-#version 150
+#version 400
 
 uniform mat4 viewProjection;
 uniform mat4 model;
 uniform float scale;
+uniform int rowCount;
 
 in vec3 vert;
-//in vec2 vertTexCoord;
+in int textureNumber;
 in vec4 positionAndSize;
-in float angle;
+in vec2 angleAndAlpha;
 
 out vec3 fragVert;
-//out vec2 fragTexCoord;
+out vec2 fragTexCoord;
+out vec2 fragTexCoord2;
+out float currentAlpha;
+
+vec2 getTextureCoord(int textureNr, float offset){
+	int row = int(textureNr) / rowCount;
+	int column = int(mod(int(textureNr), int(rowCount)));
+	if (vert.x == -0.5f){
+		if(vert.y == 0.5){
+			// upper left corner
+			return(vec2(column * offset, row * offset));
+		}
+		// lower left corner
+		return(vec2(column * offset, (row + 1) * offset));
+	}
+	if (vert.x == 0.5f){
+		if(vert.y == 0.5){
+			// upper right corner
+			return(vec2((column + 1) * offset, row * offset));
+		}
+		// lower right corner
+		return(vec2((column + 1) * offset, (row + 1) * offset));
+	}
+	return(vec2(-1,-1));
+}
 
 void main() {
 	fragVert = vert;
-    //fragTexCoord = vertTexCoord;
+	currentAlpha = angleAndAlpha.y;
+
+	float offset = 1.0f / float(rowCount);
+    fragTexCoord = getTextureCoord(textureNumber, offset);
+    fragTexCoord = getTextureCoord(textureNumber+1, offset);
     
 	// Scaling matrix
 	float scaleValue = scale * positionAndSize.w;
@@ -26,8 +55,8 @@ void main() {
 
 	
 	// Rotation matrix (Z axis)
-	float cosAlpha = cos(angle);
-	float sinAlpha = sin(angle);
+	float cosAlpha = cos(angleAndAlpha.x);
+	float sinAlpha = sin(angleAndAlpha.x);
 	mat4 rotationMatrix;
 	rotationMatrix[0][0] = cosAlpha;
 	rotationMatrix[1][0] = -sinAlpha;

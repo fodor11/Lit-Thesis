@@ -11,20 +11,20 @@ FireParticle::FireParticle()
 	m_fAge = m_fLifeTime;
 }
 
-FireParticle::FireParticle(const FireParticle & other)
-{
-	m_pCamera = other.m_pCamera;
-	m_fAge = other.m_fAge;
-	m_fDecayRate = other.m_fDecayRate;
-	m_fDistanceToCamera = other.m_fDistanceToCamera;
-	m_fLifeTime = other.m_fLifeTime;
-	m_fRotation = other.m_fRotation;
-	m_fScale = other.m_fScale;
-	m_vSlowing = other.m_vSlowing;
-	m_vColor = other.m_vColor;
-	m_vPosition = other.m_vPosition;
-	m_vSpeedDirection = other.m_vSpeedDirection;
-}
+//FireParticle::FireParticle(const FireParticle & other)
+//{
+//	m_pCamera = other.m_pCamera;
+//	m_fAge = other.m_fAge;
+//	m_fDecayRate = other.m_fDecayRate;
+//	m_fDistanceToCamera = other.m_fDistanceToCamera;
+//	m_fLifeTime = other.m_fLifeTime;
+//	m_fRotation = other.m_fRotation;
+//	m_fScale = other.m_fScale;
+//	m_vSlowing = other.m_vSlowing;
+//	m_vColor = other.m_vColor;
+//	m_vPosition = other.m_vPosition;
+//	m_vSpeedDirection = other.m_vSpeedDirection;
+//}
 
 FireParticle::FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection, float rotation, float lifeTime, Camera* camera)
 {
@@ -35,7 +35,7 @@ FireParticle::FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection,
 	m_fLifeTime = lifeTime;
 	m_fAge = m_fLifeTime;
 	m_vColor = glm::vec4(0.f, 0.f, 0.f, 0.f);
-
+	m_fSceneTime = lifeTime / (float)m_cNumberOfTextures;
 }
 
 bool FireParticle::isAlive()
@@ -52,15 +52,24 @@ bool FireParticle::update(float elapsedTime)
 	// check if still alive
 	if (m_fAge > 0.f)
 	{
+		// Ageing
 		float relativeAge = m_fAge / m_fLifeTime;
+		// Moving
 		m_vPosition = m_vPosition + m_vSpeedDirection * step * m_fSpeedRate;
 		
-		// m_fSpeedRate *= step * 2;
-		// slowing x and z much faster than y
+		// Slowing x and z much faster than y
 		m_vSpeedDirection.x /= 1.f + step * 0.05f * relativeAge;
 		m_vSpeedDirection.z /= 1.f + step * 0.05f * relativeAge;
+		m_fSpeedRate = m_vSpeedDirection.length() * 0.1f;
 
-		m_fScale += m_fScaleRate * step * relativeAge;
+		// Expanding
+		//m_fScale += m_fScaleRate * step * relativeAge;
+
+		// Changing texture
+		float textureInfo = (m_fLifeTime - m_fAge) / m_fSceneTime;
+		m_cCurrentTexture = (int)textureInfo;
+		//std::cout << "(" << m_fLifeTime << " - " << m_fAge << ") / " << m_fSceneTime << " = " << textureInfo << " -> "<< m_cCurrentTexture << std::endl;
+		m_fCurrentAlpha = 1.f - (textureInfo - (float)m_cCurrentTexture) / m_fSceneTime;
 
 		m_fDistanceToCamera = glm::distance2(m_vPosition, m_pCamera->getPosition());
 		return true;
@@ -104,6 +113,16 @@ float FireParticle::getRotation()
 	return m_fRotation;
 }
 
+GLubyte FireParticle::getCurrentTexture()
+{
+	return m_cCurrentTexture;
+}
+
+float FireParticle::getCurrentAlpha()
+{
+	return m_fCurrentAlpha;
+}
+
 FireParticleSystem::FireParticleSystem(Camera * camera, tdogl::Program * fireShader, glm::vec3 position, int maxParticles, float scale)
 {
 	m_pCamera = camera;
@@ -113,16 +132,17 @@ FireParticleSystem::FireParticleSystem(Camera * camera, tdogl::Program * fireSha
 	m_fScale = scale;
 	m_pParticleContainer = new FireParticle[maxParticles];
 	m_pPositionsBuffer = new float[maxParticles * m_iPositionElementCount];
-	m_pRotationsBuffer = new float[maxParticles];
+	m_pRotationAndAlphaBuffer = new float[maxParticles * m_iRotationAndAlphaElements];
+	m_pTexturesBuffer = new int[maxParticles];
 	m_fParticlesPerSecond = m_iMaxParticles / (m_iParticleLifetime / 1000);
-	std::cout << "max: " << m_iMaxParticles << std::endl;
-	std::cout << "life: " << m_iParticleLifetime/1000 << std::endl;
-	std::cout << "persec: " << m_fParticlesPerSecond << std::endl;
+	//std::cout << "max: " << m_iMaxParticles << std::endl;
+	//std::cout << "life: " << m_iParticleLifetime/1000 << std::endl;
+	//std::cout << "persec: " << m_fParticlesPerSecond << std::endl;
 	std::random_device randDev;
 	m_rGenerator = std::mt19937(randDev());
 	m_rRandomY = std::uniform_real_distribution<float>(0.5f, 1.0f);
 	m_rRandomXZ = std::uniform_real_distribution<float>(-0.3f, 0.3f);
-	m_rRandomAngle = std::uniform_real_distribution<float>(0.f, M_PI);
+	m_rRandomAngle = std::uniform_real_distribution<float>(0.f, 2 * M_PI);
 
 	loadBaseVAO();
 }
@@ -131,7 +151,6 @@ void FireParticleSystem::draw()
 {
 	update();
 
-	//std::cout << "count: " << m_iNumberOfParticles << std::endl;
 	m_pFireShader->use();
 
 	glm::mat4 viewMatrix = m_pCamera->getViewMatrix();
@@ -144,26 +163,35 @@ void FireParticleSystem::draw()
 			modelMatrix[i][j] = viewMatrix[j][i];
 		}
 	}
-	//modelMatrix = glm::scale(modelMatrix, glm::vec3(m_fScale, m_fScale, m_fScale));
-	//m_pFireShader->setUniform("mvpMatrix", m_pCamera->getProjectionMatrix() * viewMatrix * modelMatrix);
 	m_pFireShader->setUniform("viewProjection", m_pCamera->getProjectionMatrix() * viewMatrix);
 	m_pFireShader->setUniform("model", modelMatrix);
 	m_pFireShader->setUniform("scale", m_fScale);
+	m_pFireShader->setUniform("rowCount", FireParticle::textureRowCount);
 
-
-	//TODO: bind textures, send them to shaders
-
+	// set texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_iTextureID);
+	m_pFireShader->setUniform("tex", 0); //set 0, because it is bound to GL_TEXTURE0
+	
+	//draw
+	glDepthMask(GL_FALSE);
 	glBindVertexArray(m_iParticleVAO);
-
 	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, m_iNumberOfParticles);
+	glDepthMask(GL_TRUE);
 
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 	m_pFireShader->stopUsing();
-	// unbind textures
 }
 
 void FireParticleSystem::loadBaseVAO()
 {
+	// Load fire spritesheet
+	TextureLoader* textureLoader = new TextureLoader();
+	textureLoader->loadMipMappedTexture("particleSpriteSheet.png");
+	m_iTextureID = textureLoader->textureID();
+	textureLoader->~TextureLoader();
+
 	std::vector<glm::vec3> vertices = generateVertices();
 
 	glGenVertexArrays(1, &m_iParticleVAO);
@@ -185,13 +213,21 @@ void FireParticleSystem::loadBaseVAO()
 	glVertexAttribPointer(m_pFireShader->attrib("positionAndSize"), m_iPositionElementCount, GL_FLOAT, GL_FALSE, 0, NULL);
 	glVertexAttribDivisor(m_pFireShader->attrib("positionAndSize"), 1);  // 1, because 1 per particle
 							
-    // rotations
-	glGenBuffers(1, &m_iRotationsVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_iRotationsVBO);
-	glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * sizeof(float), NULL, GL_STREAM_DRAW);
-	glEnableVertexAttribArray(m_pFireShader->attrib("angle"));
-	glVertexAttribPointer(m_pFireShader->attrib("angle"), 1, GL_FLOAT, GL_FALSE, 0, NULL);
-	glVertexAttribDivisor(m_pFireShader->attrib("angle"), 1);  // 1, because 1 per particle
+    // rotations and alphas
+	glGenBuffers(1, &m_iRotationAndAlphaVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_iRotationAndAlphaVBO);
+	glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * m_iRotationAndAlphaElements * sizeof(float), NULL, GL_STREAM_DRAW);
+	glEnableVertexAttribArray(m_pFireShader->attrib("angleAndAlpha"));
+	glVertexAttribPointer(m_pFireShader->attrib("angleAndAlpha"), m_iRotationAndAlphaElements, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribDivisor(m_pFireShader->attrib("angleAndAlpha"), 1);  // 1, because 1 per particle
+
+	// texturesbuffer
+	glGenBuffers(1, &m_iTexturesVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_iTexturesVBO);
+	glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * sizeof(int), NULL, GL_STREAM_DRAW);
+	glEnableVertexAttribArray(m_pFireShader->attrib("textureNumber"));
+	glVertexAttribPointer(m_pFireShader->attrib("textureNumber"), 1, GL_FLOAT, GL_FALSE, 0, NULL); // GL_FLOAT, because glsl is doing some weird stuff
+	glVertexAttribDivisor(m_pFireShader->attrib("textureNumber"), 1);  // 1, because 1 per particle
 }
 
 std::vector<glm::vec3> FireParticleSystem::generateVertices()
@@ -217,12 +253,11 @@ std::vector<glm::vec3> FireParticleSystem::generateVertices()
 	return vertices;
 }
 
-// TODO: check container bounds
 void FireParticleSystem::update()
 {
 	float elapsedTime = m_pCamera->getElapsedTime();
 	m_fTimeSinceLastEmittedParticle += elapsedTime;
-	int newParticlesCount = (int)m_fTimeSinceLastEmittedParticle * m_fParticlesPerSecond * 0.001f;
+	int newParticlesCount = (int)(m_fTimeSinceLastEmittedParticle * m_fParticlesPerSecond * 0.001f);
 	//std::cout << "new particles: "<<newParticlesCount << std::endl;
 
 	for (int i = 0; i < m_iNumberOfParticles; i++)
@@ -239,11 +274,11 @@ void FireParticleSystem::update()
 	// add new particles
 	for (int i = 0; i < newParticlesCount; i++)
 	{
-		addParticle();
+		addParticle(elapsedTime);
 	}
 
 	// sort furthest to closest from camera
-	if (m_iNumberOfParticles > 0)
+	if (m_iNumberOfParticles > 1)
 	{
 		std::sort(&m_pParticleContainer[0], &m_pParticleContainer[m_iNumberOfParticles - 1]);
 	}
@@ -257,16 +292,24 @@ void FireParticleSystem::update()
 		m_pPositionsBuffer[i*m_iPositionElementCount + 2] = fp.getZ();
 		m_pPositionsBuffer[i*m_iPositionElementCount + 3] = fp.getScale();
 
-		m_pRotationsBuffer[i] = fp.getRotation();
+		m_pRotationAndAlphaBuffer[i*m_iRotationAndAlphaElements] = fp.getRotation();
+		m_pRotationAndAlphaBuffer[i*m_iRotationAndAlphaElements + 1] = fp.getCurrentAlpha();
+
+		m_pTexturesBuffer[i] = fp.getCurrentTexture();
 	}
+
 	glBindVertexArray(m_iParticleVAO); // TODO: is this needed?
 	glBindBuffer(GL_ARRAY_BUFFER, m_iPositionsVBO);
 	glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * m_iPositionElementCount * sizeof(float), NULL, GL_STREAM_DRAW);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_iMaxParticles * m_iPositionElementCount * sizeof(float), m_pPositionsBuffer);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_iRotationsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_iRotationAndAlphaVBO);
 	glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * sizeof(float), NULL, GL_STREAM_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, m_iMaxParticles * sizeof(float), m_pRotationsBuffer);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, m_iMaxParticles * sizeof(float), m_pRotationAndAlphaBuffer);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_iTexturesVBO);
+	glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * sizeof(int), NULL, GL_STREAM_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, m_iMaxParticles * sizeof(int), m_pTexturesBuffer);
 	glBindVertexArray(0);
 }
 
@@ -276,7 +319,7 @@ void FireParticleSystem::killParticle(int index)
 	m_iNumberOfParticles--;
 }
 
-void FireParticleSystem::addParticle()
+void FireParticleSystem::addParticle(float elapsedTime)
 {
 	if (m_iNumberOfParticles < m_iMaxParticles)
 	{
@@ -284,11 +327,11 @@ void FireParticleSystem::addParticle()
 		glm::vec3 initialSpeed(m_rRandomXZ(m_rGenerator), m_rRandomY(m_rGenerator), m_rRandomXZ(m_rGenerator));
 
 		float alpha = m_rRandomAngle(m_rGenerator);
-
 		// makes them start within a circle (helical coords), instead of 1 point
-		glm::vec3 offset = glm::vec3(m_fScale * cos(alpha), 0.f, m_fScale * sin(alpha));
+		glm::vec3 offset = glm::vec3(m_fScale * cos(alpha) * 0.5, 0.f, m_fScale * sin(alpha) * 0.5);
 		
 		m_pParticleContainer[m_iNumberOfParticles] = FireParticle(m_vPosition + offset, initialSpeed, alpha, m_iParticleLifetime, m_pCamera);
+		m_pParticleContainer[m_iNumberOfParticles].update(elapsedTime);
 		m_iNumberOfParticles++;
 		m_fTimeSinceLastEmittedParticle = 0.f;
 	}
