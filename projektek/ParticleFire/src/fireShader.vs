@@ -8,12 +8,12 @@ uniform int rowCount;
 in vec3 vert;
 in int textureNumber;
 in vec4 positionAndSize;
-in vec2 angleAndAlpha;
+in vec2 angleAndBlend;
 
 out vec3 fragVert;
 out vec2 fragTexCoord;
 out vec2 fragTexCoord2;
-out float currentAlpha;
+out float currentBlend;
 
 vec2 getTextureCoord(int textureNr, float offset){
 	int row = int(textureNr) / rowCount;
@@ -39,7 +39,7 @@ vec2 getTextureCoord(int textureNr, float offset){
 
 void main() {
 	fragVert = vert;
-	currentAlpha = angleAndAlpha.y;
+	currentBlend = angleAndBlend.y;
 
 	float offset = 1.0f / float(rowCount);
     fragTexCoord = getTextureCoord(textureNumber, offset);
@@ -55,8 +55,8 @@ void main() {
 
 	
 	// Rotation matrix (Z axis)
-	float cosAlpha = cos(angleAndAlpha.x);
-	float sinAlpha = sin(angleAndAlpha.x);
+	float cosAlpha = cos(angleAndBlend.x);
+	float sinAlpha = sin(angleAndBlend.x);
 	mat4 rotationMatrix;
 	rotationMatrix[0][0] = cosAlpha;
 	rotationMatrix[1][0] = -sinAlpha;

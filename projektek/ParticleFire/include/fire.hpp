@@ -30,9 +30,9 @@ public:
 	float getScale();
 	float getRotation();
 	GLubyte getCurrentTexture();
-	float getCurrentAlpha();
+	float getCurrentBlend();
 
-	static const int textureRowCount = 8;
+	static const int textureRowCount = 4;
 	
 private:
 
@@ -44,9 +44,9 @@ private:
 
 	glm::vec3 m_vPosition;
 
-	glm::vec3 m_vSlowing = glm::vec3(-0.05f, -0.01f, -0.05f);
+	//glm::vec3 m_vSlowing = glm::vec3(-0.05f, -0.01f, -0.05f);
 	glm::vec3 m_vSpeedDirection;
-	float m_fSpeedRate = 1.f;
+	float m_fSpeedRate;
 
 	float m_fDistanceToCamera;
 
@@ -55,8 +55,8 @@ private:
 
 	GLubyte m_cNumberOfTextures = textureRowCount * textureRowCount - 1; // 2 textures are used at the same time, last texture is only for the fade out effect, no need to display it on its own
 	int m_cCurrentTexture;
-	float m_fSceneTime; // milliseconds, that 1 texturescene is alive
-	float m_fCurrentAlpha;
+	float m_fSceneTime; // [milliseconds] shows how long 1 texturescene is alive
+	float m_fCurrentBlend;
 	glm::vec4 m_vColor;
 
 	float m_fRotation = 0.f;
@@ -79,7 +79,7 @@ private:
 
 	int m_iMaxParticles;
 	int m_iNumberOfParticles = 0;
-	float m_fParticlesPerSecond = 200.f;
+	float m_fParticlesPerSecond;
 	int m_iParticleLifetime = 1000;	// ms
 	float m_fTimeSinceLastEmittedParticle = 0.f;
 
@@ -97,9 +97,9 @@ private:
 	int *m_pTexturesBuffer;
 	GLuint m_iTextureID;
 	// rotations and current texture alpha
-	GLuint m_iRotationAndAlphaVBO;
-	int m_iRotationAndAlphaElements = 2;
-	float *m_pRotationAndAlphaBuffer;
+	GLuint m_iRotationAndBlendVBO;
+	int m_iRotationAndBlendElements = 2;
+	float *m_pRotationAndBlendBuffer;
 
 	// random
 	std::mt19937 m_rGenerator;

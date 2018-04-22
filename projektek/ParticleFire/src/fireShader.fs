@@ -5,7 +5,7 @@ uniform sampler2D tex;
 in vec3 fragVert;
 in vec2 fragTexCoord;
 in vec2 fragTexCoord2;
-in float currentAlpha;
+in float currentBlend;
 
 out vec4 finalColor;
 
@@ -16,7 +16,8 @@ void main() {
 	    finalColor = vec4(1,1,1,1);
     }
     else{
-        finalColor = vec4(currentAlpha * textureColor.rgba + (1 - currentAlpha) * textureColor2.rgba);
+        if(currentBlend<0.f) finalColor = vec4(1,0,0,1);
+        else finalColor = vec4(currentBlend * textureColor.rgba + (1 - currentBlend) * textureColor2.rgba);
     }
 
     //finalColor = vec4(1,1,1,1);

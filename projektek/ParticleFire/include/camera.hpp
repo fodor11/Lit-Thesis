@@ -106,7 +106,7 @@ private:
 	float calc2Ddistance(float point1x, float point1y, float point2x, float point2y);
 
 	/// speed of camera
-	float m_fSpeed = 0.05f;
+	float m_fSpeed = 0.005f;
 
 	/// movements
 	bool m_bMoveForward = false,

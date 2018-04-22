@@ -353,7 +353,7 @@ void loadObjects() {
 	environment->initialize(heightMap, camera, unifColorProgram, shadersWithLight);
 	//set up fire
 	glm::vec3 firePosition1(130, heightMap->getHeight(130, 130), 130);
-	particleFire = new FireParticleSystem(camera, fireShader, firePosition1, 10000, 1.5f);
+	particleFire = new FireParticleSystem(camera, fireShader, firePosition1, 500, 0.5f);
 }
 void initialize()
 {
@@ -392,8 +392,7 @@ void initialize()
 int main(int argc, char* argv[])
 {
 	//cout << "////////////////////////////TEST////////////////////////////" << endl;
-	//FireParticle * container = new FireParticle[50];
-	//cout << "container[2].isAlive(): "<< container[2].isAlive() << endl;
+	
 	//cout << "////////////////////////////TEST////////////////////////////" << endl;
 	
 	cout << "Init GLUT ..." << endl;
