@@ -26,7 +26,7 @@ FireParticle::FireParticle()
 //	m_vSpeedDirection = other.m_vSpeedDirection;
 //}
 
-FireParticle::FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection, float rotation, float lifeTime, Camera* camera)
+FireParticle::FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection, float rotation, float lifeTime, Camera* camera, float rotationRate, float speedRate)
 {
 	m_pCamera = camera;
 	m_vPosition = startingPosition;
@@ -36,6 +36,8 @@ FireParticle::FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection,
 	m_fAge = m_fLifeTime;
 	m_vColor = glm::vec4(0.f, 0.f, 0.f, 0.f);
 	m_fSceneTime = lifeTime / (float)m_cNumberOfTextures;
+	m_fRotationRate = rotationRate;
+	m_fSpeedRate = speedRate;
 }
 
 bool FireParticle::isAlive()
@@ -58,13 +60,16 @@ bool FireParticle::update(float elapsedTime)
 		// Slowing x and z much faster than y
 		m_vSpeedDirection.x /= 1.f + step * 0.05f * relativeAge;
 		m_vSpeedDirection.z /= 1.f + step * 0.05f * relativeAge;
-		m_fSpeedRate = m_vSpeedDirection.length() * 0.1f;
+		m_fSpeedRate /= 1.f + step * 0.01 * (1-relativeAge);
 
 		// Moving
 		m_vPosition += m_vSpeedDirection * step * m_fSpeedRate;
 
 		// Expanding
-		//m_fScale += m_fScaleRate * step * relativeAge;
+		m_fScale += m_fScaleRate * step * relativeAge;
+
+		// Rotate
+		m_fRotation += step * m_fRotationRate;
 
 		// Changing texture
 		float textureInfo = (m_fLifeTime - m_fAge) / m_fSceneTime;
@@ -144,8 +149,17 @@ FireParticleSystem::FireParticleSystem(Camera * camera, tdogl::Program * fireSha
 	m_rRandomXZ = std::uniform_real_distribution<float>(-0.3f, 0.3f);
 	m_rRandomAngle = std::uniform_real_distribution<float>(0.f, 2 * M_PI);
 	m_rRandomRadius = std::uniform_real_distribution<float>(0.f, 0.5f);
+	m_rRandomRotation = std::uniform_real_distribution<float>(-M_1_PI, M_1_PI);
 
 	loadBaseVAO();
+}
+
+FireParticleSystem::~FireParticleSystem()
+{
+	delete[] m_pParticleContainer;
+	delete[] m_pRotationAndBlendBuffer;
+	delete[] m_pPositionsBuffer;
+	delete[] m_pTexturesBuffer;
 }
 
 void FireParticleSystem::draw()
@@ -175,7 +189,7 @@ void FireParticleSystem::draw()
 	m_pFireShader->setUniform("tex", 0); //set 0, because it is bound to GL_TEXTURE0
 	
 	//draw
-	glDepthMask(GL_FALSE);
+	glDepthMask(GL_FALSE); // blend is not quite right when 2 particles are close (like same z coord etc.)
 	glBindVertexArray(m_iParticleVAO);
 	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, m_iNumberOfParticles);
 	glDepthMask(GL_TRUE);
@@ -334,9 +348,9 @@ void FireParticleSystem::addParticle(float elapsedTime)
 		// makes them start within a circle (helical coords), instead of 1 point
 		glm::vec3 offset = glm::vec3(m_fScale * cos(alpha) * radius, 0.f, m_fScale * sin(alpha) * radius);
 		// firewall
-		//glm::vec3 offset = glm::vec3(2*radius, 0.f,0.f);
+		//glm::vec3 offset = glm::vec3(4*radius, 0.f,0.f);
 		
-		m_pParticleContainer[m_iNumberOfParticles] = FireParticle(m_vPosition + offset, initialSpeed, alpha, m_iParticleLifetime, m_pCamera);
+		m_pParticleContainer[m_iNumberOfParticles] = FireParticle(m_vPosition + offset, initialSpeed, alpha, m_iParticleLifetime, m_pCamera, m_rRandomRotation(m_rGenerator));
 		m_pParticleContainer[m_iNumberOfParticles].update(elapsedTime);
 		m_iNumberOfParticles++;
 		m_fTimeSinceLastEmittedParticle = 0.f;

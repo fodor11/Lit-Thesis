@@ -203,6 +203,7 @@ void cleanUp() {
 	//camera->~Camera();
 	//environment->~Environment();
 	heightMap->~HeightMapLoader();
+	particleFire->~FireParticleSystem();
 	//enable key repeat GLOBALLY
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_DEFAULT);
 }

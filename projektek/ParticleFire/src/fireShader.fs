@@ -16,8 +16,7 @@ void main() {
 	    finalColor = vec4(1,1,1,1);
     }
     else{
-        if(currentBlend<0.f) finalColor = vec4(1,0,0,1);
-        else finalColor = vec4(currentBlend * textureColor.rgba + (1 - currentBlend) * textureColor2.rgba);
+        finalColor = vec4(currentBlend * textureColor.rgba + (1 - currentBlend) * textureColor2.rgba);
     }
 
     //finalColor = vec4(1,1,1,1);

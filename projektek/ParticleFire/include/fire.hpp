@@ -12,11 +12,9 @@ public:
 
 	//FireParticle(const FireParticle& other); // needs update anyway
 
-	FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection, float rotation, float lifeTime, Camera* camera);
+	FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection, float rotation, float lifeTime, Camera* camera, float rotationRate = 0.1f, float speedRate = 0.3f);
 
 	bool isAlive();
-
-	void rotateOverTime(float rotation, float time);
 
 	bool update(float elapsedTime);
 
@@ -60,13 +58,14 @@ private:
 	glm::vec4 m_vColor;
 
 	float m_fRotation = 0.f;
+	float m_fRotationRate = 0.5f;
 };
 
 class FireParticleSystem 
 {
 public:
 	FireParticleSystem(Camera * camera, tdogl::Program* fireShader, glm::vec3 position, int maxParticles = 10000, float scale = 1.f);
-	// TODO: particle container cleanup
+	// Clean buffers up
 	~FireParticleSystem();
 	void draw();
 private:
@@ -107,6 +106,7 @@ private:
 	std::uniform_real_distribution<float> m_rRandomXZ;
 	std::uniform_real_distribution<float> m_rRandomAngle;
 	std::uniform_real_distribution<float> m_rRandomRadius;
+	std::uniform_real_distribution<float> m_rRandomRotation;
 
 	// loads the base VAO
 	void loadBaseVAO();
