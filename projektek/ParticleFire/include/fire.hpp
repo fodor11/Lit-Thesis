@@ -106,6 +106,7 @@ private:
 	std::uniform_real_distribution<float> m_rRandomY;
 	std::uniform_real_distribution<float> m_rRandomXZ;
 	std::uniform_real_distribution<float> m_rRandomAngle;
+	std::uniform_real_distribution<float> m_rRandomRadius;
 
 	// loads the base VAO
 	void loadBaseVAO();

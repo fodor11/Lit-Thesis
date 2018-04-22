@@ -68,8 +68,7 @@ bool FireParticle::update(float elapsedTime)
 		// Changing texture
 		float textureInfo = (m_fLifeTime - m_fAge) / m_fSceneTime;
 		m_cCurrentTexture = (int)textureInfo;
-		//std::cout << "(" << m_fLifeTime << " - " << m_fAge << ") / " << m_fSceneTime << " = " << textureInfo << " -> "<< m_cCurrentTexture << std::endl;
-		m_fCurrentAlpha = 1.f - (textureInfo - (float)m_cCurrentTexture) / m_fSceneTime;
+		m_fCurrentAlpha = 1.f - fmod(textureInfo, 1.0f);
 
 		m_fDistanceToCamera = glm::distance2(m_vPosition, m_pCamera->getPosition());
 		return true;
@@ -143,6 +142,7 @@ FireParticleSystem::FireParticleSystem(Camera * camera, tdogl::Program * fireSha
 	m_rRandomY = std::uniform_real_distribution<float>(0.5f, 1.0f);
 	m_rRandomXZ = std::uniform_real_distribution<float>(-0.3f, 0.3f);
 	m_rRandomAngle = std::uniform_real_distribution<float>(0.f, 2 * M_PI);
+	m_rRandomRadius = std::uniform_real_distribution<float>(0.f, 0.5f);
 
 	loadBaseVAO();
 }
@@ -298,7 +298,6 @@ void FireParticleSystem::update()
 		m_pTexturesBuffer[i] = fp.getCurrentTexture();
 	}
 
-	glBindVertexArray(m_iParticleVAO); // TODO: is this needed?
 	glBindBuffer(GL_ARRAY_BUFFER, m_iPositionsVBO);
 	glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * m_iPositionElementCount * sizeof(float), NULL, GL_STREAM_DRAW);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_iMaxParticles * m_iPositionElementCount * sizeof(float), m_pPositionsBuffer);
@@ -310,7 +309,6 @@ void FireParticleSystem::update()
 	glBindBuffer(GL_ARRAY_BUFFER, m_iTexturesVBO);
 	glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * sizeof(int), NULL, GL_STREAM_DRAW);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_iMaxParticles * sizeof(int), m_pTexturesBuffer);
-	glBindVertexArray(0);
 }
 
 void FireParticleSystem::killParticle(int index)
@@ -327,8 +325,9 @@ void FireParticleSystem::addParticle(float elapsedTime)
 		glm::vec3 initialSpeed(m_rRandomXZ(m_rGenerator), m_rRandomY(m_rGenerator), m_rRandomXZ(m_rGenerator));
 
 		float alpha = m_rRandomAngle(m_rGenerator);
+		float radius = m_rRandomRadius(m_rGenerator);
 		// makes them start within a circle (helical coords), instead of 1 point
-		glm::vec3 offset = glm::vec3(m_fScale * cos(alpha) * 0.5, 0.f, m_fScale * sin(alpha) * 0.5);
+		glm::vec3 offset = glm::vec3(m_fScale * cos(alpha) * radius, 0.f, m_fScale * sin(alpha) * radius);
 		
 		m_pParticleContainer[m_iNumberOfParticles] = FireParticle(m_vPosition + offset, initialSpeed, alpha, m_iParticleLifetime, m_pCamera);
 		m_pParticleContainer[m_iNumberOfParticles].update(elapsedTime);

@@ -43,7 +43,7 @@ void main() {
 
 	float offset = 1.0f / float(rowCount);
     fragTexCoord = getTextureCoord(textureNumber, offset);
-    fragTexCoord = getTextureCoord(textureNumber+1, offset);
+    fragTexCoord2 = getTextureCoord(textureNumber+1, offset);
     
 	// Scaling matrix
 	float scaleValue = scale * positionAndSize.w;
