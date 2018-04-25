@@ -2,7 +2,7 @@
 #include "../include/texture.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
-BillboardFire::BillboardFire(tdogl::Program * shaderProgram, Camera * camera, glm::vec3 position, bool has2planes, float scale)
+SpriteFire::SpriteFire(tdogl::Program * shaderProgram, Camera * camera, glm::vec3 position, bool has2planes, float scale)
 {
 	m_fScale = scale;
 	m_pFireShader = shaderProgram;
@@ -14,32 +14,32 @@ BillboardFire::BillboardFire(tdogl::Program * shaderProgram, Camera * camera, gl
 	loadVAO();
 }
 
-BillboardFire::~BillboardFire()
+SpriteFire::~SpriteFire()
 {
 }
 
-void BillboardFire::drawNormalVAO() 
+void SpriteFire::drawNormalVAO() 
 {
 	//m_pFireShader->setUniform("model", m_mModel);
 	glBindVertexArray(m_iFireVAO);
 	glDrawArrays(GL_TRIANGLES, 0, m_iNumberOfVertices);
 	glBindVertexArray(0);
 }
-void BillboardFire::drawSecondary1VAO() 
+void SpriteFire::drawSecondary1VAO() 
 {
 	//m_pFireShader->setUniform("model", glm::rotate(m_mModel, glm::radians(90.f), glm::vec3(0, 1, 0)));
 	glBindVertexArray(m_iFireSecondaryVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(m_iFireSecondaryVAO);
 }
-void BillboardFire::drawSecondary2VAO()
+void SpriteFire::drawSecondary2VAO()
 {
 	//m_pFireShader->setUniform("model", glm::rotate(m_mModel, glm::radians(90.f), glm::vec3(0, 1, 0)));
 	glBindVertexArray(m_iFireSecondaryVAO);
 	glDrawArrays(GL_TRIANGLES, 6, 6);
 	glBindVertexArray(m_iFireSecondaryVAO);
 }
-void BillboardFire::drawFire()
+void SpriteFire::drawFire()
 {
 	// set shader
 	m_pFireShader->use();
@@ -95,29 +95,29 @@ void BillboardFire::drawFire()
 	}
 }
 
-void BillboardFire::setRotation(float radians)
+void SpriteFire::setRotation(float radians)
 {
 	m_mModel = glm::rotate(glm::translate(glm::mat4(), m_vPosition), radians, glm::vec3(0, 1, 0));
 	m_fRotation = radians;
 }
 
-glm::vec3 BillboardFire::getPosition()
+glm::vec3 SpriteFire::getPosition()
 {
 	return m_vPosition;
 }
 
-void BillboardFire::IncreaseSpeed()
+void SpriteFire::IncreaseSpeed()
 {
 	m_fAnimationSpeed -= 0.1f;
 }
 
-void BillboardFire::DecreaseSpeed()
+void SpriteFire::DecreaseSpeed()
 {
 	m_fAnimationSpeed += 0.1f;
 }
 
 
-void BillboardFire::loadVAO()
+void SpriteFire::loadVAO()
 {
 	// Load fire spritesheet
 	TextureLoader* textureLoader = new TextureLoader();
@@ -126,7 +126,7 @@ void BillboardFire::loadVAO()
 	textureLoader->~TextureLoader();
 
 	// Calculate vertices and texture uv-s
-	std::vector<glm::vec3> vertices = calculateBillboardVertices();
+	std::vector<glm::vec3> vertices = calculateSpriteVertices();
 	std::vector<glm::vec2> textureCoordinates = calculateNextTextureCoordinates();
 
 	// Load vertex array buffers & object
@@ -168,7 +168,7 @@ void BillboardFire::loadVAO()
 	}
 }
 
-std::vector<glm::vec3> BillboardFire::calculateBillboardVertices()
+std::vector<glm::vec3> SpriteFire::calculateSpriteVertices()
 {
 	std::vector<glm::vec3> vertices;
 
@@ -210,7 +210,7 @@ std::vector<glm::vec3> BillboardFire::calculateBillboardVertices()
 	return vertices;
 }
 
-std::vector<glm::vec2> BillboardFire::calculateNextTextureCoordinates()
+std::vector<glm::vec2> SpriteFire::calculateNextTextureCoordinates()
 {
 	// calculate column and row numbers for the actual sprite
 	int row = m_iActualFrame / m_iColumns;
@@ -259,39 +259,39 @@ std::vector<glm::vec2> BillboardFire::calculateNextTextureCoordinates()
 	return textureCoordinates;
 }
 
-SpriteFire::SpriteFire(tdogl::Program * shaderProgram, Camera * camera, glm::vec3 position, float scale)
+BillboardFire::BillboardFire(tdogl::Program * shaderProgram, Camera * camera, glm::vec3 position, float scale)
 {
-	m_pBillboardFire = new BillboardFire(shaderProgram, camera, position, false, scale);
+	m_pBillboardFire = new SpriteFire(shaderProgram, camera, position, false, scale);
 	m_vPosition = position;
 	m_pCamera = camera;
 }
 
-SpriteFire::~SpriteFire()
+BillboardFire::~BillboardFire()
 {
 }
 
-void SpriteFire::drawFire()
+void BillboardFire::drawFire()
 {
 	m_pBillboardFire->setRotation(calculateRotation());
 	m_pBillboardFire->drawFire();
 }
 
-glm::vec3 SpriteFire::getPosition()
+glm::vec3 BillboardFire::getPosition()
 {
 	return m_pBillboardFire->getPosition();
 }
 
-void SpriteFire::IncreaseSpeed()
+void BillboardFire::IncreaseSpeed()
 {
 	m_pBillboardFire->IncreaseSpeed();
 }
 
-void SpriteFire::DecreaseSpeed()
+void BillboardFire::DecreaseSpeed()
 {
 	m_pBillboardFire->DecreaseSpeed();
 }
 
-float SpriteFire::calculateRotation()
+float BillboardFire::calculateRotation()
 {
 	float angle = 0.f;
 	glm::vec2 cameraPos(m_pCamera->getX(), m_pCamera->getZ());

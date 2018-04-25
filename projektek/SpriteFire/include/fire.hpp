@@ -4,13 +4,13 @@
 #include "camera.hpp"
 #include <glm/glm.hpp>
 
-class BillboardFire {
+class SpriteFire {
 public:
 	/// Creates the VAO (scale will be the exact height of the billboard)
-	BillboardFire(tdogl::Program* shaderProgram, Camera* camera, glm::vec3 position, bool has2planes = false, float scale = 1.f);
+	SpriteFire(tdogl::Program* shaderProgram, Camera* camera, glm::vec3 position, bool has2planes = false, float scale = 1.f);
 
 	/// Empty
-	~BillboardFire();
+	~SpriteFire();
 
 	/// Draws fire
 	void drawFire();
@@ -54,7 +54,7 @@ private:
 	void drawSecondary2VAO();
 
 	/// Calculates the vertices for the billboard
-	std::vector<glm::vec3> calculateBillboardVertices();
+	std::vector<glm::vec3> calculateSpriteVertices();
 	int m_iNumberOfVertices;
 
 	/// Calculates the actual texture coordinates for a given frame 
@@ -67,12 +67,12 @@ private:
 	float m_fColumnstep = 1.f / m_iColumns;
 };
 
-class SpriteFire {
+class BillboardFire {
 public:
 	/// Creates the VAO
-	SpriteFire(tdogl::Program* shaderProgram, Camera* camera, glm::vec3 position, float scale = 1.f);
+	BillboardFire(tdogl::Program* shaderProgram, Camera* camera, glm::vec3 position, float scale = 1.f);
 	/// Empty
-	~SpriteFire();
+	~BillboardFire();
 
 	/// Draws fire
 	void drawFire();
@@ -87,7 +87,7 @@ public:
 	void DecreaseSpeed();
 
 private:
-	BillboardFire* m_pBillboardFire;
+	SpriteFire* m_pBillboardFire;
 
 	/// Calculates the angle (in radians) to rotate the fire, so that it faces the camera
 	float calculateRotation();
