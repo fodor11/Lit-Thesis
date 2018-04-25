@@ -354,7 +354,7 @@ void loadObjects() {
 	environment->initialize(heightMap, camera, unifColorProgram, shadersWithLight);
 	//set up fire
 	glm::vec3 firePosition1(130, heightMap->getHeight(130, 130), 130);
-	particleFire = new FireParticleSystem(camera, fireShader, firePosition1, 10000, 0.5f);
+	particleFire = new FireParticleSystem(camera, fireShader, firePosition1, 150, 0.5f);
 }
 void initialize()
 {
@@ -363,11 +363,19 @@ void initialize()
 	//Alpha functions
 	//glEnable(GL_ALPHA_TEST);
 	//glAlphaFunc(GL_GREATER, 0.5f);
+
+	/////////////////////////////// Blending functions ///////////////////////////////
 	glEnable(GL_BLEND);
 	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
 
+	// traditional blending
+	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
+
+	// additive blending
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ZERO, GL_ONE);
+
+	glDisable(GL_BLEND);
+	///////////////////////////////////////////////////////////////////////////////////
 
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 

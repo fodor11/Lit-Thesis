@@ -283,8 +283,9 @@ A másodpercenként kirajzolt képek számát egy billboard és egy 2 síkú spr
 \section{Háromdimenziós részecskerendszer alapú tűz}
 
 
+% additive(no sort, less particles) vs traditional blending
 
-
+% Depth-et kikapcsolni, mert a közeli particle-ök sorba rendezve is kitakarják egymást
 %Erre az egyik megoldás lehet a mélység puffer (depth buffer) írásának kikapcsolása a rajzolás idejére. A mélység puffer a színpufferhez hasonlóan pixelenként tárolja az információt. A feladata, hogy a nézőponthoz közelebbi objektumokat ne takarják ki az attól távolabbiak. Ha engedélyezve van a használata, akkor a fragment shader kimeneti értékének a mélységét összeveti a pufferben az annak megfelelő helyen tárolt értékkel. Ha az új kimenet értéke nagyobb, azaz távolabb van a kamerától, akkor nem íródik be az érték sem a mélység, sem a szín pufferbe. Ezt a funkcionalitást a glDepthMask(GL_FALSE) függvény segítségével lehet felfüggeszteni. Ekkor a színeket bármiféle vizsgálat nélkül írja a szín pufferbe.
 
 

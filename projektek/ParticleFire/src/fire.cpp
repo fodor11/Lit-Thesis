@@ -190,8 +190,10 @@ void FireParticleSystem::draw()
 	
 	//draw
 	glDepthMask(GL_FALSE); // blend is not quite right when 2 particles are close (like same z coord etc.)
+	glEnable(GL_BLEND);
 	glBindVertexArray(m_iParticleVAO);
 	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, m_iNumberOfParticles);
+	glDisable(GL_BLEND);
 	glDepthMask(GL_TRUE);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -295,6 +297,7 @@ void FireParticleSystem::update()
 	// sort furthest to closest from camera
 	if (m_iNumberOfParticles > 1)
 	{
+		// noo need to sort, if additive blending is used
 		std::sort(&m_pParticleContainer[0], &m_pParticleContainer[m_iNumberOfParticles]); //sort range: [container.begin(), container.end()[
 	}
 
