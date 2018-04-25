@@ -5,12 +5,19 @@
 \section{Fejlesztői környezet}
 
 \subsection{OpenGL}
-Az OpenGL egy platform- és nyelvfüggetlen alkalmazásprogramozási felület (API) 2 és 3D-s vektorgrafikus megjelenítéshez. Az API használatán keresztül elérhetjük a grafikus kártyát, így hardveresen gyorsított megjelenítést valósíthatunk meg a számítógépen. A Silicon Graphics Inc. kezdte fejleszteni, majd 1992-ben adták ki először. Széles körben alkalmazzák az iparban, többek között számítógéppel segített tervezésben (CAD), virtuális valóságokban, tudományos vizualizációk során, információ szemléltetésben, repülő szimulációkban és végül, de nem utolsó sorban a számítógépes játékokban. 2006 óta a nonprofit Khronos csoport vette át a fejlesztését. \cite{wikiOGL}
+
+% NOTE: Az OpenGL alapvetően egy nyílt grafikus függvénykönyvtár (library).
+
+Az OpenGL egy platform- és nyelvfüggetlen alkalmazásprogramozási felület (API) 2 és 3D-s vektorgrafikus megjelenítéshez. Az API használatán keresztül elérhetjük a grafikus kártyát, így hardveresen gyorsított megjelenítést valósíthatunk meg a számítógépen. A Silicon Graphics Inc. kezdte fejleszteni, majd 1992-ben adták ki először. Széles körben alkalmazzák az iparban, többek között számítógéppel segített tervezésben (CAD), virtuális valóságokban, tudományos vizualizációk során, információ szemléltetésben, repülő szimulációkban és végül, de nem utolsó sorban a számítógépes játékokban. 2006 óta a nonprofit Khronos csoport vette át a fejlesztését \cite{wikiOGL}.
 
 \subsection{Freeglut}
+
+% TODO: Érdemes behivatkozni ezt, és a többit is!
+
 Az OpenGL Utility Toolkit (GLUT) egy olyan platformfüggetlen könyvtár, amely gondoskodik a rendszerspecifikus feladatokról, melyekre ablak kezelés, OpenGL kontextusok inícializálása és bemeneti események (billentyűzet, egér) kezelése esetén van szükség. Használata gyorsan elterjedt, ugyanis egyszerű, széles körben elérhető és hordozható volt. Azonban 1998 augusztusa óta nem fejlesztették tovább, így a kód elöregedett. A FreeGLUT egy ingyenes, nyílt forráskódú alternatíva ehhez. Továbbra is fejlesztés alatt áll, és a GLUT-hoz képest több funkcióval, és kevesebb hibával rendelkezik.
 
 \subsection{OpenGL Extension Wrangler Library (GLEW)}
+
 A GLEW egy platformfüggetlen C/C++ könyvtár, amely segíti az OpenGL bővítmények (extensions) lekérdezését és betöltését. Futásidőben megállapítja, hogy az adott célhardveren mely OpenGL bővítmények támogatottak. Az összes bővítményt kigyűjti egyetlen, a számítógép által generált header fájlba, mely a hivatalos bővítmény listából készül. Több operációs rendszeren is tesztelték, többek között Windows-on, Linux-on, Mac OS X-en, FreeBSD-n, Irix-en és Solaris-on. A 2.1.0 verzió már az OpenGL 4.6-os verzióját is támogatja. 
 
 \subsection{OpenGL Mathematics}
@@ -26,31 +33,32 @@ Az következő implementációkat egy már elkészült, korábbi projekt keretei
 
 A projekt egy általam készített domborzatot tölt be, melyhez az adatokat különböző képfájlokból olvassa be. A magasságértékeket egy szürkeárnyalatos kép képpontjaiban tároltam, a hozzájuk tartozó nedvesség értékeket pedig egy másik, szintén szürkeárnyalatos képfájlban. A színeket egy olyan képből olvastam ki, ahol az egyik tengely a magasságot, a másik pedig a nedvességet jelölte, így az adott csúcspont színe a magasság és nedvesség értékéből kapható meg. A domborzathoz 260100 darab csúcspontot használtam fel. Az égbolt és a hold is gömb alakú, melyekhez a csúcspontokat, textúra koordinátákat, normál vektorokat és az ezekhez szükséges indexeket is az általam készített Sphere osztály generálja. Az ég 4225, a hold 1089 csócspontból áll. Mindezek megjelnítéséért és aktualizálásáért az Environment osztály felel.
 
-A program így 400 és 450 fps (frame per secundum) között fut, azaz másodpercenként nagyjából ennyiszer rajzolja ki a jelenetet.
+A program így 400 és 450 fps (frame per secundum) között fut, azaz másodpercenként nagyjából ennyiszer rajzolja ki a színteret.
 
 \subsection{Textúrák}
+
 A textúrák betöltéséért, paraméterezéséért, illetve az egyéb információkkal szolgáló képek beolvasásáért a TextureLoader osztályom felel a SOIL könyvtár segítségével. 
 
-Textúrát betölthetünk egyszerűen a SOIL\_load\_OGL\_texture() függvényével is , ebben az estben csupán a textúra paramétereket kell beállítani, azaz hogy a kép nyújtása vagy zsugorítása esetén milyen módszerrel mintavételezze a textúrát, illetve a $[0, 1]$ intervallumot meghaladó textúra koordináták esetén milyen módszerrel töltse ki az érintett részeket. Ennek a hátránya azonban, hogy a mintavételezési lehetőségek között nincs olyan, amely a zsugorított textúrák esetén szép képet eredményezne. Ezért készítettem a loadMipMappedTexture() függvényt, amely mipmap-et is generál a betöltött képhez a glGenerateMipmap() függvény segítségével. Mivel itt csak a SOIL\_load\_image() függvényt használom a kép beolvasásához, a textúra betöltéséről, azonosító generálásról és a pixel tárolási módról is gondoskodni kellett. Előnye viszont, hogy az adott kép több, kisebb méretben is legenerálódik, így a zsugorított textúrák is sokkal szebben mutatnak.
+Textúrát betölthetünk egyszerűen a \texttt{SOIL\_load\_OGL\_texture} függvényével is , ebben az estben csupán a textúra paramétereket kell beállítani, azaz hogy a kép nyújtása vagy zsugorítása esetén milyen módszerrel mintavételezze a textúrát, illetve a $[0, 1]$ intervallumot meghaladó textúra koordináták esetén milyen módszerrel töltse ki az érintett részeket. Ennek a hátránya azonban, hogy a mintavételezési lehetőségek között nincs olyan, amely a zsugorított textúrák esetén szép képet eredményezne. Ezért készítettem a \texttt{loadMipMappedTexture} függvényt, amely mipmap-et is generál a betöltött képhez a \texttt{glGenerateMipmap} függvény segítségével. Mivel itt csak a \texttt{SOIL\_load\_image} függvényt használom a kép beolvasásához, a textúra betöltéséről, azonosító generálásról és a pixel tárolási módról is gondoskodni kellett. Előnye viszont, hogy az adott kép több, kisebb méretben is legenerálódik, így a zsugorított textúrák is sokkal szebben mutatnak.
 
-A loadImage() függvény segítségével lehet egyszerűen képeket beolvasni. Ehhez társul a getPixelColor() függvény is, mely visszaadja a koordinátái segítségével megadott pixel RGB színét. Az értékeket a $[0, 1]$ intervallumra képeztem le ($\frac{\text{pixel érték}}{255}$).
+A \texttt{loadImage} függvény segítségével lehet egyszerűen képeket beolvasni. Ehhez társul a \texttt{getPixelColor} függvény is, mely visszaadja a koordinátái segítségével megadott pixel RGB színét. Az értékeket a $[0, 1]$ intervallumra képeztem le ($\frac{\text{pixel érték}}{255}$).
 
 \subsection{Shader-ek}
 A shader-ek betöltésére és használatára egy külső könyvtárat használtam, melynek funkciói a ``tdogl'' névteren belül találhatóak, innen lehet felismerni őket. Ez elvégzi a szükséges OpenGL beállításokat, és nagyban leegyszerűsíti az árnyaló programok használatát. A shader-ek Phong-féle megvilágítási modellt implementálnak, ezen belül is kétféle változatot készítettem. Az egyikben csúcspontonként megadhatók különböző színek, ezt használtam a domborzat kirajzolásához. A másikban pedig egy objektum kirajzolásához egy szín adható meg uniform-ként, tehát így minden csúcspont színe egyforma. Utóbbit azon objektumokra alkalmaztam, melyek színét leginkább a textúra definiálja (az égbolt és a hold).
 
 \subsection{Camera osztály}
 % camera: transzformációk, ütközésvizsgálat, időmérés
-A nézeti és projekciós mátrixok transzformációit a Camera osztályban tartom számon. Ez az osztály felel a térben való mozgásért, illetve az Y (jobbra/balra fordulás) és az X (fel/le nézés) tengely mentén való forgatásért. 
-Az elfordulási szögek radiánban vannak számontartva, és a túlcsordulások elkerülése érdekében az Y tengely menti fordulást a $[-\pi \cdot 2, \pi \cdot 2]$, az X tengely mentit pedig $[-\frac{\pi}{2}, \frac{\pi}{2}]$ intervallumra szűkítem le. Nem tartom számon külön a nézeti, és külön a projekciós mátrixot, hanem a kettő szorzatából eredő ``camera'' mátrixot használom. Az updateCamera() metódust minden kirajzolás elején meg kell hívni, ugyanis ez számolja ki a pillanatnyi camera mátrixot, és állítja be minden shader-ben uniform-ként. 
+A nézeti és projekciós mátrixok transzformációit a Camera osztályban tartom számon. Ez az osztály felel a térben való mozgásért, illetve az Y (jobbra/balra fordulás) és az $X$ (fel/le nézés) tengely mentén való forgatásért. 
+Az elfordulási szögek radiánban vannak számontartva, és a túlcsordulások elkerülése érdekében az $Y$ tengely menti fordulást a $[-\pi \cdot 2, \pi \cdot 2]$, az X tengely mentit pedig $\left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$ intervallumra szűkítem le. Nem tartom számon külön a nézeti, és külön a projekciós mátrixot, hanem a kettő szorzatából eredő ``camera'' mátrixot használom. Az \texttt{updateCamera} metódust minden kirajzolás elején meg kell hívni, ugyanis ez számolja ki a pillanatnyi camera mátrixot, és állítja be minden shader-ben uniform-ként. 
 
-Egyszerű ütközésvizsgálatra is ebben az osztályban van lehetőség, ehhez meg kell adni az akadályok pozícióinak listáját, illetve egy akadály sugarát, melyet az alapjának a befoglaló köre határoz meg. Az ütközésvizsgálat csak kétdimenziós, az XZ síkon történik. Eredetileg fákkal történő ütközésvizsgálathoz lett írva, de a tűzön való áthaladást is könnyedén meg lehet vele akadályozni, ha szükséges. A kamera új pozíciójának kiszámítása előtt letárolom a pillanatnyi pozíciót, és amennyiben az új pozícióban ütközés történik, az előző pozíció értéke marad meg. Az ütközést rendkívül egyszerűen állapítom meg: a kamera (X, Z) pozíciója és az akadály (X, Z) pozíciója közti távolságot számolom ki minden akadályra. Amennyiben ez a távolság kisebb, mint a megadott sugár, ütközés történt. Nem golyóálló a módszer, viszont rendkívül gyors.
+Egyszerű ütközésvizsgálatra is ebben az osztályban van lehetőség, ehhez meg kell adni az akadályok pozícióinak listáját, illetve egy akadály sugarát, melyet az alapjának a befoglaló köre határoz meg. Az ütközésvizsgálat csak kétdimenziós, az $XZ$ síkon történik. Eredetileg fákkal történő ütközésvizsgálathoz lett írva, de a tűzön való áthaladást is könnyedén meg lehet vele akadályozni, ha szükséges. A kamera új pozíciójának kiszámítása előtt letárolom a pillanatnyi pozíciót, és amennyiben az új pozícióban ütközés történik, az előző pozíció értéke marad meg. Az ütközést rendkívül egyszerűen állapítom meg: a kamera $(X, Z)$ pozíciója és az akadály $(X, Z)$ pozíciója közti távolságot számolom ki minden akadályra. Amennyiben ez a távolság kisebb, mint a megadott sugár, ütközés történt. Nem golyóálló a módszer, viszont rendkívül gyors.
 
-Az új pozíció meghatározásához számon kell tartani az előző kirajzolás óta eltelt időt, hiszen ha minden kirajzolás esetén ugyanannyival mozdulna el a kamera az adott irányba, akkor a hardver gyorsaságától is függne a sebessége. Mivel a glutGet(GLUT\_ELAPSED\_TIME) felbontása nem túl nagy a mai hardverek sebességéhez képest, előfordulhat, hogy többször is nullát kapunk az eltelt idő számításakor, így a kamera nem mozdul. Helyette a Windows QueryPerformanceCounter() függvényét használtam, mely megbízhatóbb e téren.
+Az új pozíció meghatározásához számon kell tartani az előző kirajzolás óta eltelt időt, hiszen ha minden kirajzolás esetén ugyanannyival mozdulna el a kamera az adott irányba, akkor a hardver gyorsaságától is függne a sebessége. Mivel a \texttt{glutGet(GLUT\_ELAPSED\_TIME)} felbontása nem túl nagy a mai hardverek sebességéhez képest, előfordulhat, hogy többször is nullát kapunk az eltelt idő számításakor, így a kamera nem mozdul. Helyette a Windows \texttt{QueryPerformanceCounter} függvényét használtam, mely megbízhatóbb e téren.
 
 \subsection{Frame per secundum mérés}
+
 % fps mérő
 Annak érdekében, hogy a kirajzolt jelenetek számításigényéről információt szerezzünk a későbbiekben, szükséges volt egy fps mérő implementálása is. Ezt két függvény segítségével valósítottam meg: calcFps() és printFps(). Előbbi kirajzolásonként kiszámítja az aktuális fps-t, amelyet az $\frac{1}{\text{eltelt idő (sec)}}$ képletből számoltam. Utóbbi a refreshTime változóban (ms) meghatározott időközönként kiírja az arra az intervallumra vonatkoztatott átlag fps-t, amelyet az fps-ek összege és a kirajzolt képek számának a hányadosa ad meg. A képernyőre való kiíratáshoz a glutBitmapCharacter(...) függvényt használtam, amely bitmap karaktereket ír ki a képernyőre. 
-
 
 \section{Kétdimenziós sprite, illetve billboard tűz}
 
@@ -138,9 +146,11 @@ else
 return angle;
 \end{lstlisting}
 Mivel a tűz alap esetben a -Z tengely felé néz, ehhez a tengelyhez kell mérni az elfordulást is. Ehhez szükség van a kamera és a tűz XZ sík menti pozícióira (cameraPos, firePos). Az eye vektor a tűz pozíciójából a kamera pozíciójába bocsátott vektor. Az $\bar{a}$ és $\bar{b}$ vektor által bezárt szög koszinuszát a következő egyenlet alapján kaphatjuk meg: 
-\begin{center}
-$\cos \alpha = \frac{\bar{a} \cdot \bar{b}}{|\bar{a}| \cdot |\bar{b}|}$
-\end{center}
+$$
+\cos \alpha = \frac{\bar{a} \cdot \bar{b}}{|\bar{a}| \cdot |\bar{b}|}
+$$
+% TODO: Nyomtatásban félkövérrel szokták jelölni inkább a vektorokat.
+
 Amennyiben a két vektor normalizált, azaz a hosszuk egységnyi hosszú, az egyenletben az osztó értéke 1, tehát azt el is hagyhatjuk, ha normalizált vektorokkal számolunk. Ezért a cosAlpha változó értékéhez elég a két vektor (eye és -Z) skaláris szorzatát venni. Mivel a két vektor által bezárt szög definíció szerint kisebb, vagy egyenlő, mint 180$^{\circ}$, a két pozíció X tengely menti helyzetéhez viszonyítva el kell dönteni, hogy mikor kell a szög -1-szeresével számolni. 
 
 % átlátszóság
@@ -210,25 +220,25 @@ A drawFire metódus mellé segédmetódusoknak külön elkészítettem a drawNor
 \end{figure}
 A kirajzoláskor a \ref{fig:billboardSorting}. ábrán látható esetek fordulhatnak elő. A piros folt a kamera helyzete, a fekete kereszt a tűz 3 külön kirajzolt billboard-ját jelképezi. A blending kedvéért a kamerától legtávolabb eső objektumokkal kell kezdeni. A renderelés sorrendjét a számok jelzik. Ez alapján jól látszik, hogy esetemben a kamera és a tűz pozíciójának Z koordinátáit kell csupán összevetni, és ezek alapján két különböző kirajzolási sorrend lehetséges. 
 Például az első eset (bal szélső kettő) kirajzolása: 
-\begin{lstlisting}
+\begin{cpp}
 if (m_pCamera->getZ() < m_vPosition.z)
 {
 	drawSecondary2VAO();
 	drawNormalVAO();
 	drawSecondary1VAO();
 }
-\end{lstlisting}
+\end{cpp}
 Így már kirajzoláskor minden nézőpontből helyes képet kapunk.
 
-Ha egymás mellé kirajzolunk egy sprite és egy kétsíkú billboard objektumot, akkor az \ref{fig:billboardFinal1}. ábrán látható eredményt kapjuk.
+Ha egymás mellé kirajzolunk egy sprite és egy kétsíkú billboard objektumot, akkor \aref{fig:billboardFinal1}. ábrán látható eredményt kapjuk.
 
-Az \ref{fig:billboardFinal2}. ábrán megfigyelhetjük, hogy a helyes sorrendbeli kirajzolásnak köszönhetően a blending szép kitakarást eredményez minden irányból.
+\Aref{fig:billboardFinal2}. ábrán megfigyelhetjük, hogy a helyes sorrendbeli kirajzolásnak köszönhetően a blending szép kitakarást eredményez minden irányból.
 
-Az \ref{fig:billboardFinal3}. ábrán mutatkozik a kétsíkú billboard egyik gyengesége. Ha ugyanazt a textúrasorozatot használjuk fel, akkor bizonyos szögekből a kép ugyanazon fele kerül egymással szembe, mely feltűnő lehet. Erre egy megoldás lehet a második síkra egy külön textúra sorozat készítése.
+\Aref{fig:billboardFinal3}. ábrán mutatkozik a kétsíkú billboard egyik gyengesége. Ha ugyanazt a textúrasorozatot használjuk fel, akkor bizonyos szögekből a kép ugyanazon fele kerül egymással szembe, mely feltűnő lehet. Erre egy megoldás lehet a második síkra egy külön textúra sorozat készítése.
 
-Az \ref{fig:billboardFinal4}. ábrán pedig megfigyelhető a kétsíkú billboard másik gyengepontja. Ha valamelyik síkra nagy szögben tekintünk, akkor feltűnővé válhat a körvonala, rombolva ezzel a látványt.
+\Aref{fig:billboardFinal4}. ábrán pedig megfigyelhető a kétsíkú billboard másik gyengepontja. Ha valamelyik síkra nagy szögben tekintünk, akkor feltűnővé válhat a körvonala, rombolva ezzel a látványt.
 
-Az \ref{fig:billboardFinal5}. ábrán enyhe felülnézetből látszik igazán a két megjelenítési mód közötti különbség. Ebből a perspektívából egyik sem szerepel túl jól.
+\Aref{fig:billboardFinal5}. ábrán enyhe felülnézetből látszik igazán a két megjelenítési mód közötti különbség. Ebből a perspektívából egyik sem szerepel túl jól.
 
 \begin{figure}[h]
  \centering
@@ -267,6 +277,7 @@ Az \ref{fig:billboardFinal5}. ábrán enyhe felülnézetből látszik igazán a 
 A másodpercenként kirajzolt képek számát egy sprite és egy 2 síkú billboard tűz nem befolyásolja, hiszen komolyabb számítást nem kell végeznie a gépnek, összesen csupán $6 \cdot 4 = 24$ pontot kell kirajzolni.
 
 %Erre az egyik megoldás lehet a mélység puffer (depth buffer) írásának kikapcsolása a rajzolás idejére. A mélység puffer a színpufferhez hasonlóan pixelenként tárolja az információt. A feladata, hogy a nézőponthoz közelebbi objektumokat ne takarják ki az attól távolabbiak. Ha engedélyezve van a használata, akkor a fragment shader kimeneti értékének a mélységét összeveti a pufferben az annak megfelelő helyen tárolt értékkel. Ha az új kimenet értéke nagyobb, azaz távolabb van a kamerától, akkor nem íródik be az érték sem a mélység, sem a szín pufferbe. Ezt a funkcionalitást a glDepthMask(GL_FALSE) függvény segítségével lehet felfüggeszteni. Ekkor a színeket bármiféle vizsgálat nélkül írja a szín pufferbe.
+
 \section{Háromdimenziós részecskerendszer alapú tűz}
 
 
