@@ -32,6 +32,9 @@ set(SOURCES 	src/main.cpp
 		src/fire.cpp
 		src/fireShader.fs
 		src/fireShader.vs
+		src/postprocessor.cpp
+		src/postProcessor.fs
+		src/postProcessor.vs
 
 		include/model.hpp
 		include/texture.hpp
@@ -42,6 +45,7 @@ set(SOURCES 	src/main.cpp
 		include/light.hpp
 		include/sphere.hpp
 		include/fire.hpp
+		include/postprocessor.hpp
 		)
 
 add_executable(Particle_fire ${SOURCES})

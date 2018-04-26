@@ -14,6 +14,7 @@
 #include "../include/sky.hpp"
 #include "../include/environment.hpp"
 #include "../include/fire.hpp"
+#include "../include/postprocessor.hpp"
 #include "tdogl/Program.h"
 
 
@@ -33,6 +34,8 @@ HeightMapLoader *heightMap;
 Environment* environment;
 // fire
 FireParticleSystem *particleFire;
+// post processing
+PostProcessor* postProcessor;
 // mouse position
 int mouseX = 0, mouseY = 0;
 // middle of the screen
@@ -120,23 +123,22 @@ void printFps()
 GLenum error;
 void display()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	//reset transformations
-	glLoadIdentity();
-
 	camera->updateCamera();
 
-	//float scale = heightMap->getScale();
-	float maxHeight = heightMap->getMaxHeight();
+	// Render to texture
+	postProcessor->startRenderingOnTexture();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	heightMap->drawTerrain();
 	environment->update();
-
-	//////////////////// Fire ////////////////////
+	heightMap->drawTerrain();
 	particleFire->draw();
-	//////////////////// Fire ////////////////////
 
+	postProcessor->stopRenderingOnTexture();
+
+	// Render to screen
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	postProcessor->draw();
 	printFps();
 
 	//check errors	
@@ -159,6 +161,7 @@ void reshape(GLsizei width, GLsizei height)
 	midX = width / 2;
 	midY = height / 2;
 	camera->setAspectRatio((float) width / (float) height);
+	postProcessor->reshape(width, height);
 }
 
 void mouseHandler(int button, int state, int x, int y)
@@ -204,6 +207,7 @@ void cleanUp() {
 	//environment->~Environment();
 	heightMap->~HeightMapLoader();
 	particleFire->~FireParticleSystem();
+	postProcessor->~PostProcessor();
 	//enable key repeat GLOBALLY
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_DEFAULT);
 }
@@ -349,6 +353,8 @@ void loadObjects() {
 	//init cam, sets the current time
 	camera = new Camera(heightMap, shadersWithLight);
 	camera->setAspectRatio(((float)midX * 2) / ((float)midY * 2));
+	//init postprocessor
+	postProcessor = new PostProcessor(midX * 2, midY * 2);
 	//set up environment
 	environment = new Environment();
 	environment->initialize(heightMap, camera, unifColorProgram, shadersWithLight);
