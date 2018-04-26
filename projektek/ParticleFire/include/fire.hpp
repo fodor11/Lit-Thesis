@@ -60,6 +60,8 @@ private:
 	float m_fSceneTime; // [milliseconds] shows how long 1 texturescene is alive
 	float m_fCurrentBlend;
 	glm::vec4 m_vColor;
+	// fire to smoke ratio = m_fFireTimeRatio : 1
+	float m_fFireTimeRatio = 0.25f;
 
 	// Rotation
 	float m_fRotation = 0.f;
@@ -91,7 +93,7 @@ private:
 	int m_iMaxParticles;
 	int m_iNumberOfParticles = 0;
 	float m_fParticlesPerSecond;
-	int m_iParticleLifetime = 1000;	// ms
+	int m_iParticleLifetime = 3000;	// ms
 	float m_fTimeSinceLastEmittedParticle = 0.f;
 
 	float m_fScale;

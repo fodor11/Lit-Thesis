@@ -36,6 +36,7 @@ FireParticle::FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection,
 	m_fAge = m_fLifeTime;
 	m_vColor = glm::vec4(0.f, 0.f, 0.f, 0.f);
 	m_fSceneTime = lifeTime / (float)m_cNumberOfTextures;
+	m_fSceneTime *= m_fFireTimeRatio; // quarter of its life is fire, three-quarter of its life is smoke
 	m_fRotationRate = rotationRate;
 	m_fSpeedRate = speedRate;
 }
@@ -73,7 +74,8 @@ bool FireParticle::update(float elapsedTime)
 		m_vPosition += m_vSpeedDirection * step * m_fSpeedRate;
 
 		// Expanding
-		m_fScale += m_fScaleRate * step * relativeAge;
+		//m_fScale += m_fScaleRate * step * relativeAge;
+		m_fScale += m_fScaleRate * step;
 
 		// Rotate
 		m_fRotation += step * m_fRotationRate;
@@ -81,8 +83,19 @@ bool FireParticle::update(float elapsedTime)
 		// Changing texture
 		float textureInfo = (m_fLifeTime - m_fAge) / m_fSceneTime;
 		m_cCurrentTexture = (int)textureInfo;
-		m_fCurrentBlend = 1.f - fmod(textureInfo, 1.0f);
-
+		if (m_cCurrentTexture < m_cNumberOfTextures)
+		{
+			// Flame
+			m_fCurrentBlend = 1.f - fmod(textureInfo, 1.0f);
+		}
+		else
+		{
+			// Smoke
+			m_cCurrentTexture = m_cNumberOfTextures;
+			// fade the somke out
+			m_fCurrentBlend = relativeAge / (1 - m_fFireTimeRatio);
+			m_fScale += 0.1 *step;
+		}
 		m_fDistanceToCamera = glm::distance2(m_vPosition, m_pCamera->getPosition());
 		return true;
 	}

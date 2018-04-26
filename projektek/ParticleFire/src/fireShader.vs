@@ -14,6 +14,7 @@ out vec3 fragVert;
 out vec2 fragTexCoord;
 out vec2 fragTexCoord2;
 out float currentBlend;
+flat out int smoke;
 
 vec2 getTextureCoord(int textureNr, float offset){
 	int row = int(textureNr) / rowCount;
@@ -43,7 +44,14 @@ void main() {
 
 	float offset = 1.0f / float(rowCount);
     fragTexCoord = getTextureCoord(textureNumber, offset);
-    fragTexCoord2 = getTextureCoord(textureNumber+1, offset);
+	// 15 should be the maximum index -> make this a uniform
+	if (textureNumber < 15) {
+		fragTexCoord2 = getTextureCoord(textureNumber+1, offset);	
+		smoke = 0;
+	}
+	else{
+		smoke = 1;
+	}
     
 	// Scaling matrix
 	float scaleValue = scale * positionAndSize.w;
