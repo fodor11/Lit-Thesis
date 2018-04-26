@@ -51,7 +51,7 @@ void SpriteFire::drawFire()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_iTextureID);
 	m_pFireShader->setUniform("tex", 0); //set 0, because it is bound to GL_TEXTURE0
-
+	glEnable(GL_BLEND);
 	// draw
 	if (m_bHas2planes)
 	{
@@ -72,7 +72,7 @@ void SpriteFire::drawFire()
 	{
 		drawNormalVAO();
 	}
-
+	glDisable(GL_BLEND);
 	// unbind everything
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);

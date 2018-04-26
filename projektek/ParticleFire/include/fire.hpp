@@ -20,6 +20,8 @@ public:
 
 	float getDistanceToCamera() const;
 
+	void applyForce(glm::vec3 direction, float speed);
+
 	inline bool operator<(const FireParticle& rhs);
 
 	float getX();
@@ -33,32 +35,40 @@ public:
 	static const int textureRowCount = 4;
 	
 private:
-
 	Camera * m_pCamera;
 
+	// Lifecycle
 	float m_fLifeTime;
 	float m_fDecayRate = 10.f;
 	float m_fAge = 0.f;
 
+	// Moving
 	glm::vec3 m_vPosition;
-
-	//glm::vec3 m_vSlowing = glm::vec3(-0.05f, -0.01f, -0.05f);
 	glm::vec3 m_vSpeedDirection;
 	float m_fSpeedRate;
 
-	float m_fDistanceToCamera;
-
+	// Scaling
 	float m_fScale = 1.f;
 	float m_fScaleRate = 0.1f;
 
+	// Data
+	float m_fDistanceToCamera;
+
+	// Textures
 	GLubyte m_cNumberOfTextures = textureRowCount * textureRowCount - 1; // 2 textures are used at the same time, last texture is only for the fade out effect, no need to display it on its own
 	int m_cCurrentTexture;
 	float m_fSceneTime; // [milliseconds] shows how long 1 texturescene is alive
 	float m_fCurrentBlend;
 	glm::vec4 m_vColor;
 
+	// Rotation
 	float m_fRotation = 0.f;
 	float m_fRotationRate = 0.5f;
+
+	// Extra forces
+	bool m_bForceApplied = false;
+	glm::vec3 m_vForceDirection;
+	float m_fForceSpeed;
 };
 
 class FireParticleSystem 
@@ -68,6 +78,8 @@ public:
 	// Clean buffers up
 	~FireParticleSystem();
 	void draw();
+	void toggleWind();
+	
 private:
 	Camera * m_pCamera;
 	tdogl::Program* m_pFireShader;
@@ -118,4 +130,12 @@ private:
 	void killParticle(int index);
 	// adds new particle to the container
 	void addParticle(float elapsedTime);
+
+	// Wind
+	bool m_bWindIsBlowing = false;
+	bool m_bStoppingWind = false;
+	glm::vec3 m_vWindDirection;
+	float m_fWindSpeed = 0.f;
+	// true if wind is blowing
+	bool calculateWindForce(float elapsedTime);
 };

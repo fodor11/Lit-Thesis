@@ -49,7 +49,7 @@ bool FireParticle::update(float elapsedTime)
 {
 	// decay
 	m_fAge -= elapsedTime;
-	float step = elapsedTime / 100.f;
+	float step = elapsedTime * 0.01f;
 
 	// check if still alive
 	if (m_fAge > 0.f)
@@ -61,6 +61,13 @@ bool FireParticle::update(float elapsedTime)
 		m_vSpeedDirection.x /= 1.f + step * 0.05f * relativeAge;
 		m_vSpeedDirection.z /= 1.f + step * 0.05f * relativeAge;
 		m_fSpeedRate /= 1.f + step * 0.01 * (1-relativeAge);
+
+		// extra forces
+		if (m_bForceApplied)
+		{
+			m_vPosition += m_vForceDirection * m_fForceSpeed * step;
+			m_bForceApplied = false;
+		}
 
 		// Moving
 		m_vPosition += m_vSpeedDirection * step * m_fSpeedRate;
@@ -85,6 +92,13 @@ bool FireParticle::update(float elapsedTime)
 float FireParticle::getDistanceToCamera() const
 {
 	return m_fDistanceToCamera;
+}
+
+void FireParticle::applyForce(glm::vec3 direction, float speed)
+{
+	m_vForceDirection = direction;
+	m_fForceSpeed = speed;
+	m_bForceApplied = true;
 }
 
 inline bool FireParticle::operator<(const FireParticle & rhs)
@@ -201,6 +215,20 @@ void FireParticleSystem::draw()
 	m_pFireShader->stopUsing();
 }
 
+void FireParticleSystem::toggleWind()
+{
+	if (m_bWindIsBlowing)
+	{
+		m_bStoppingWind = true;
+	}
+	else
+	{
+		m_vWindDirection = glm::vec3(0.5f, 0.f, 0.5f);
+		m_bWindIsBlowing = true;
+		m_bStoppingWind = false;
+	}
+}
+
 void FireParticleSystem::loadBaseVAO()
 {
 	// Load fire spritesheet
@@ -277,9 +305,17 @@ void FireParticleSystem::update()
 	m_fTimeSinceLastEmittedParticle += elapsedTime;
 	int newParticlesCount = (int)(m_fTimeSinceLastEmittedParticle * 0.001f * m_fParticlesPerSecond);
 
+	calculateWindForce(elapsedTime);
+
 	for (int i = 0; i < m_iNumberOfParticles; i++)
 	{
-		if (!m_pParticleContainer[i].update(elapsedTime))
+		FireParticle &fp = m_pParticleContainer[i];
+		if (m_bWindIsBlowing)
+		{
+			fp.applyForce(m_vWindDirection, m_fWindSpeed);
+		}
+
+		if (!fp.update(elapsedTime))
 		{
 			// if the particle died
 			killParticle(i);
@@ -358,4 +394,35 @@ void FireParticleSystem::addParticle(float elapsedTime)
 		m_iNumberOfParticles++;
 		m_fTimeSinceLastEmittedParticle = 0.f;
 	}
+}
+
+bool FireParticleSystem::calculateWindForce(float elapsedTime)
+{
+	// Apply wind forces
+	if (m_bWindIsBlowing)
+	{
+		float step = elapsedTime * 0.005f;
+		// wind is either slowing down or accelerating
+		if (m_fWindSpeed < 0.5f || m_bStoppingWind)
+		{
+			// slowing wind to stop
+			if (m_bStoppingWind && m_fWindSpeed > 0.f)
+			{
+				m_fWindSpeed -= 0.05 * step;
+			}
+			// turn off wind
+			else if (m_fWindSpeed < 0.f)
+			{
+				m_bWindIsBlowing = false;
+				m_bStoppingWind = false;
+				m_fWindSpeed = 0.f;
+			}
+			// accelerating wind
+			else
+			{
+				m_fWindSpeed += 0.05 * step;
+			}
+		}
+	}
+	return m_bWindIsBlowing;
 }

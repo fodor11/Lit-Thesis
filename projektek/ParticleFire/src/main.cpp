@@ -255,7 +255,7 @@ void keyboard(unsigned char key, int x, int y)
 		
 		break;
 	case 'm':
-		environment->toggleMoonlight();
+		particleFire->toggleWind();
 		break;
 	case 27:
 		cleanUp();
