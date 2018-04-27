@@ -216,12 +216,12 @@ void FireParticleSystem::draw()
 	m_pFireShader->setUniform("tex", 0); //set 0, because it is bound to GL_TEXTURE0
 	
 	//draw
-	glDepthMask(GL_FALSE); // blend is not quite right when 2 particles are close (like same z coord etc.)
+	glDepthFunc(GL_ALWAYS); // blend is not quite right when 2 particles are close (like same z coord etc.), but still writing depth values
 	glEnable(GL_BLEND);
 	glBindVertexArray(m_iParticleVAO);
 	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, m_iNumberOfParticles);
 	glDisable(GL_BLEND);
-	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
@@ -232,13 +232,12 @@ void FireParticleSystem::toggleWind()
 {
 	if (m_bWindIsBlowing)
 	{
-		m_bStoppingWind = true;
+		m_bStoppingWind = !m_bStoppingWind;
 	}
 	else
 	{
 		m_vWindDirection = glm::vec3(0.5f, 0.f, 0.5f);
 		m_bWindIsBlowing = true;
-		m_bStoppingWind = false;
 	}
 }
 

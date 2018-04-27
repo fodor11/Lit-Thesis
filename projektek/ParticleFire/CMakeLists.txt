@@ -35,6 +35,10 @@ set(SOURCES 	src/main.cpp
 		src/postprocessor.cpp
 		src/postProcessor.fs
 		src/postProcessor.vs
+		src/noEffectFBO.fs
+		src/noEffectFBO.vs
+		src/blendPictures.fs
+		src/blendPictures.vs
 
 		include/model.hpp
 		include/texture.hpp

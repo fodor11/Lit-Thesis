@@ -35,7 +35,9 @@ Environment* environment;
 // fire
 FireParticleSystem *particleFire;
 // post processing
-PostProcessor* postProcessor;
+PostProcessor* renderedBackground;
+PostProcessor* renderedFire;
+PostProcessor* finalPicture;
 // mouse position
 int mouseX = 0, mouseY = 0;
 // middle of the screen
@@ -98,16 +100,18 @@ void printFps()
 		fpsCounter = 0;
 		fpsSum = 0.0;
 		timeSinceLastUpdate = 0;
+
+		std::cout << "fps: " << currentFPS << std::endl;
 	}
 
-    std::stringstream fpsStream;
-    fpsStream << "fps: " << currentFPS;
-    std::string fpsString = fpsStream.str();
+    //std::stringstream fpsStream;
+    //fpsStream << "fps: " << currentFPS;
+    //std::string fpsString = fpsStream.str();
 
-	for (int i = 0; i < strlen(fpsString.c_str()); i++)
+	/*for (int i = 0; i < strlen(fpsString.c_str()); i++)
 	{
 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, fpsString[i]);
-	}
+	}*/
 
 	//////////// OpenGL stuff ////////////
 	glEnable(GL_TEXTURE_2D);
@@ -126,19 +130,30 @@ void display()
 	camera->updateCamera();
 
 	// Render to texture
-	postProcessor->startRenderingOnTexture();
+	renderedBackground->startRenderingOnTexture();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	environment->update();
 	heightMap->drawTerrain();
-	particleFire->draw();
+	renderedBackground->stopRenderingOnTexture();
 
-	postProcessor->stopRenderingOnTexture();
+	renderedFire->startRenderingOnTexture();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	particleFire->draw();
+	renderedFire->stopRenderingOnTexture();
+
+	finalPicture->startRenderingOnTexture();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	renderedBackground->setOffset(glutGet(GLUT_ELAPSED_TIME) * 0.01f);
+	renderedBackground->draw();
+	finalPicture->stopRenderingOnTexture();
 
 	// Render to screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	postProcessor->draw();
+	// TODO: add these in the initialization step
+	finalPicture->addTexture(renderedFire->getTextureId());
+	finalPicture->addForegroundDepth(renderedFire->getDepthId());
+	finalPicture->addBackgroundDepth(renderedBackground->getDepthId());
+	finalPicture->draw();
 	printFps();
 
 	//check errors	
@@ -161,7 +176,7 @@ void reshape(GLsizei width, GLsizei height)
 	midX = width / 2;
 	midY = height / 2;
 	camera->setAspectRatio((float) width / (float) height);
-	postProcessor->reshape(width, height);
+	renderedBackground->reshape(width, height);
 }
 
 void mouseHandler(int button, int state, int x, int y)
@@ -207,7 +222,9 @@ void cleanUp() {
 	//environment->~Environment();
 	heightMap->~HeightMapLoader();
 	particleFire->~FireParticleSystem();
-	postProcessor->~PostProcessor();
+	renderedBackground->~PostProcessor();
+	renderedFire->~PostProcessor();
+	finalPicture->~PostProcessor();
 	//enable key repeat GLOBALLY
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_DEFAULT);
 }
@@ -353,8 +370,10 @@ void loadObjects() {
 	//init cam, sets the current time
 	camera = new Camera(heightMap, shadersWithLight);
 	camera->setAspectRatio(((float)midX * 2) / ((float)midY * 2));
-	//init postprocessor
-	postProcessor = new PostProcessor(midX * 2, midY * 2);
+	//init postprocessors
+	renderedBackground = new PostProcessor("postprocessor", midX * 2, midY * 2);
+	renderedFire = new PostProcessor("noEffectFBO", midX * 2, midY * 2);
+	finalPicture = new PostProcessor("blendPictures", midX * 2, midY * 2);
 	//set up environment
 	environment = new Environment();
 	environment->initialize(heightMap, camera, unifColorProgram, shadersWithLight);
@@ -379,12 +398,12 @@ void initialize()
 	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
 
 	// additive blending
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ZERO, GL_ONE);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO); // taking the foregrounds alpha, because it is used in post processing
 
 	glDisable(GL_BLEND);
 	///////////////////////////////////////////////////////////////////////////////////
 
-	glClearColor(1.0, 1.0, 1.0, 0.0);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glMatrixMode(GL_PROJECTION);
 
