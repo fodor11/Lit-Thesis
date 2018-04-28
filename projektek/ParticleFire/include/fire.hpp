@@ -81,6 +81,7 @@ public:
 	~FireParticleSystem();
 	void draw();
 	void toggleWind();
+	float getDistance();
 	
 private:
 	Camera * m_pCamera;

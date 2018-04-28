@@ -192,6 +192,7 @@ FireParticleSystem::~FireParticleSystem()
 void FireParticleSystem::draw()
 {
 	update();
+
 	//std::cout << "count: " << m_iNumberOfParticles << std::endl;
 	m_pFireShader->use();
 
@@ -239,6 +240,11 @@ void FireParticleSystem::toggleWind()
 		m_vWindDirection = glm::vec3(0.5f, 0.f, 0.5f);
 		m_bWindIsBlowing = true;
 	}
+}
+
+float FireParticleSystem::getDistance()
+{
+	return glm::distance(m_pCamera->getPosition(), m_vPosition);
 }
 
 void FireParticleSystem::loadBaseVAO()

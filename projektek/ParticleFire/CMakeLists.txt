@@ -39,6 +39,8 @@ set(SOURCES 	src/main.cpp
 		src/noEffectFBO.vs
 		src/blendPictures.fs
 		src/blendPictures.vs
+		src/createDistortionMap.fs
+		src/createDistortionMap.vs
 
 		include/model.hpp
 		include/texture.hpp

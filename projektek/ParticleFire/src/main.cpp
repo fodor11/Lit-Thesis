@@ -37,6 +37,7 @@ FireParticleSystem *particleFire;
 // post processing
 PostProcessor* renderedBackground;
 PostProcessor* renderedFire;
+PostProcessor* distortionMap;
 PostProcessor* finalPicture;
 // mouse position
 int mouseX = 0, mouseY = 0;
@@ -130,30 +131,47 @@ void display()
 	camera->updateCamera();
 
 	// Render to texture
+	// Render normal background
 	renderedBackground->startRenderingOnTexture();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	environment->update();
 	heightMap->drawTerrain();
 	renderedBackground->stopRenderingOnTexture();
 
+	// Render normal fire
 	renderedFire->startRenderingOnTexture();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	particleFire->draw();
 	renderedFire->stopRenderingOnTexture();
 
+	// Render distortion map using the rendered fire texture
+	distortionMap->addTexture(renderedFire->getTextureId());
+	distortionMap->setOffset(particleFire->getDistance());
+	distortionMap->startRenderingOnTexture();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	distortionMap->draw(false);
+	distortionMap->stopRenderingOnTexture();
+
+	// Render distorted background into the final picture's color buffer
 	finalPicture->startRenderingOnTexture();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderedBackground->setOffset(glutGet(GLUT_ELAPSED_TIME) * 0.01f);
+	renderedBackground->addTexture(distortionMap->getTextureId());
+	renderedBackground->addForegroundDepth(renderedFire->getDepthId());
+	renderedBackground->addBackgroundDepth(renderedBackground->getDepthId());
 	renderedBackground->draw();
 	finalPicture->stopRenderingOnTexture();
 
 	// Render to screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// Render distorted bg and normal fire using depthtesting
 	// TODO: add these in the initialization step
 	finalPicture->addTexture(renderedFire->getTextureId());
 	finalPicture->addForegroundDepth(renderedFire->getDepthId());
 	finalPicture->addBackgroundDepth(renderedBackground->getDepthId());
 	finalPicture->draw();
+
+
 	printFps();
 
 	//check errors	
@@ -225,6 +243,7 @@ void cleanUp() {
 	renderedBackground->~PostProcessor();
 	renderedFire->~PostProcessor();
 	finalPicture->~PostProcessor();
+	distortionMap->~PostProcessor();
 	//enable key repeat GLOBALLY
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_DEFAULT);
 }
@@ -374,6 +393,7 @@ void loadObjects() {
 	renderedBackground = new PostProcessor("postprocessor", midX * 2, midY * 2);
 	renderedFire = new PostProcessor("noEffectFBO", midX * 2, midY * 2);
 	finalPicture = new PostProcessor("blendPictures", midX * 2, midY * 2);
+	distortionMap = new PostProcessor("createDistortionMap", midX * 2, midY * 2);
 	//set up environment
 	environment = new Environment();
 	environment->initialize(heightMap, camera, unifColorProgram, shadersWithLight);

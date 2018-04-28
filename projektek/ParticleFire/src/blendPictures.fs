@@ -21,7 +21,4 @@ void main() {
     else{
         finalColor = background;
     }
-
-    //finalColor = vec4(foreground.rgb + background.rgb * (1.f - foreground.a), background.a);
-    //finalColor = vec4(foreground.rgb + background.rgb, background.a);
 }

@@ -14,7 +14,7 @@ public:
 	void startRenderingOnTexture();
 	void stopRenderingOnTexture();
 
-	void draw();
+	void draw(bool renderOwnTexture = true);
 
 	void setOffset(float offset);
 	void addTexture(GLuint textureId);
@@ -25,6 +25,7 @@ public:
 
 	void reshape(int newWidth, int newHeigth);
 private:
+
 	GLuint m_iFbo;
 	GLuint m_iFbo_texture;
 	GLuint m_iRbo_depth;

@@ -33,13 +33,16 @@ void PostProcessor::stopRenderingOnTexture()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void PostProcessor::draw()
+void PostProcessor::draw(bool renderOwnTexture)
 {
 	m_pShader->use();
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_iFbo_texture);
-	m_pShader->setUniform("tex", 0); //set 0, because it is bound to GL_TEXTURE0
+	if (renderOwnTexture)
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_iFbo_texture);
+		m_pShader->setUniform("tex", 0); //set 0, because it is bound to GL_TEXTURE0
+	}
 
 	if (m_iAdditionalTexture != NULL)
 	{
