@@ -79,7 +79,7 @@ void Sky::createSkyVAO()
 	glGenVertexArrays(1, &m_uiSkyVAO);
 	glBindVertexArray(m_uiSkyVAO);
 
-	Sphere skySphere(1500.0f, 64, 64, false);
+	Sphere skySphere(500.0f, 64, 64, false);
 
 	// create and bind the VBO for vertices
 	glGenBuffers(1, &m_uiSkyVBO);

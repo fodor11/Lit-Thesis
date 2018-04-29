@@ -215,13 +215,22 @@ void FireParticleSystem::draw()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_iTextureID);
 	m_pFireShader->setUniform("tex", 0); //set 0, because it is bound to GL_TEXTURE0
+	if (m_iBackgroundTexture != NULL)
+	{
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, m_iBackgroundTexture);
+		m_pFireShader->setUniform("backgroundDepth", 1);
+		m_pFireShader->setUniform("distanceToCamera", getDistance());
+	}
 	
 	//draw
 	glDepthFunc(GL_ALWAYS); // blend is not quite right when 2 particles are close (like same z coord etc.), but still writing depth values
+	//glDepthMask(GL_FALSE);
 	glEnable(GL_BLEND);
 	glBindVertexArray(m_iParticleVAO);
 	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, m_iNumberOfParticles);
 	glDisable(GL_BLEND);
+	//glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LESS);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -245,6 +254,11 @@ void FireParticleSystem::toggleWind()
 float FireParticleSystem::getDistance()
 {
 	return glm::distance(m_pCamera->getPosition(), m_vPosition);
+}
+
+void FireParticleSystem::addBackgroundDepth(GLuint texture)
+{
+	m_iBackgroundTexture = texture;
 }
 
 void FireParticleSystem::loadBaseVAO()
@@ -351,7 +365,7 @@ void FireParticleSystem::update()
 	// sort furthest to closest from camera
 	if (m_iNumberOfParticles > 1)
 	{
-		// noo need to sort, if additive blending is used
+		// noo need to sort, if additive blending is used, but its needed in postprocessing
 		std::sort(&m_pParticleContainer[0], &m_pParticleContainer[m_iNumberOfParticles]); //sort range: [container.begin(), container.end()[
 	}
 

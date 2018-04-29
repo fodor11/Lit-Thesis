@@ -141,6 +141,7 @@ void display()
 	// Render normal fire
 	renderedFire->startRenderingOnTexture();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	particleFire->addBackgroundDepth(renderedBackground->getDepthId());
 	particleFire->draw();
 	renderedFire->stopRenderingOnTexture();
 
@@ -171,6 +172,9 @@ void display()
 	finalPicture->addBackgroundDepth(renderedBackground->getDepthId());
 	finalPicture->draw();
 
+	//environment->update();
+	//heightMap->drawTerrain();
+	//particleFire->draw();
 
 	printFps();
 
@@ -405,7 +409,7 @@ void loadObjects() {
 void initialize()
 {
 	cout << "Init ..." << endl;
-	
+
 	//Alpha functions
 	//glEnable(GL_ALPHA_TEST);
 	//glAlphaFunc(GL_GREATER, 0.5f);

@@ -82,6 +82,7 @@ public:
 	void draw();
 	void toggleWind();
 	float getDistance();
+	void addBackgroundDepth(GLuint texture);
 	
 private:
 	Camera * m_pCamera;
@@ -98,6 +99,8 @@ private:
 	float m_fTimeSinceLastEmittedParticle = 0.f;
 
 	float m_fScale;
+
+	GLuint m_iBackgroundTexture = NULL;
 
 	GLuint m_iParticleVAO;
 	// base mesh

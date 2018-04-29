@@ -70,8 +70,8 @@ public:
 private:
 	/// projection
 	float m_fFieldOfView = 50.0f;
-	float m_fNearPlane = 0.01f;
-	float m_fFarPlane = 2000.f;
+	float m_fNearPlane = 0.1f;
+	float m_fFarPlane = 650.f;
 	float m_fViewportAspectRatio = 4.f/3.f;
 	/// matrices
 	glm::mat4 m_mView;

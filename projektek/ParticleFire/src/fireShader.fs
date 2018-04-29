@@ -1,6 +1,9 @@
 #version 400
+#define SOFTPARTICLES
 
 uniform sampler2D tex;
+uniform sampler2D backgroundDepth;
+uniform float distanceToCamera;
 
 in vec3 fragVert;
 in vec2 fragTexCoord;
@@ -33,5 +36,21 @@ void main() {
         finalColor = vec4(currentBlend * textureColor.rgba + (1 - currentBlend) * textureColor2.rgba);
     }
 
-    //finalColor = vec4(1,1,1,1);
+    #ifdef SOFTPARTICLES
+
+    float bgDepth = texture2D(backgroundDepth, gl_FragCoord.xy / vec2(860.f,640.f)).r;
+    if (bgDepth > gl_FragCoord.z){
+        float distance = bgDepth - gl_FragCoord.z;
+        float threshold = 0.1f / pow(distanceToCamera, 2);
+        if(distance < threshold)
+        {
+            float blend = distance / threshold;
+            finalColor.a = blend * finalColor.a;
+        }
+    }
+    else{
+        discard;
+    }
+
+    #endif
 }
