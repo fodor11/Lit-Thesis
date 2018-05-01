@@ -1,17 +1,20 @@
 \Chapter{A tűz fizikája}
 
 % TODO: Leírni, hogy a tűz fizikája (beleértve a megjelenítés optikáját) hogyan működik nagyvonalakban!
+
 Az ősi görögök és alkemisták úgy vélték, hogy a tűz maga is egy elem a föld, levegő és víz mellett. Egy elemet napjainkban azonban az alapján definiálnak, hogy magában a tiszta anyagban mennyi proton található. A tűz viszont számos más anyagból áll, így nem lehet elem. 
 
-A tűz nagyrészt forró gázok keveréke. A lángok egy kémiai reakció - elsősorban a levegőben lévő oxigén és valamilyen ``üzemanyag'' közötti kölcsönhatás - következményei. Ilyen üzemanyag lehet a fa vagy a propán is.
+A tűz nagyrészt forró gázok keveréke. A lángok egy kémiai reakció -- elsősorban a levegőben lévő oxigén és valamilyen ``üzemanyag'' közötti kölcsönhatás -- következményei. Ilyen üzemanyag lehet a fa vagy a propán is.
 
-Más termékek mellett a reakció széndioxidot és gőzt termel. A tűz fényt és hőt is bocsát ki, ugyanis az égés exoterm folyamat, tehát több energiát termel, mint amennyire szükség van a gyulladáshoz vagy a lángok fenntartásához. Az égés létrejöttéhez és a lángok keletkezéséhez szükség van üzemanyagra, oxigénre és energiára, mely legtöbbször hő formájában van jelen. Ha egyszer az energia beindítja a folyamatot, akkor az egészen addig tart, amíg az üzemanyag és oxigén jelen vannak. \cite{firePhysics2}
+Más termékek mellett a reakció széndioxidot és gőzt termel. A tűz fényt és hőt is bocsát ki, ugyanis az égés exoterm folyamat, tehát több energiát termel, mint amennyire szükség van a gyulladáshoz vagy a lángok fenntartásához. Az égés létrejöttéhez és a lángok keletkezéséhez szükség van üzemanyagra, oxigénre és energiára, mely legtöbbször hő formájában van jelen. Ha egyszer az energia beindítja a folyamatot, akkor az egészen addig tart, amíg az üzemanyag és oxigén jelen vannak \cite{firePhysics2}.
 
 Ha a láng elég forró, a gázok ionizálódnak és egy új halmazállapotba lépnek: plazmává válnak. Fém égetése, mint például a magnéziumé, képes ionizálni az atomokat és plazmát formázni. Az oxidáció ezen formája a plazma fáklya intenzív fényének és hőjének is a forrása.
 
 Egy átlagos tűzben is lezajlik némi ionizáció, ám a lángban található anyagok nagyrésze gáz formában van jelen, így a tűz halmazállapotát leginkább a gáz jellemzi, egy kevés plazmával vegyítve.
 
 A láng struktúrája annak függvényében változik, hogy melyik részét vizsgáljuk. A láng alapjánál oxigén és üzemanyaggőz keveredik elégetlen gázokként. Ennek a résznek a tartalma az égő üzemanyagtól függ. Efelett a régió felett lépnek egymással reakcióba a molekulák az égés során. 
+
+% TODO: Ide esetleg lehet egy egyszerűbb ábra, hogy a tűz egyes részei milyért olyan színűek, amilyenek.
 
 Ezen régió felett pedig az égés már lezajlott, így itt a kémiai reakció végtermékei találhatóak. Ez legtöbb esetben szén-dioxid és vízgőz. Ha az égés nem tökéletes, akkor még pernye és hamu is fellelhető mellettük. Tökéletlen égés következtében további gázok is keletkezhetnek, főleg olyan ``piszkos'' tüzelőanyagok esetén, mint a szén-monoxid és a kén-dioxid.
 
@@ -21,26 +24,29 @@ A lángok színe a hőmérsékletüket és az üzemanyag kémiai összetételét
 
 \cite{firePhysics1}
 
-A lángokban a fénytörés általában kis mértékű, az elhajlás szöge kisebb mint 0.1$^{\circ}$. Ennek ellenére azonban néha ekkora fénytörés is elegendő ahhoz, hogy vizuálisan jelentős torzítást okozzon a háttér képében, hasonlóan a délibábhoz a forró aszfalt felett. Ez a jelenség még szembetűnőbb mikor hosszabb időn át figyeljük meg a tüzet, ekkor ugyanis a fénytörő mező turbulens természete felfedi magát a háttér kaotikus hullámzásán keresztül.
-\cite{swhThreeDimensionalReconst}
+A lángokban a fénytörés általában kis mértékű, az elhajlás szöge kisebb mint 0.1$^{\circ}$. Ennek ellenére azonban néha ekkora fénytörés is elegendő ahhoz, hogy vizuálisan jelentős torzítást okozzon a háttér képében, hasonlóan a délibábhoz a forró aszfalt felett. Ez a jelenség még szembetűnőbb mikor hosszabb időn át figyeljük meg a tüzet, ekkor ugyanis a fénytörő mező turbulens természete felfedi magát a háttér kaotikus hullámzásán keresztül\cite{swhThreeDimensionalReconst}.
 
 \section{A tűz természetéből fakadó nehézségek}
+
 Az égést, mint kémiai jelenséget, még ha ismernénk is minden részletet sem tudnánk elfogadható időn belül szimulálni  \cite{firestarter}.
 
-A tűz a jelenetek egyik drámai eleme, így azt a lehető legnagyobb szinten kell tudni befolyásolni amellett, hogy közben hiteles is maradjon. Kiszámíthatatlannak és összetettnek kell tűnnie, ugyanakkor az adott körülményeknek megfelelően felismerhető struktúrájúnak kell lennie. Ebből a bonyolultságból és a szemlélői elvárásokból kifolyólag nem túl életképes a tűz animálása közvetlen numerikus szimuláció segítségével, ugyanis:
+A tűz a jelenetek egyik drámai eleme, így azt a lehető legnagyobb szinten kell tudni befolyásolni amellett, hogy közben hiteles is maradjon. Kiszámíthatatlannak és összetettnek kell tűnnie, ugyanakkor az adott körülményeknek megfelelően felismerhető struktúrájúnak kell lennie. Ebből a bonyolultságból és a szemlélői elvárásokból kifolyólag nem túl életképes a tűz animálása közvetlen numerikus szimuláció segítségével az alábbi okok miatt.
 \begin{itemize}
 \item
-A numerikus szimulációk nagyban függenek a részletesség szintjétől. Ahogy egy 3D-s szimuláció felbontása finomodik, a számítási összetettsége legalább $O(n^3)$ szerint nő. Ha akár csak egy kisebb tüzet is szeretnénk részleteiben megjeleníteni, az nagyon magas számítási igényű rendereléshez vezet.
+A numerikus szimulációk nagyban függenek a részletesség szintjétől. Ahogy egy 3D-s szimuláció felbontása finomodik, a számítási összetettsége legalább $\mathcal{O}(n^3)$ szerint nő. Ha akár csak egy kisebb tüzet is szeretnénk részleteiben megjeleníteni, az nagyon magas számítási igényű rendereléshez vezet.
 \item
 Azok a (nagy számú) faktorok, melyek a tűz megjelenését határozzák meg különféle körülmények között, egy egymástól függő paraméterekből álló teret alkotnak. Ilyen fizikai rendszerre nehéz olyan függvényeket írni, melyek segítségével könnyen lehetne befolyásolni a tüzet. 
 \item
-A tűz maga a zűrzavar. Apró változtatások a kiinduló környezetben rendkívül eltérő eredményeket produkálnak. Az animálás szemszögéből nehéz egy kívánt eredmény felé terelni a folyamatokat \cite{ArNiStructuralModeling}.
+A tűz maga a zűrzavar, egy kaotikus rendszer. Apró változtatások a kiinduló környezetben rendkívül eltérő eredményeket produkálnak. Az animálás szemszögéből nehéz egy kívánt eredmény felé terelni a folyamatokat \cite{ArNiStructuralModeling}.
 \end{itemize}
 
-Más-más alkalmazási területek különféle szempontokat tartanak szem előtt, mikor a tűz természetéről, megjelenéséről, és a megjelenítési időről van szó. Például:
+Más-más alkalmazási területek különféle szempontokat tartanak szem előtt, mikor a tűz természetéről, megjelenéséről, és a megjelenítési időről van szó.
 
+\begin{itemize}
+\item
 Egy videojátékban az elsődleges szempont hogy valós időben (25-60 frame per secundum) lehessen renderelni a jelenséget, a kinézetnek is a lehetőségek szerint valóságosnak kell tűnnie. A legtöbb esetben csupán díszítő funkciót tölt be, így a terjedés fizikája és az interakció kevésbé lényeges.
-
+\item
 Egy mozifilmben a legfontosabb, hogy minél élethűbb legyen, és esetlegesen lehessen kontrollálni a kinézetét. A renderelésnek itt már nem kell valós idejűnek lennie, illetve sem a tűz terjedésének fizikája, sem a vele való interakció nem játszik szerepet.
-
-Egy virtuális valóságban - például egy tűzoltó szimulációs szoftverben - ismét szempont a valós idejű renderelés, de itt a tűzzel való interakció lehetősége és a terjedésének fizikája egyaránt fontosabb, mint maga a megjelenés.
+\item
+Egy virtuális valóságban -- például egy tűzoltó szimulációs szoftverben -- ismét szempont a valós idejű renderelés, de itt a tűzzel való interakció lehetősége és a terjedésének fizikája egyaránt fontosabb, mint maga a megjelenés.
+\end{itemize}

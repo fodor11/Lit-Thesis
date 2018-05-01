@@ -2,18 +2,13 @@
 
 A tűz úgy írható le, mint egy éghető anyag gyors, önfenntartó oxidációs folyamata. Ez az egyik legfontosabb és az egyik legszebb természeti jelenség, melynek számítógépi grafikai megjelenítése a mai napig nagy kihívást jelent, ha valós idejű, valósághű szimulációt szeretnénk elérni. Számítógépi megjelenítését széles körben alkalmazzák, többek között a mozifilmek speciális effektjeiben, tudományos szimulációkban, videojátékokban, stb. \cite{steinemannFire}.
 
-A tűz különféle megjelenítési módjait a grafikában két egyszerűbb részre lehet osztani. Az első kategóriába tartoznak azok a 2 dimenziós renderelési technikák, melyek textúrák sorozatát használják a megjelenítéshez. Ezek a sorozatok lehetnek valós, generált vagy egyéb módon megalkotott képek, s gyakran egy billboardon (sík lap, amely a rá húzott textúrának biztosít felületet) jelenítik meg őket. A legkifinomultabb verziók felhasználnak még Perlin zajt, vagy más, hasonló megközelítést a tűz dinamikájának érzékeltetéséhez. Leginkább torkolattűz vagy rövidebb robbanás megjelenítésére alkalmas, néhány fényforrást elhelyezve körülötte pedig tovább növelhető a valósághűsége, alacsonyan tartva a számítási igényt. Ezen módszerek előnye, hogy könnyű őket 3 dimenziós környezetben implementálni, így széles körben felhasználhatók, de gyakran nem tűnnek valóságosnak a 3D-s környezetben. Másrészt a textúrákat mindig vagy merőlegesen kell kirajzolni a nézőpont irányára, vagy pedig a már renderelt képre kell leképezni őket. További hiányossága ezen módszereknek, hogy nem adnak lehetőséget a tűzzel való interakcióra, mint ahogy az egy virtuális valóságban elvárható lenne. \cite{steinemannFire}
+A tűz különféle megjelenítési módjait a grafikában két egyszerűbb részre lehet osztani. Az első kategóriába tartoznak azok a 2 dimenziós renderelési technikák, melyek textúrák sorozatát használják a megjelenítéshez. Ezek a sorozatok lehetnek valós, generált vagy egyéb módon megalkotott képek, s gyakran egy billboardon (sík lap, amely a rá húzott textúrának biztosít felületet) jelenítik meg őket. A legkifinomultabb verziók felhasználnak még Perlin zajt, vagy más, hasonló megközelítést a tűz dinamikájának érzékeltetéséhez. Leginkább torkolattűz vagy rövidebb robbanás megjelenítésére alkalmas, néhány fényforrást elhelyezve körülötte pedig tovább növelhető a valósághűsége, alacsonyan tartva a számítási igényt. Ezen módszerek előnye, hogy könnyű őket 3 dimenziós környezetben implementálni, így széles körben felhasználhatók, de gyakran nem tűnnek valóságosnak a 3D-s környezetben. Másrészt a textúrákat mindig vagy merőlegesen kell kirajzolni a nézőpont irányára, vagy pedig a már renderelt képre kell leképezni őket. További hiányossága ezen módszereknek, hogy nem adnak lehetőséget a tűzzel való interakcióra, mint ahogy az egy virtuális valóságban elvárható lenne \cite{steinemannFire}.
 
 A második kategóriába a 3D-s technológiák tartoznak. Ezek legfőbb előnye, hogy valósághűbb eredményeket produkálnak a következő pontokban:
 \begin{itemize}
-\item
-Vizuális megjelenés és dinamika.
-\item
-A terjedés és tágulás modellezése.
-\item
-A lehetőség hogy más objektumok kapcsolatba léphessenek a tűzzel.
+\item Vizuális megjelenés és dinamika.
+\item A terjedés és tágulás modellezése.
+\item A lehetőség hogy más objektumok kapcsolatba léphessenek a tűzzel.
 \end{itemize}
 A legnagyobb problémát ebben a kategóriában az égő gázok reprezentálása és modellezése a lángokban, a termodinamikájuk modellje és a renderelési módszer kiválasztása okozza.
-Rengeteg féle módszert dolgoztak már ki a tűz megjelenítésére, többek között: részecske-, folyadék- és láng-alapú módszereket. \cite{steinemannFire} \\
-A dolgozat célja ezen kategóriák bemutatása.
-
+Rengeteg féle módszert dolgoztak már ki a tűz megjelenítésére, többek között: részecske-, folyadék- és láng-alapú módszereket \cite{steinemannFire}. A dolgozat célja ezen kategóriák bemutatása.
