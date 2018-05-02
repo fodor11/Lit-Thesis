@@ -1,19 +1,20 @@
 \Chapter{Tűz modellek}
 
 % TODO: Leírni, hogy milyen saját tűzmodellek implementálására fog majd sor kerülni!
+% TODO: Alcímek legyenek?
 
 \section{Kétdimenziós tűz textúrák segítségével}
 
-A legegyszerűbb, legrégebb óta használt megjelenítési módszer 2D-s textúrák felhasználásával készül. Ebben fizikai modellek nem igazán kapnak helyet, leginkább a látványvilág tervezőinek ad munkát. A módszer leginkább egy tűzről készült videó felvétel ismételt lejátszásához hasonlítható. A tűz bizonyos állapotait egy-egy képen ábrázolják, majd ezeket a képeket egymás után megjelenítik, ezzel imitálva a tűz mozgását. Minél több állapot van megörökítve, annál folyékonyabb lesz az animáció. Az utolsó állapotnak egyben az első állapotot megelőző képet kell festenie, ugyanis a képsorozatot egymás után, folyamatosan játszuk le, tehát az utolsó képet az első kép fogja követni.
+A legegyszerűbb, legrégebb óta használt megjelenítési módszer 2D-s textúrák felhasználásával készül. Ebben fizikai modellek nem igazán kapnak helyet, inkább a látványvilág tervezőinek ad munkát. A módszer leginkább egy tűzről készült videó felvétel ismételt lejátszásához hasonlítható. A tűz bizonyos állapotait egy-egy képen ábrázolják, majd ezeket a képeket egymás után megjelenítik, ezzel imitálva a tűz mozgását. Minél több állapot van megörökítve, annál folyékonyabb lesz az animáció. Az utolsó állapotnak egyben az első állapotot megelőző képet kell festenie, ugyanis a képsorozatot egymás után, folyamatosan játszuk le, tehát az utolsó képet az első kép fogja követni.
 
 % mire húzzuk rá őket, mi az a billboard
-Ahhoz, hogy a textúrákat megjelenítsük, szükség van egy térbeli objektumra, amelyre a képet ráhúzzuk. Mivel egy egyszerű háromszögre nem lehet úgy ráhúzni a textúrát, hogy minden látszódjon, de mégse torzuljon a kép, célszerű egy sík téglalapot létrehozni, mely oldalainak az aránya egyezik a képek oldalainak arányával. Ezt legegyszerűbben két háromszög segítségével írhatjuk le, melyek 2-2 pontja értelemszerúen fedi egymást. Minden ponthoz meg kell határozni az oda illeszkedő textúra koordinátát. Érdemes a négyzetet úgy definiálni, hogy a koordinátarendszer origója az alsó él felezőpontjára essen, így az $y$ tengely mentén történő forgatások esetén nem változik az objektum közepének a pozíciója. A továbbiakban az ilyen négyszögletű objektumokat nevezem sprite-nak.
+Ahhoz, hogy a textúrákat megjelenítsük, szükség van egy térbeli objektumra, amelyre a képet ráhúzzuk. Mivel egy egyszerű háromszögre nem lehet úgy ráhúzni a textúrát, hogy minden látszódjon, de mégse torzuljon a kép, célszerű egy sík téglalapot létrehozni, mely oldalainak az aránya egyezik a képek oldalainak arányával. Ezt legegyszerűbben két háromszög segítségével írhatjuk le, melyek 2-2 pontja értelemszerűen fedi egymást. Minden ponthoz meg kell határozni az oda illeszkedő textúra koordinátát. Érdemes a négyzetet úgy definiálni, hogy a koordinátarendszer origója az alsó él felezőpontjára essen, így az $y$ tengely mentén történő forgatások esetén nem változik az objektum közepének a pozíciója. A megoldás másik előnye, hogy az objektum magasságának ismerete nélkül is könnyen tudjuk azt pozícionálni a térben. A továbbiakban az ilyen négyszögletű objektumokat nevezem sprite-nak.
 
 % külön-külön textúrán tároljuk az állapotokat
 Az állapotok tárolása történhet külön-külön képeken, azaz minden állapot egy külön textúrán szerepel. Ekkor a könnyű felhasználhatóság érdekében érdemes bevezetni valamilyen elnevezési konvenciót a fájlok neveire, amelyből lehet következtetni a sorrendjükre, és olyan elnevezéseket választani, melyeket ciklusban könnyen elő lehet állítani, például \texttt{campfire1.png}, \texttt{campfire2.png}, stb. Ekkor a kirajzolásnál a csúcspontokhoz tartozó textúra koordináták nem változnak, hiszen jobb esetben minden képen ugyanazon a pozíción helyezkedik el a megjelenítendő kép. Az animációhoz viszont megadott időközönként a textúra azonosítót kell változtatni, hogy mindig a soron következő állapotot kössük a kirajzoláshoz.
 
 % egy textúrán tároljuk mindet
-Egy másik lehetőség az állapotok tárolására, hogy minden képet egyetlen textúrán ábrázolunk. Az állapotok sorrendben helyezkednek el egymás után, akár több sorban is. Mindegyik ugyanakkora helyet foglal el, hogy meg lehessen határozni az egyes képek pozícióját. Ez nagyban leegyszerűsíti a tárolást, hiszen csak egyetlen textúrát kell kezelni. A betöltés is leegyszerűsödik, és nem kell különböző textúra azonosítókat tárolni, illetve váltogatni őket a kirajzolásnál. Azonban a textúra koordináták megadása lényegesen nehezebb lesz, hiszen nem a $(0, 0)$; $(0, 1)$; $(1, 0)$; $(1, 1)$ koordinátákat kell kiosztani, hanem meg kell határozni minden állapot textúráit külön-külön. Erre legtöbbször lehet függvényt írni, viszont az állapotokhoz tartozó textúra koordinátákat külön objektumokba le is kell tárolni, és az animáció megvalósításához bizonyos időközönként ezeket kell cserélgetni.
+Egy másik lehetőség az állapotok tárolására, hogy minden képet egyetlen textúrán ábrázolunk. Az állapotok sorrendben helyezkednek el egymás után, akár több sorban is. Mindegyik ugyanakkora helyet foglal el, hogy meg lehessen határozni az egyes képek pozícióját. Ez nagyban leegyszerűsíti a tárolást, hiszen csak egyetlen textúrát kell kezelni. A betöltés is leegyszerűsödik, és nem kell különböző textúra azonosítókat tárolni, illetve váltogatni őket a kirajzolásnál. Azonban a textúra koordináták megadása lényegesen nehezebb lesz, hiszen nem a $(0, 0)$; $(0, 1)$; $(1, 0)$; $(1, 1)$ koordinátákat kell kiosztani, hanem meg kell határozni minden állapot textúráit külön-külön. Erre legtöbbször lehet függvényt írni, viszont az állapotokhoz tartozó textúra koordinátákat érdemes külön objektumokba letárolni, majd az animáció megvalósításához bizonyos időközönként ezeket kell cserélgetni.
 
 % billboard vs sprite
 Ha az animációt egy egyszerű sprite-on jelenítjük meg, akkor aránylag kevés szögből nyújt szép látványt egy háromdimenziós térben. Ennek javítására két lehetőségünk van. Az egyik, hogy ugyanarra a pozícióra, 90 fokkal elforgatva kirajzolhatjuk ugyanazt a sprite-ot, így már bármelyik irányból egészen hiteles eredményt kapunk. Ennek a hátránya viszont, hogy bizonyos szögekből a kamera síkjára majdnem merőlegesen álló sprite éles körvonala kitűnhet. A másik lehetőség, hogy forgatás segítségével megoldjuk, hogy a sprite mindig a kamera felé nézzen. Az ilyen elforduló sprite-okat nevezik billboard-nak. A módszer előnye, hogy mindig jó szögből látjuk az animációt, azonban ha mozgunk körülötte könnyen feltűnhet, hogy a lángnyelvek természetellenesen fordulnak utánunk a levegőben. Tehát egyik módszer sem feltétlenül jobb a másiknál, az adott körülményeket vizsgálva kell eldöntenünk, hogy melyik változat kelt valósághűbb hatást.
@@ -29,7 +30,65 @@ Amennyiben nem szeretnénk látni a megjelenített tűz körül a téglalapot, a
 % particle a textúrán
 
 
+
+
+
+
 \section{Háromdimenziós tűz részecske rendszerrel}
+
+% a lángok gázok
+A részecske alapú megjelenítési módszerek segítségével már alapvetőbb fizikai jelenségeket is lehet modellezni. A lángok izzó gázok, melyek ott képződnek, ahol az éghető gáz találkozik a levegővel, megjelenésük függ a hőmérsékletüktől, a nyomástól és a sűrűségüktől. A lángok dinamikáját a terjedésük határozza meg. Ahogy a gázok terjednek, sűrűségük csökken, így a térfogatuk nő és lehűlnek. Ebből kifolyólag változik a lángok színe és áttetszősége. 
+
+% a gázokat részecskékkel modellezik - fizikai vs sztochasztikus módszerek
+Mivel a fizikusok is részecskék segítségével modellezik a gázokat, ez a modell kézenfekvő megoldásnak tűnik. A részecskék mozgása teljes mértékben szabad, így a tűz alakját a helyzetük változtatása segítségével egyszerűen változtathatjuk. Ha a részecskék mozgásába véletlenszerűséget tudunk csempészni, akkor olyan animációt kaphatunk, amely -- az előző modellel szemben --  nem ismétli önmagát. Az elérni kívánt cél függvényében megpróbálhatunk fizikailag élethű mozgást definiálni, ez természetesen nagyobb számításigényt, és valósághűbb megjelenést eredményez. Azonban, ha csupán a látványvilágot szeretnénk bővíteni vagy hangulatosabbá tenni, akkor az általunk definiált szabályok alapján mozgó részecskék segítségével is vizuálisan kielégítő megjelenést érhetünk el. Ehhez nem kell fizikusnak lennünk, elég lehet néhány jó ötlet és némi matematikai jártasság. Az ilyen megoldások jellemzően kisebb számításigénnyel járnak, de nem feltétlenül rontják a látványt. 
+
+% részecske tulajdonságok, paraméterezés
+A részecskék rengeteg tulajdonsággal vértezhetők fel. Ezek többnyire a mozgásukat, kinézetüket és az idő múlásával bekövetkező a változásaikat befolyásolják. Ezen tulajdonságok egyben paraméterek is, változtatásukkal valamilyen mértékben a végeredmény is átalakul. A legáltalánosabb paraméterek többek között:
+\begin{itemize}
+\item pozíció, 
+\item sebesség, 
+\item élettartam, 
+\item szín, 
+\item méret. 
+\end{itemize}
+Nem érdemes azonban túl sok paramétert felvenni, ezek ugyanis növelhetik a számításigényt. Ha túl sok paraméter van, akkor ezek összehangolása is nehézkessé válhat. Egy adott részecske mozgatásához szükséges számításigényt igyekezni kell alacsonyan tartani, ugyanis minden képkocka előállításakor el kell végezni ezeket a számításokat minden egyes részecskén. Mivel egy részecske rendszerben általában több száz, ezer, vagy akár százezer részecske is lehet, egyetlen plusz művelet is komolyan megdobhatja a rendszer számításigényét.
+
+% részecske rendszer és tulajdonságai
+A részecskék önmagukban nem életképesek, szükség van egy részecske rendszerre, mely egységbe foglalja és karbantartja őket. A részecske rendszer legfőbb feladata a részecskék kibocsátása, így ezt \textit{emitter}-nek is nevezik. További feladatai közé tartozik a részecskék elpusztítása, helyzetük aktualizálása, illetve a képernyőn való megjelenítésükről való gondoskodás. Ennek is vannak tulajdonságai, melyek leginkább a részecskék indításához kötődnek. Ilyen paraméterek lehetnek például:
+\begin{itemize}
+\item a részecskék maximális száma, 
+\item a turbulenciák sűrűsége és intenzitása, 
+\item külső hatások részecskékre gyakorolt ereje, 
+\item a részecskék indítási pozíciójára vonatkozó szabályok.
+\end{itemize}
+
+A kezdő paraméterekből további adatok származhatnak. Ilyen lehet például a másodpercenként kibocsátandó részecskék száma, melyet a részecskék élettartama és a maximális számuk határoz meg. A jelenség magasságát például befolyásolhatjuk a részecskék élettartamának, vagy a kezdő sebességének növelésével is. Ezeket az adott jelenetnek megfelelően össze kell hangolni, hogy a tűz gazdagítsa, ne pedig rontsa a hangulatot.
+
+% részecske megvalósítás (alakzat, szín)
+A részecskék megvalósítása sokrétű lehet. Logikusnak tűnhet gömb alakú részecskéket létrehozni, hiszen talán azok felelnek meg legjobban  a valóságnak. Ezzel azonban az a probléma, hogy egy gömb viszonylag sok vertex-ből áll, részecskéből pedig -- mint azt már említettem -- rengeteg van. Így érdemes kevesebb pontból álló alakzatokat választani, mint például kocka, vagy még ennél is kézenfekvőbb a billboard-ok alkalmazása. Egy részecske színét megadhatjuk mi is, vagy akár a hőmérséklet paramétertől is függővé tehetjük. Így ahol több részecske van egymáshoz közel, ott a forróság miatt fehérebb, majd a kevésbé meleg területeken egyre narancssárgább. Végül szürkévé is válhat, és füst részecskeként folytathatja útját. Egy fokkal élethűbb jelenséget kapunk, ha nem egyszerűen színezzük az alakzat csúcspontjait, hanem egy textúrát is ráhúzunk.
+
+% animált textúra
+Ha tovább akarunk menni, akkor ahogy azt az előző modellben is láttuk, akár animálhatjuk is őket. Mintha egy videót játszanánk le minden kis részecskén, viszont itt nem kezdjük elölrő, minden állapotot csak egyszer kell megjeleníteni. Érdemes úgy beosztani a textúrán szereplő jeleneteket, hogy azok mindegyike a részecske élete során egyenlő ideig legyen megjelenítve. Ennek kicsivel nagyobb lehet a számításigénye, de megfelelő optimalizálás mellett nem okozhat nagy problémát. 
+
+Azonban ha a textúrák használata mellett döntünk, akkor valószínűleg be kell érnünk a billboard-ok segítségével megjelenített részecskékkel, más akalzatokra ugyanis nagy kihívást jelenthet egy-egy textúra megrajzolása. A korábbi kétdimenziós modellel szemben ez a megoldás nem rendelkezik a billboard alapú tűz hátrányaival, mivel a nagy részecskeszám és a kis méret miatt nem lesz olyan feltűnő a kamera felé forgás. 
+
+% füst, pernye effektek
+A füst megvalósítása többféleképpen is lehetséges. Az egyik, hogy szinte ugyanazon az elven egy eltérő paraméterezésű emitter segítségével hozzuk létre a füst hatást keltő részecskéket. A füst színe, vagy textúrája kevésbé változékony, így ezekre nem kell külön odafigyelni. Az egyik nehézséget az jelenthei, hogy milyen magasságból és mekkora sugarú körből (vagy esetleg gömbből) induljanak a füst részecskék. Ezt a tűz részecskerendszer élettartam és sebesség paramétereiből lehet kiszámolni. Komolyabb akadályt jelent azonban az átlátszóság kérdése. Mivel a szebb effektekhez itt is szükség lesz valamilyen blending-re, a részecskéket a kamerától való távolság függvényében sorba kell rendezni, hogy először a legtávolabbiak kerüljenek kirajzolásra. Ez egy részecskerendszeren belül nem jelenthet gondot, de ha két külön rendszerünk van, akkor az egyik rendszer mindig a másik előtt lesz. Így a két emitter összes részecskéjét egy tárolóba kellene sorrendbe szervezni.
+
+Ha pedig már egyébként is egy tárolóban kell tartani a hasonló elven működő részecskéket, akkor -- ha nem kell szétválasztani a két effektet -- érdemes már eleve egy részecskerendszert kialakítani, melyben egy részecske több fázison is átesik élete során (tűz, füst, esetleg pernye). Így a sorbarandezéssel és az elhelyezéssel sem kell külön bajlódni, továbbá a külső erőhatások (pl. szél) bevetése is egyszerűbbé válik, hiszen nem kell külön minden rendszerre beállítani.
+
+% szikra effekt
+Sokat javíthatunk a hangulaton, ha az apró robbanásokból kirepülő izzó fadarabkákat is meg tudjuk valósítani. Maradhatunk ugyanabban a részecskerendszerben, de erre már érdemes más típusú részecskéket definiálni eltérő viselkedéssel. A kibocsátásuk nem egyenlő időközönként történik majd, hanem olykor-olykor egy nagyobb adagot rövid időn belül több irányba kell elindítani, majd ezek hamar el is halványodnak és elhalnak. Ha hangot is csatolunk a jelenség mellé, akkor az egyes ropogásokkal és recsegésekkel érdemes ezeket szinkronizálni. Ezek az események nagyobb fénnyel is járnak, így bekövetkezéskor a hatás érdekében lehet növelni a fény világosságát, esetleg az egész képernyőt világosítani egy pillanatra. 
+
+% fénykibocsátás
+A tűz fénykibocsátásának megvalósításaára is számtalan módszer létezik. Alkalmazhatunk például egy egyszerű reflektor szerű fényforrást, mely a tűz felett helyezkedik el, és a föld felé világít. A fényereje és a nyílásszögének változtatása a tűz vibráló fénykibocsátását utánozza. Ha viszont a tűz mellett egy letörés vagy szakadék található, akkor amennyiben a fényforrás nem a földön, hanem jóval felette van, a szakadék oldala is meg lesz világítva, ami egyébként árnyékban lenne. A másik probléma a környező objektumok megvilágításakor jelentkezne. Mivel a fény gúla alakban világítja meg a környezetet, a kicsit magasabban lévő tárgyak természetellenesen kevés (vagy semennyi) fényt kapnának.
+
+Szerencsésebb megoldás a tűz alapjának közepén elhelyezett pont fényforrás, melynek kisebb a hatóköre. Utóbbi változtatásával, illetve a fény erejének és színének variálásával már egészen elfogadható eredményt kapunk, és a környezet is többnyire helyesen lesz megvilágítva.
+
+Ha azonban még ennél is tovább szeretnénk lépni, akkor igazán látványos eredményt úgy érhetünk el, ha minden részecske egy kis fényforrásként szerepel. Ez már meglehetősen számításigényes lehet, de a fény intenzitása és elhelyezkedése a térben a részecskék mozgásával együtt változik, tehát az eredmény nagyon valósághű hatást kelthet.
+
+% sugárkövetés
+
 
 
 
