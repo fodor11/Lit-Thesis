@@ -245,41 +245,45 @@ if (m_pCamera->getZ() < m_vPosition.z)
 
 Ha egymás mellé kirajzolunk egy billboard és egy kétsíkú sprite objektumot, akkor \aref{fig:billboardFinal1}. ábrán látható eredményt kapjuk.
 
-\Aref{fig:billboardFinal2}. ábrán megfigyelhetjük, hogy a helyes sorrendbeli kirajzolásnak köszönhetően a blending szép kitakarást eredményez minden irányból.
-
-\Aref{fig:billboardFinal3}. ábrán mutatkozik a kétsíkú sprite egyik gyengesége. Ha ugyanazt a textúrasorozatot használjuk fel, akkor bizonyos szögekből a kép ugyanazon fele kerül egymással szembe, mely feltűnő lehet. Erre egy megoldás lehet a második síkra egy külön textúra sorozat készítése.
-
-\Aref{fig:billboardFinal4}. ábrán pedig megfigyelhető a kétsíkú sprite másik gyengepontja. Ha valamelyik síkra nagy szögben tekintünk, akkor feltűnővé válhat a körvonala, rombolva ezzel a látványt.
-
-\Aref{fig:billboardFinal5}. ábrán enyhe felülnézetből látszik igazán a két megjelenítési mód közötti különbség. Ebből a perspektívából egyik sem szerepel túl jól.
-
-\begin{figure}[h]
+\begin{figure}[h!]
  \centering
  \includegraphics[width=0.95\textwidth]{kepek/billboardFinal1.png}
  \caption{Bal oldalon a kétsíkú sprite, jobb oldalon a billboard látszik.}
  \label{fig:billboardFinal1}
 \end{figure}
-\begin{figure}[h]
+
+\Aref{fig:billboardFinal2}. ábrán megfigyelhetjük, hogy a helyes sorrendbeli kirajzolásnak köszönhetően a blending szép kitakarást eredményez minden irányból.
+
+\begin{figure}[h!]
  \centering
- \includegraphics[width=0.95\textwidth]{kepek/billboardFinal2.png}
+ \includegraphics[width=0.85\textwidth]{kepek/billboardFinal2.png}
  \caption{Bal oldalon a billboard takar ki, jobb oldalon pedig a sprite}
  \label{fig:billboardFinal2}
 \end{figure}
-\begin{figure}[h]
+
+\Aref{fig:billboardFinal3}. ábrán mutatkozik a kétsíkú sprite egyik gyengesége. Ha ugyanazt a textúrasorozatot használjuk fel, akkor bizonyos szögekből a kép ugyanazon fele kerül egymással szembe, mely feltűnő lehet. Erre egy megoldás lehet a második síkra egy külön textúra sorozat készítése.
+
+\begin{figure}[h!]
  \centering
- \includegraphics[width=0.95\textwidth]{kepek/billboardFinal3.png}
+ \includegraphics[width=0.85\textwidth]{kepek/billboardFinal3.png}
  \caption{A bal oldali kép esztétikusabb, a jobb oldalin feltűnő a tükröződés}
  \label{fig:billboardFinal3}
 \end{figure}
-\begin{figure}[h]
+
+\Aref{fig:billboardFinal4}. ábrán pedig megfigyelhető a kétsíkú sprite másik gyengepontja. Ha valamelyik síkra nagy szögben tekintünk, akkor feltűnővé válhat a körvonala, rombolva ezzel a látványt.
+
+\begin{figure}[h!]
  \centering
- \includegraphics[width=0.95\textwidth]{kepek/billboardFinal4.png}
+ \includegraphics[width=0.85\textwidth]{kepek/billboardFinal4.png}
  \caption{Mozgás közben még szembetűnőbb a körvonal}
  \label{fig:billboardFinal4}
 \end{figure}
-\begin{figure}[h]
+
+\Aref{fig:billboardFinal5}. ábrán enyhe felülnézetből látszik igazán a két megjelenítési mód közötti különbség. Ebből a perspektívából egyik sem szerepel túl jól.
+
+\begin{figure}[h!]
  \centering
- \includegraphics[width=\textwidth]{kepek/billboardFinal5.png}
+ \includegraphics[width=0.85\textwidth]{kepek/billboardFinal5.png}
  \caption{Bal oldalon a billboard, jobb oldalon a sprite tűz}
  \label{fig:billboardFinal5}
 \end{figure}
@@ -291,6 +295,129 @@ A másodpercenként kirajzolt képek számát egy billboard és egy 2 síkú spr
 
 
 \section{Háromdimenziós részecskerendszer alapú tűz}
+
+% FireParticle class
+\subsection{FireParticle osztály}
+
+A részecskerendszer alapú tűz részecskéinek implementálásakor a billboard alapú megjelenítést választottam váltogatható textúrával, ugyanis ezzel tudtam jelenleg a legvalószerűbb hatást elérni. Az osztályra nagyrészt egy adott részecske tulajdonságainak és helyzetének a tárolása végett volt szükség. Emellett ez végzi el képkockánként egy részecske élettartamának, pozíciójának, sebességének, méretének, elfordulásának és textúrájának a frissítését. A modell heurisztikus alapokon nyugszik, a tűz fizikai tulajdonságait utánozni próbálva. A kirajzolás nem ebben az osztályban történik.
+
+% főbb adattagok 
+\subsubsection{Adattagok}
+A részecskéket a következő fontosabb tulajdonságokkal vérteztem fel:
+\begin{itemize}
+\item Élettartam és kor (\texttt{m\_fLifeTime}, \texttt{m\_fAge}): a kor kezdetben az élettartammal egyenlő, majd folyamatosan csökken $0$-ig.
+\item Pozíció, mozgás irány, sebesség (\texttt{m\_vPosition}, \texttt{m\_vSpeedDirection}, \texttt{m\_fSpeedRate}): az irány nem egységvektor, így még nagyobb és véletlenszerűbb a különbség a részecskék mozgása között.
+\item Méret és növekedési ráta (\texttt{m\_fScale}, \texttt{m\_fScaleRate}): a növekedési ráta adja meg a részecske, mint gáz tágulásának a sebességét.
+\item A kamerától vett távolság (\texttt{m\_fDistanceToCamera}): ez alapján lesznek majd sorba rendezve a részecskék.
+\item $Z$ tengely menti elfordulás és szögsebesség (\texttt{m\_fRotation}, \texttt{m\_fRotationRate}): ezek segítségével keltek tubulens hatást az animáció során.
+\item Textúrák száma, pillanatnyi textúra sorszáma (\texttt{m\_cNumberOfTextures}, \texttt{m\_cCurrentTexture}) -- a textúrák számozása $0$-tól indul.
+\item A láng és füst állapotok aránya, a pillanatnyi keverés aránya, egy jelenet ideje (\texttt{m\_fFireTimeRatio}, \texttt{m\_fCurrentBlend}, \texttt{m\_fSceneTime}): a későbbiekben kerülnek kifejtésre.
+\end{itemize}
+
+% konstruktor
+\subsubsection{Konstruktor}
+Az osztály konstruktora paraméterként várja az adott részecske indulási pozícióját, a sebességének irányát, az elfordulását, az élettartamát, a forgás szögsebességét, a részecske sebességét, illetve egy, a \texttt{Camera} osztály példányára mutató pointert. Ezeket lementi a megfelelő adattagokba, illetve kiszámol néhány további származtatott adatot. 
+
+Ilyen az \texttt{m\_fSceneTime} adattag is, mely megadja, hogy a textúra sorozat egyes tagjai (melyek váltogatása a részecske animációját eredményezi) hány milliszekundumot (a továbbiakban \textit{ms}) szerepelnek. Ezt a textúrán szereplő állapotok száma és a részecske élettartamának a hányadosa adja meg. 
+
+A füsthöz nem készítettem külön emittert és osztályt. Egy részecske az életének egy bizonyos részét lángként, utána pedig füstként tölti. A füsthöz nem alkalmaztam külön textúrát, hanem a láng képsorozat utolsó tagját használom fel kiszürkítve. Ebből következik, hogy az \texttt{m\_fSceneTime} adattagot még meg kell szorozni az \texttt{m\_fFireTimeRatio} adattaggal. Ez a $[0, 1]$ tartományon értelmezett szám adja meg, hogy a részecske az életének hanyad részét tölti láng fázisban. Ez azt is jelenti, hogy a részecske adott fázisát (láng vagy füst) az \texttt{m\_fFireTimeRatio} segítségével lehet majd meghatározni. Egy állapot tehát rövidebb ideig szerepel majd, de az utolsó jelenetet leszámítva mind ugyanannyi időt töltenek majd a képernyőn. 
+
+% update
+\subsubsection{Részecskék állapotának frissítése}
+Az \texttt{update} metódus felel a részecskék karbantartásáért. A metódusnak paraméterként meg kell adni az előző frissítés óta eltelt időt ms-ban (\texttt{elapsedTime}). Ezzel első lépésként csökkentjük a részecske kprát, majd megvizsgáljuk, hogy életben van-e még ($\texttt{m\_fAge} > 0$). Ha nem, akkor a függvény hamis értékkel tér vissza, ha igen, akkor frissíti az adattagokat, majd igaz értéket ad vissza. A frissítéshez két segédváltozó szükséges: a lépték és a részecske relatív kora (\texttt{step}, \texttt{relativeAge}). A léptéket az eltelt idő század részének választottam meg, a relatív kor pedig a részecske korának és élettartamának hányadosa, azaz 1-től indul és végül 0-hoz ér el. Az adattagokat a következők alapján módosítottam: 
+\begin{cpp}
+// Slowing x and z much faster than y
+m_vSpeedDirection.x /= 1.f + step * 0.05f * relativeAge;
+m_vSpeedDirection.z /= 1.f + step * 0.05f * relativeAge;
+m_fSpeedRate /= 1.f + step * 0.01 * (1-relativeAge);
+
+// Extra forces
+if (m_bForceApplied)
+{
+	m_vPosition += m_vForceDirection * m_fForceSpeed * step;
+	m_bForceApplied = false;
+}
+
+// Moving
+m_vPosition += m_vSpeedDirection * step * m_fSpeedRate;
+
+// Expanding
+m_fScale += m_fScaleRate * step;
+
+// Rotate
+m_fRotation += step * m_fRotationRate;
+
+// Changing texture
+{...}
+
+m_fDistanceToCamera = glm::distance2(
+		m_vPosition, m_pCamera->getPosition());
+\end{cpp}
+A lépték változóval történő szorzás a korábbiakban tárgyalt okokból kifolyóan történik, hogy az adattagok az eltelt idő függvényében változzanak. A relatív életkorral történő szorzás pedig olyan esetekben volt szükséges, mikor a változást a részecske korától is függővé kellett tenni.
+
+A sebesség irányának $x$ és $z$ koordinátáit azért kellett nagyobb mértékben csökkenteni, hogy a részecskék ne egyenes vonalban távolodjanak egymástól, mint például egy robbanás esetén, hanem parabolaszerűen egyre függőlegesebben emelkedjenek (\ref{fig:parabolicSpeedVector}. ábra). A részecske korának csökkenésével (azaz az öregedésével) egyre kisebb mértékű a csillapítás is.
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/parabolicSpeedVector.png}
+ \caption{Bal oldalon a csillapítás nélküli, jobb oldalon a lassított $x$ és $z$ koordinátákkal kapott eredmény.}
+ \label{fig:parabolicSpeedVector}
+\end{figure}
+A részecskék sebességét viszont annál jobban csökkentettem, minél közelebb ér élete végéhez. 
+
+A külső erőket egy publikus metódus (\texttt{applyForce(glm::vec3 direction, float speed)}) segítségével lehet hozzáadni, ám ezt minden frissítés előtt meg kell tenni. Ez azért alakult így, mert a külső erőket más osztályok szabályozzák, de képkockáról képkockára változhatnak azok is. A megadott irányba a megadott sebességgel hatok a részecske pozíciójára a frissítés során.
+
+A kamerától vett távolság kiszámításakor a négyzetes távolságot veszem (\texttt{glm::distance2}), így egy gyökvonást megspórolok, de a végső sorrenden ez úgysem változtat. A mozgatás, tágulás és forgatás nem igényelnek különösebb magyarázatot.
+
+%textúrázás
+\subsubsection{Textúrázás}
+A textúrázás a billboard alapú tűznél alkalmazott módszerre hasonlít. Mivel a textúra koordinátákat részecskénként ki kell számolni, és egyszerre két jelenet koordinátáira is szükség van, részecskénként $6 \cdot 4 = 24$ db \texttt{float} koordinátát kellene átküldeni (és a lassú CPU-n kiszámolni) az árnyalónak. Mivel egyébként is sok információt kell nekik eljuttatni, és az adatmozgatás a shaderek felé aránylag lassú művelet, inkább a vertex shader-ben végzem a koordináták meghatározását. Ahhoz, hogy ott el tudjam végezni a műveletet szükség van azonban a pillanatnyi textúra sorszámára. Ennek meghatározáa során oda kell figyelni arra is, hogy a részecske láng, vagy füst fázisban van-e.
+
+\begin{cpp}
+// Changing texture
+float textureInfo = (m_fLifeTime - m_fAge) / m_fSceneTime;
+m_cCurrentTexture = (int)textureInfo;
+if (m_cCurrentTexture < m_cNumberOfTextures)
+{
+	// Flame
+	m_fCurrentBlend = 1.f - fmod(textureInfo, 1.0f);
+}
+else
+{
+	// Smoke
+	m_cCurrentTexture = m_cNumberOfTextures;
+	// fade the somke out
+	m_fCurrentBlend = relativeAge / (1 - m_fFireTimeRatio);
+	m_fScale += 0.1 *step;
+}
+\end{cpp}
+
+A \texttt{textureInfo} segédváltozóban kiszámolom, hogy a születés óta eltelt idő alatt hányszor telt el az egy jelenetre jutó idő. Ennek az egész része adja meg a pillanatnyi textúra sorszámát (\texttt{m\_cCurrentTexture}). Ha ez a szám nem kisebb, mint a textúrák száma, az azt jelenti hogy a részecske már a füst fázisban tart.
+
+Hogy az animáció még folyékonyabb legyen a láng fázisban, egyszerre két jelenetet használok fel a textúrán található képsorozatból: a pillanatnyi textúrát, és az utána következőt. Ezt a kettőt mosom össze annak alapján, hogy a pillanatnyi textúrára jutó időből mennyi van még hátra. Az ehhez szükséges arányszámot tárolom az \texttt{m\_fCurrentBlend} adattagban. Tehát először csak a pillanatnyi textúra látszik ($\texttt{m\_fCurrentBlend} = 1$), majd ahogy telik az idő, a pillanatnyi textúra egyre jobban halványodik, a következő pedig erősödik. Ebből kifolyólag az \texttt{m\_cNumberOfTextures} adattagban valójában a textúrák számától eggyel kisebb számot tárolok, különben az utolsó jelenetet nem lenne mivel összemosni.
+
+Füst fázisban a \texttt{m\_fCurrentBlend} adattag már nem összemosásra, hanem elhalványításra használatos. Az $1 - \texttt{m\_fFireTimeRatio}$ adja meg a füstként töltendő időt ($[0, 1]$ tartományban). Mikor a program ehhez a részhez ér, biztos, hogy a relatív kor is maximum ennyi lehet, így a kettő hányadosa megmutatja, hogy mennyi van még hátra a füst fázisból (szintén $[0, 1]$ tartományban). Tehát mire a fázis (és egyben élete) végéhez ér a részecske, teljesen elhalványodik. Füst fázisban a tágulás is nagyobb mértékű, mert az elhalványodással együtt így olyan hatást kelt, mintha a füst eloszlana a levegőben.
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/particleFireSmoke.png}
+ \caption{Bal oldalon a tűz $\texttt{m\_fFireTimeRatio} = 0.25$ paraméterrel, jobb oldalon pedig a füst eloszlása közelebbről}
+ \label{fig:particleFireSmoke}
+\end{figure}
+
+\subsubsection{Egyéb metódusok}
+A részecskék rendezésére a későbbiekben az \texttt{std::sort} függvény segítségével kerül sor. Ennek azonban szüksége van az összehasonlításhoz valamilyen függvényre, vagy a $<$ operátor felüldefiniálására. Én az utóbbi megoldást választottam: 
+\begin{cpp}
+inline bool FireParticle::operator<(const FireParticle & rhs)
+{
+	return m_fDistanceToCamera > rhs.getDistanceToCamera();
+}
+\end{cpp}
+Az \texttt{std::sort} ezt az operátort felhasználva növekvő sorrendbe teszi az objektumokat egy adott tárolón belül. Mivel a kamerától távolabbi részecskéket szeretném előbb kirajzolni, két részecske közül a nagyobb távolsággal rendelkezőt definiáltam kisebbnek.
+
+A \texttt{FireParticle} osztály rendelkezik még jó néhány ``getter'' metódussal, melyek az árnyalóknak küldendő információkat adják vissza egyesével.
+
+% FireParticleSystem
+
 
 
 % additive(no sort, less particles) vs traditional blending
