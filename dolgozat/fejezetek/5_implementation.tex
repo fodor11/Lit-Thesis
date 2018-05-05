@@ -294,6 +294,7 @@ Ha egymás mellé kirajzolunk egy billboard és egy kétsíkú sprite objektumot
 A másodpercenként kirajzolt képek számát egy billboard és egy 2 síkú sprite tűz nem befolyásolja, hiszen komolyabb számítást nem kell végeznie a gépnek, összesen csupán $6 \cdot 4 = 24$ pontot kell kirajzolni.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Háromdimenziós részecskerendszer alapú tűz}
 
 % FireParticle class
@@ -324,7 +325,7 @@ A füsthöz nem készítettem külön emittert és osztályt. Egy részecske az 
 
 % update
 \subsubsection{Részecskék állapotának frissítése}
-Az \texttt{update} metódus felel a részecskék karbantartásáért. A metódusnak paraméterként meg kell adni az előző frissítés óta eltelt időt ms-ban (\texttt{elapsedTime}). Ezzel első lépésként csökkentjük a részecske kprát, majd megvizsgáljuk, hogy életben van-e még ($\texttt{m\_fAge} > 0$). Ha nem, akkor a függvény hamis értékkel tér vissza, ha igen, akkor frissíti az adattagokat, majd igaz értéket ad vissza. A frissítéshez két segédváltozó szükséges: a lépték és a részecske relatív kora (\texttt{step}, \texttt{relativeAge}). A léptéket az eltelt idő század részének választottam meg, a relatív kor pedig a részecske korának és élettartamának hányadosa, azaz 1-től indul és végül 0-hoz ér el. Az adattagokat a következők alapján módosítottam: 
+Az \texttt{update} metódus felel a részecskék karbantartásáért. A metódusnak paraméterként meg kell adni az előző frissítés óta eltelt időt ms-ban (\texttt{elapsedTime}). Ezzel első lépésként csökkentjük a részecske korát, majd megvizsgáljuk, hogy életben van-e még ($\texttt{m\_fAge} > 0$). Ha nem, akkor a függvény hamis értékkel tér vissza, ha igen, akkor frissíti az adattagokat, majd igaz értéket ad vissza. A frissítéshez két segédváltozó szükséges: a lépték és a részecske relatív kora (\texttt{step}, \texttt{relativeAge}). A léptéket az eltelt idő század részének választottam meg, a relatív kor pedig a részecske korának és élettartamának hányadosa, azaz 1-től indul és végül 0-hoz ér el. Az adattagokat a következők alapján módosítottam: 
 \begin{cpp}
 // Slowing x and z much faster than y
 m_vSpeedDirection.x /= 1.f + step * 0.05f * relativeAge;
@@ -353,7 +354,7 @@ m_fRotation += step * m_fRotationRate;
 m_fDistanceToCamera = glm::distance2(
 		m_vPosition, m_pCamera->getPosition());
 \end{cpp}
-A lépték változóval történő szorzás a korábbiakban tárgyalt okokból kifolyóan történik, hogy az adattagok az eltelt idő függvényében változzanak. A relatív életkorral történő szorzás pedig olyan esetekben volt szükséges, mikor a változást a részecske korától is függővé kellett tenni.
+A lépték változóval történő szorzás a korábbiakban tárgyalt okokból történik, hogy az adattagok az eltelt idő függvényében változzanak. A relatív életkorral történő szorzás pedig olyan esetekben volt szükséges, mikor a változást a részecske korától is függővé kellett tenni.
 
 A sebesség irányának $x$ és $z$ koordinátáit azért kellett nagyobb mértékben csökkenteni, hogy a részecskék ne egyenes vonalban távolodjanak egymástól, mint például egy robbanás esetén, hanem parabolaszerűen egyre függőlegesebben emelkedjenek (\ref{fig:parabolicSpeedVector}. ábra). A részecske korának csökkenésével (azaz az öregedésével) egyre kisebb mértékű a csillapítás is.
 \begin{figure}[h]
@@ -370,7 +371,7 @@ A kamerától vett távolság kiszámításakor a négyzetes távolságot veszem
 
 %textúrázás
 \subsubsection{Textúrázás}
-A textúrázás a billboard alapú tűznél alkalmazott módszerre hasonlít. Mivel a textúra koordinátákat részecskénként ki kell számolni, és egyszerre két jelenet koordinátáira is szükség van, részecskénként $6 \cdot 4 = 24$ db \texttt{float} koordinátát kellene átküldeni (és a lassú CPU-n kiszámolni) az árnyalónak. Mivel egyébként is sok információt kell nekik eljuttatni, és az adatmozgatás a shaderek felé aránylag lassú művelet, inkább a vertex shader-ben végzem a koordináták meghatározását. Ahhoz, hogy ott el tudjam végezni a műveletet szükség van azonban a pillanatnyi textúra sorszámára. Ennek meghatározáa során oda kell figyelni arra is, hogy a részecske láng, vagy füst fázisban van-e.
+A textúrázás a billboard alapú tűznél alkalmazott módszerre hasonlít. Mivel a textúra koordinátákat részecskénként ki kell számolni, és egyszerre két jelenet koordinátáira is szükség van, részecskénként $6 \cdot 4 = 24$ db \texttt{float} koordinátát kellene átküldeni (és a lassú CPU-n kiszámolni) az árnyalónak. Mivel egyébként is sok információt kell nekik eljuttatni, és az adatmozgatás a shaderek felé aránylag lassú művelet, inkább a vertex shader-ben végzem a koordináták meghatározását. Ahhoz, hogy ott el tudjam végezni a műveletet szükség van azonban a pillanatnyi textúra sorszámára. Ennek meghatározása során oda kell figyelni arra is, hogy a részecske láng, vagy füst fázisban van-e.
 
 \begin{cpp}
 // Changing texture
@@ -393,7 +394,7 @@ else
 
 A \texttt{textureInfo} segédváltozóban kiszámolom, hogy a születés óta eltelt idő alatt hányszor telt el az egy jelenetre jutó idő. Ennek az egész része adja meg a pillanatnyi textúra sorszámát (\texttt{m\_cCurrentTexture}). Ha ez a szám nem kisebb, mint a textúrák száma, az azt jelenti hogy a részecske már a füst fázisban tart.
 
-Hogy az animáció még folyékonyabb legyen a láng fázisban, egyszerre két jelenetet használok fel a textúrán található képsorozatból: a pillanatnyi textúrát, és az utána következőt. Ezt a kettőt mosom össze annak alapján, hogy a pillanatnyi textúrára jutó időből mennyi van még hátra. Az ehhez szükséges arányszámot tárolom az \texttt{m\_fCurrentBlend} adattagban. Tehát először csak a pillanatnyi textúra látszik ($\texttt{m\_fCurrentBlend} = 1$), majd ahogy telik az idő, a pillanatnyi textúra egyre jobban halványodik, a következő pedig erősödik. Ebből kifolyólag az \texttt{m\_cNumberOfTextures} adattagban valójában a textúrák számától eggyel kisebb számot tárolok, különben az utolsó jelenetet nem lenne mivel összemosni.
+Hogy az animáció még folyékonyabb legyen a láng fázisban, egyszerre két jelenetet használok fel a textúrán található képsorozatból: a pillanatnyi textúrát, és az utána következőt. Ezt a kettőt mosom össze annak alapján, hogy a pillanatnyi textúrára jutó időből mennyi van még hátra. Az ehhez szükséges arányszámot tárolom az \texttt{m\_fCurrentBlend} adattagban. Először tehát csak a pillanatnyi textúra látszik ($\texttt{m\_fCurrentBlend} = 1$), majd ahogy telik az idő, a pillanatnyi textúra egyre jobban halványodik, a következő pedig erősödik. Ebből kifolyólag az \texttt{m\_cNumberOfTextures} adattagban valójában a textúrák számától eggyel kisebb számot tárolok, különben az utolsó jelenetet nem lenne mivel összemosni.
 
 Füst fázisban a \texttt{m\_fCurrentBlend} adattag már nem összemosásra, hanem elhalványításra használatos. Az $1 - \texttt{m\_fFireTimeRatio}$ adja meg a füstként töltendő időt ($[0, 1]$ tartományban). Mikor a program ehhez a részhez ér, biztos, hogy a relatív kor is maximum ennyi lehet, így a kettő hányadosa megmutatja, hogy mennyi van még hátra a füst fázisból (szintén $[0, 1]$ tartományban). Tehát mire a fázis (és egyben élete) végéhez ér a részecske, teljesen elhalványodik. Füst fázisban a tágulás is nagyobb mértékű, mert az elhalványodással együtt így olyan hatást kelt, mintha a füst eloszlana a levegőben.
 
@@ -405,7 +406,7 @@ Füst fázisban a \texttt{m\_fCurrentBlend} adattag már nem összemosásra, han
 \end{figure}
 
 \subsubsection{Egyéb metódusok}
-A részecskék rendezésére a későbbiekben az \texttt{std::sort} függvény segítségével kerül sor. Ennek azonban szüksége van az összehasonlításhoz valamilyen függvényre, vagy a $<$ operátor felüldefiniálására. Én az utóbbi megoldást választottam: 
+A részecskék rendezésére a későbbiekben az \texttt{std::sort} függvény segítségével kerül sor. Ennek azonban szüksége van az összehasonlításhoz valamilyen összehasonlító függvényre, vagy a $<$ operátor felüldefiniálására. Én az utóbbi megoldást választottam: 
 \begin{cpp}
 inline bool FireParticle::operator<(const FireParticle & rhs)
 {
@@ -416,21 +417,110 @@ Az \texttt{std::sort} ezt az operátort felhasználva növekvő sorrendbe teszi 
 
 A \texttt{FireParticle} osztály rendelkezik még jó néhány ``getter'' metódussal, melyek az árnyalóknak küldendő információkat adják vissza egyesével.
 
+% Instancing & buffer re-specification
+\subsection{Instancing és buffer re-specification}
+Részecske rendszerek kirajzolásánál ugyanazt a ponthalmazt kell számtalanszor kirajzolni, csak más-más tulajdonságokkal. Az egyik lehetőség, hogy minden egyes részecskére meghívjuk a \texttt{glDrawArrays} metódust egy ciklusban. Ez egy működő megoldás, de ekkor minden hívás alkalmával a GPU teljes erejével azon lesz, hogy azt a 6 darab pontot megjelenítse, mely a billboard-hoz szükséges. Ennek kiküszöbölésére több megoldás is létezik, én az \textit{instancing} névre hallgató módszert választottam. 
+
+Ennek lényege, hogy egyetlen alap ponthalmaz van (esetemben négyzet 6 pontból), de abból rengeteg példányt rajzol ki a grafikus gyorsítókártya egyszerre. Ehhez szükség van az alap pontokat tartalmazó pufferre, emellé pedig csatolhatunk több puffert is, melyek az egyes példányok sajátos tulajdonságait írják le. Az OpenGL-nek minden egyes pufferről meg kell mondani, hogy 1 példányhoz hány elemet használjon fel belőle. Ezt a \texttt{glVertexAttribDivisor} metódus segítségével tehetjük meg. A kirajzolás pedig csupán annyiban különbözik a normál kirajzolástól, hogy a \texttt{glDrawArraysInstanced} metódust kell használni, és megadni, hogy hány példányt kell majd kirajzolni.
+
+A példányok tulajdonságainak fenntartott VBO-kat tehát minden kirajzolás előtt frissíteni kell, azaz folyamatosan stream-eljük az adatokat a videókártyának. Ez azt jelenti, hogy feltöltjük a puffert adatokkal, majd a kirajzoláskor a GPU kiolvassa ezeket, de közben mi már ismét küldhetünk adatokat arra a pufferre, ami éppen olvasás alatt áll. Ahhoz, hogy ez ne okozzon hibát, az OpenGL specifikáció az \textit{implicit szinkronizáció} segítségével garantálja, hogy amíg a puffert olvassák, addig ne kerülhessen rá új adat, addig ugyanis az író szál fel van függesztve. Ez lassulást eredményezhet a program futása során. Ennek elkerülésére is számos módszer létezik, én a \textit{buffer re-specification}-t választottam, melyet az OpenGL dokumentációjában\footnote{https://www.khronos.org/opengl/wiki/Buffer\_Object\_Streaming} találtam.
+
+ Ez a megoldás újrafoglalja a VBO-nak fenntartott memória területet a módosítás előtt. Ahhoz, hogy ez hatékony legyen, a \texttt{glBufferData} metódusban a \texttt{GL\_STREAM\_DRAW} konstans segítségével kell a videókártyával tudatni, hogy az adott puffert sokszor tervezzük törölni, majd újra létrehozni. A reallokálást a úgy érhetjük el, hogy adott VBO-ra meghívjuk a \texttt{glBufferData} metódust a korábbiakkal egyező paraméterekkel és \texttt{NULL} pointert adunk át neki az adatokra mutató paraméter helyén. Az OpenGL dokumentáció szerint ez teljesítmény szempontjából valószínűleg sokkal előnyösebb megoldás, mint az implicit szinkronizálásra hagyatkozni.
+
 % FireParticleSystem
+\subsection{FireParticleSystem osztály}
+A részecskék karbantartását végző emitter a \texttt{FireParticleSystem} osztályban került implementálásra. A kibocsátáson, elpusztításon és a részecskék helyzetének aktualizálásán kívül ez az osztály felel a részecskerendszer kirajzolásáért, valamint rendelkezik egy \texttt{toggleWind} metódussal, melynek segítségével be- illetve kikapcsolhatjuk a szél hatást keltő ``erőt''. A tűz kirajzolásához tehát elég ezt az osztályt példányosítani, majd a \texttt{draw} metódusát meghívni a rendereléskor.
+
+% fontosabb adattagok
+\subsubsection{Fontosabb adattagok, paraméterek}
+A tűz megjelenését a következő paraméterként is értelmezhető adattagok segítségével lehet befolyásolni:
+\begin{itemize}
+\item Maximális részecskeszám (\texttt{m\_iMaxParticles}): megadja, hogy maximum hány részecske lehet egyszerre életben.
+\item Részecske életartam (\texttt{m\_iParticleLifetime}): a részecskék élettartama ms-ban megadva. Minden részecske ennyi időt tölt majd a képernyőn, de mivel a sebességük eltérő, így ez nem feltűnő.
+\item Az emitter pozíciója (\texttt{m\_vPosition}): e térbeli pont környékéről indulnak majd a részecskék.
+\item A részecske rendszer skálája (\texttt{m\_fScale}): a részecskék méretére és a kiindulási terület nagyságára is hatással van.
+\item Random generátorok (\texttt{m\_rRandom(...)}): többféle értékhatárok között generálnak pszeudo-random számokat. A részecskék indításához és példányosításához használom őket, ezek adják a rendszer véletlenszerűségét. Mindegyik egyenletes eloszlású értékeket generál.
+\end{itemize}
+
+% konstruktor
+\subsubsection{Konstruktor}
+A konstruktornak paraméterként meg kell adni a kamera és a tűz árnyaló objektumokra mutató pointereket és az emitter pozícióját. Opcionálisan megadható a maximális részecskeszám, illetve a skála paraméter is. Ezeket a megfelelő adattagokba lementem, majd emellett több más változó is inícializálásra kerül. 
+
+Az m\_pParticleContainer tárolja majd a FireParticle típusú részecskéket,tehát akkorának kell lennie, hogy az összes részecskét egyszerre képes legyen tárolni:
+\begin{cpp}
+m_pParticleContainer = new FireParticle[maxParticles];
+\end{cpp}
+
+Az egyes példányok sajátos tulajdonságainak számontartásáért a következő pufferek felelnek:
+\begin{cpp}
+m_pPositionsBuffer = new float[maxParticles * m_iPositionElementCount];
+m_pRotationAndBlendBuffer = new float[
+			maxParticles * m_iRotationAndBlendElements];
+m_pTexturesBuffer = new int[maxParticles];
+\end{cpp}
+Az \texttt{m\_pPositionsBuffer} tárolja majd a részecskék középpontjait és az adott részecske skála paraméterét (nem összekeverendő az egész részecske rendszer skála paraméterével), azaz részecskénként 4 db \texttt{float} értéket kell majd tárolnia. Az \texttt{m\_pRotationAndBlendBuffer} tárolja a részecskék elfordulásának szögét, illetve a részecske pillanatnyi textúrájához tartozó blend paramétert, melynek segítségével az összemosást vagy az elhalványítást végzem fázistól függően. Az \texttt{m\_pTexturesBuffer} pedig a példányok pillanatnyi textúrájának sorszámát juttatja majd el a shader-nek.
+
+A részecske rendszer egyik legmeghatározóbb paramétere tapasztalataim szerint az \texttt{m\_fParticlesPerSecond} származtatott adat, mely megadja, hogy másodpercenként hány részecske születhet. A kiszámítása az alábbi képlet alapját történik:
+
+\begingroup
+\Large
+\begin{center}
+$ \texttt{m\_fParticlesPerSecond} = \frac{\texttt{m\_iMaxParticles} \cdot 1000}{\texttt{m\_iParticleLifetime}}$
+\end{center}
+\endgroup
+Az 1000-el való szorzásra azért van szükség, mert az \texttt{m\_iParticleLifetime} mértékegysége ms.
+
+A random generáló objektumok inícializáslása után a konstruktor utolsó lépése a \texttt{loadBaseVAO} metódus meghívása. Ez a metódus betölti a tűz animálásához szükséges textúrát, majd létrehozza a rendszer VAO-ját. Ebben tárolom azokat a VBO-kat a tulajdonságaikkal együtt, melyek segítségével a fentebb említett pufferekben tárolt adatokat juttatom el a shader-eknek. 
+
+%VBO-k betöltése
+Az alap mesh-t tartalmazó VBO létrehozása egyezik a billboard alapú tűznél alkalmazott módszerrel. A példányok tulajdonságait tartalmazó VBO-knak azonban eltérő a megvalósítása a korábban problémákból kifolyólag. A részecske pozíciók és méretek tárolására használt OpenGL puffer létrehozása például a következőképpen néz ki:
+\begin{cpp}
+glGenBuffers(1, &m_iPositionsVBO);
+glBindBuffer(GL_ARRAY_BUFFER, m_iPositionsVBO);
+glBufferData(GL_ARRAY_BUFFER, 
+	m_iMaxParticles * m_iPositionElementCount * sizeof(float), 
+	NULL, GL_STREAM_DRAW); // buffer re-specification
+glEnableVertexAttribArray(m_pFireShader->attrib("positionAndSize"));
+glVertexAttribPointer(m_pFireShader->attrib("positionAndSize"), 
+	m_iPositionElementCount, GL_FLOAT, GL_FALSE, 0, NULL);
+// instancing hint
+glVertexAttribDivisor(m_pFireShader->attrib("positionAndSize"), 1);
+\end{cpp}
+Ahogy azt a buffer re-specification módszernél már említettem, a \texttt{glBufferData} metódust csak allokálásra használjuk, és \texttt{ GL\_STREAM\_DRAW} konstanssal hívjuk meg. Az instancing módszerhez szükséges \texttt{glVertexAttribDivisor} metódus segítségével pedig jelezzük az OpenGL-nek, hogy példányonként 1 elemre van szükség az adott pufferből. A többi VBO előkészítése is hasonló módon néz ki, de természetesen a foglalt területek mérete eltér.
+
+Egy érdekes hibára bukkantam azonban, mikor a textúrák sorszámát stream-elő VBO-t hoztam létre. A sorszámokat integerként tárolom, ennek megfelelően pedig jeleztem a videókártya felé a \texttt{glVertexAttribPointer}-en keresztül, hogy a pufferben tárolt adatok \texttt{GL\_INT} típusúak. A shader-ekbe azonban teljesen más számok érkeztek, mint amiket küldtem. A stackoverflow.com oldalon már más is találkozott ezzel a problémával.\footnote{https://stackoverflow.com/questions/6578026/cant-get-integer-vertex-attributes-working-in-glsl-1-5} Itt arról ír a felhasználó, hogy annak ellenére, hogy a \texttt{GL\_INT} konstanst megadta, a kapott érték átkonvertálódik \texttt{float} típusúvá, majd ezt az árnyaló integerként olvassa ki. A nem túl elegánsnak tűnő megoldás pedig az, hogy a \texttt{glVertexAttribPointer}-nek  \texttt{GL\_FLOAT} paramétert kell átadni, így az nem konvertálja át a kapott integer értéket, tehát a shader helyesen tudja majd \texttt{int}-ként olvasni.
+
+Így tehát a \texttt{loadBaseVAO} metódus előkészítette a szükséges VAO-t és benne a VBO-kat, valamint tulajdonságaikat.
+
+% update
 
 
+% particle container and management
+
+% draw
+
+% instanced rendering
+
+% rotation with matrix tricks
+
+% cant pass GL_INT to shader problem
 
 % additive(no sort, less particles) vs traditional blending
-
 % Depth-et kikapcsolni, mert a közeli particle-ök sorba rendezve is kitakarják egymást
+% glDepthMask(False) vs glBlendFunc(GL_ALWAYS)
 %Erre az egyik megoldás lehet a mélység puffer (depth buffer) írásának kikapcsolása a rajzolás idejére. A mélység puffer a színpufferhez hasonlóan pixelenként tárolja az információt. A feladata, hogy a nézőponthoz közelebbi objektumokat ne takarják ki az attól távolabbiak. Ha engedélyezve van a használata, akkor a fragment shader kimeneti értékének a mélységét összeveti a pufferben az annak megfelelő helyen tárolt értékkel. Ha az új kimenet értéke nagyobb, azaz távolabb van a kamerától, akkor nem íródik be az érték sem a mélység, sem a szín pufferbe. Ezt a funkcionalitást a glDepthMask(GL_FALSE) függvény segítségével lehet felfüggeszteni. Ekkor a színeket bármiféle vizsgálat nélkül írja a szín pufferbe.
 
+% fire shader
 
+%%%%%%%%%%%%%%%% Post processing
 
+% FBO
 
+% depth to texture as well
 
+%postprocessing steps and shaders
 
-
+%% TEST: scale++, speed++, x and z not slowed => explosion?
 
 
 

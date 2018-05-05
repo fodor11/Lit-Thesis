@@ -59,8 +59,8 @@ A részecskék rengeteg tulajdonsággal vértezhetők fel. Ezek többnyire a moz
 \end{itemize}
 Nem érdemes azonban túl sok paramétert felvenni, ezek ugyanis növelhetik a számításigényt. Ha túl sok paraméter van, akkor ezek összehangolása is nehézkessé válhat. Egy adott részecske mozgatásához szükséges számításigényt igyekezni kell alacsonyan tartani, ugyanis minden képkocka előállításakor el kell végezni ezeket a számításokat minden egyes részecskén. Mivel egy részecske rendszerben általában több száz, ezer, vagy akár százezer részecske is lehet, egyetlen plusz művelet is komolyan megdobhatja a rendszer számításigényét.
 
-% részecske rendszer és tulajdonságai
-A részecskék önmagukban nem életképesek, szükség van egy részecske rendszerre, mely egységbe foglalja és karbantartja őket. A részecske rendszer legfőbb feladata a részecskék kibocsátása, így ezt \textit{emitter}-nek is nevezik. További feladatai közé tartozik a részecskék elpusztítása, helyzetük aktualizálása, illetve a képernyőn való megjelenítésükről való gondoskodás. Ennek is vannak tulajdonságai, melyek leginkább a részecskék indításához kötődnek. Ilyen paraméterek lehetnek például:
+% az emitter és tulajdonságai
+A részecskék önmagukban nem életképesek. A részecske rendszerben így szükség van egy olyan objektumra, amely egységbe foglalja és karbantartja őket. Ennek  legfőbb feladata a részecskék kibocsátása, így ezt \textit{emitter}-nek is nevezik. További feladatai közé tartozik a részecskék elpusztítása, helyzetük aktualizálása, illetve a képernyőn való megjelenítésükről való gondoskodás. Ennek is vannak tulajdonságai, melyek leginkább a részecskék indításához kötődnek. Ilyen paraméterek lehetnek például:
 \begin{itemize}
 \item a részecskék maximális száma, 
 \item a turbulenciák sűrűsége és intenzitása, 
