@@ -473,7 +473,9 @@ Minden részecske egyforma hosszú ideig él. Az indulás után pontosan \texttt
 A random generáló objektumok inícializáslása után a konstruktor utolsó lépése a \texttt{loadBaseVAO} metódus meghívása. Ez a metódus betölti a tűz animálásához szükséges textúrát, majd létrehozza a rendszer VAO-ját. Ebben tárolom azokat a VBO-kat a tulajdonságaikkal együtt, melyek segítségével a fentebb említett pufferekben tárolt adatokat juttatom el a shader-eknek. 
 
 %VBO-k betöltése
-Az alap mesh-t tartalmazó VBO létrehozása egyezik a billboard alapú tűznél alkalmazott módszerrel. A példányok tulajdonságait tartalmazó VBO-knak azonban eltérő a megvalósítása a korábban problémákból kifolyólag. A részecske pozíciók és méretek tárolására használt OpenGL puffer létrehozása például a következőképpen néz ki:
+Az alap mesh-t tartalmazó VBO létrehozása hasonlít a billboard alapú tűznél alkalmazott módszerhez. Ezek a részecskék azonban minden irányba forgatva lesznek, így a négyzet középpontjának egybe kell esni az origóval, hogy az a transzformációnál ne mozduljon el. Az oldalak hossza 1, tehát a négy pont koordinátái: $(-0.5, -0.5, 0)$, $(0.5, 0.5, 0)$, $(-0.5, 0.5, 0)$, $(0.5, -0.5, 0)$.
+
+A példányok tulajdonságait tartalmazó VBO-knak eltérő a megvalósítása a korábban problémákból kifolyólag. A részecske pozíciók és méretek tárolására használt OpenGL puffer létrehozása például a következőképpen néz ki:
 \begin{cpp}
 glGenBuffers(1, &m_iPositionsVBO);
 glBindBuffer(GL_ARRAY_BUFFER, m_iPositionsVBO);
@@ -498,7 +500,7 @@ A részecskék frame-enkénti frissítéséért az \texttt{update} metódus fele
 
 Első lépésként lekérdezem a \texttt{m\_pCamera} objektumtól az utolsó kirajzolás óta eltelt időt (ms). Ezt hozzáadom az utolsó részecske születése óta eltelt időhöz, hogy kiderüljön, eltelt-e már elég idő ahhoz, hogy új részecskét indítson útnak az emitter. A születendő részecskék számát úgy kapom, hogy az eltelt másodpercek számát megszorzom a másodpercenként kibocsátandó részecskék számával, és letárolom a szám egész részét a \texttt{newParticlesCount} lokális változóba.
 
-Ezt követően aktualizálom a szélerőt a \texttt{calculateWindForce(elapsedTime)} metódushívással. Ez csupán annyit tesz, hogy amennyiben a szél ereje nem maximális, vagy a éppen lassuló fázisban van (\texttt{m\_bStoppingWind} = true), akkor az állapotának megfelelően csökkenti, vagy növeli azt. Amennyiben a szél sebessége (\texttt{m\_fWindSpeed}) kisebb, mint $0$, akkor kikapcsolja a szelet(\texttt{m\_bWindIsBlowing} = false).
+Ezt követően aktualizálom a szélerőt a \texttt{calculateWindForce(elapsedTime)} metódushívással. Ez csupán annyit tesz, hogy amennyiben a szél ereje nem maximális, vagy a éppen lassuló fázisban van (\texttt{m\_bStoppingWind} = \texttt{true}), akkor az állapotának megfelelően csökkenti, vagy növeli azt. Amennyiben a szél sebessége (\texttt{m\_fWindSpeed}) kisebb, mint $0$, akkor kikapcsolja a szelet(\texttt{m\_bWindIsBlowing} = \texttt{false}).
 
 Utána aktualizálom az élő részecskéket:
 \begin{cpp}
@@ -530,6 +532,7 @@ A részecskéket tároló \texttt{FireParticle} típusú tömb pontosan annyi el
  \label{fig:particleArray}
 \end{figure}
 
+%addParticle
 Ezt követően a \texttt{newParticlesCount}-nak megfelelő számú részecskét hozzáadok a tömbhöz az \texttt{addParticle} metódus segítségével:
 \begin{cpp}
 if (m_iNumberOfParticles < m_iMaxParticles) {
@@ -553,6 +556,7 @@ Az \texttt{m\_rRandom} kezdetű adattagok csupán az értéktartományukban kül
 
 Az új részecskék tömbhöz adása után a kamerától vett távolság alapján sorba kell rendezni a tömb élő részecskéit. Ezt az \texttt{std::sort} függvény végzi el nekem a \texttt{FireParticle} osztály felüldefiniált $<$ oprtátora alapján. A függvénynek meg kell adni az adott tömb rendezni kívánt részének első és utolsó címét. Az utolsó címen található elem azonban nem kerül rendezésre, tehát valójában a még rendezni kívánt elem utáni címet kell megadni második paraméterként.
 
+% VBO update
 A rendezés után a példányok tulajdonságait feltölthetjük az ezeknek fenntartott pufferekbe:
 \begin{cpp}
 for (int i = 0; i < m_iNumberOfParticles; i++)
@@ -582,15 +586,52 @@ glBufferSubData(GL_ARRAY_BUFFER, 0, m_iMaxParticles * sizeof(int),
 A \texttt{glBufferData} hívással reallokáljuk számár a helyet, majd a \texttt{glBufferSubData} segítségével rámásoljuk az adatokat. Így a kirajzolsához szükséges vertex adatok már készen állnak.
 
 % draw
-
+\subsubsection{Kirajzolás}
+A \texttt{draw} metódus hívásával történik meg a renderelés. Első lépésként az előbb tárgyalt \texttt{update} metódussal frissítem a részecskéket. 
 
 % rotation with matrix tricks
+Annak érdekében, hogy a billboard-ok mindig a kamera irányába forduljanak, az előző megoldástól eltérő módszert alkalmaztam. Ennek lényege, hogy a model és view mátrixok szorzatából egy olyan transzformációs (model-view) mátrixot kapjunk, melyben nincs forgatás. Ez azt jelenti, hogy a mátrix bal felső 3x3-as részmátrixa egységmátrix kell hogy legyen, amelyet úgy kaphatunk, hogy adott mátrixot a transzponáltjával szorzunk. A forgatások, melyeket ki szeretnénk küszöbölni a kamera mozgásából adódnak, és a view mátrixban találhatóak, tehát a model mátrix bal felső 3x3-as részmátrixa a view mátrix egyező részének a transzponátjának kell lennie (\ref{fig:matrixRotation}. ábra). Így a billboardok forgatás nélkül lesznek kirajzolva, tehát mindig a kamera felé néznek (hiszen az alap négyzet az $XY$ síkon fekszik).
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/matrixRotation.png}
+ \caption{A view és model mátrix szorzata a forgatás kioltásával}
+ \label{fig:matrixRotation}
+\end{figure}
+Ezt a két mátrixot azonban nem szorzat formájában adom át a tűz árnyalónak, mert további transzformációk is szükségesek még, melyekkel még a view mátrix előtt kell megszorozni a model mátrixot (skálázás, $Z$ tengely menti forgatás, eltolás). A view és projeckciós mátrixot azonban átadhatom szorzatként, mellé pedig a model mátrixot, a részecskerendszer skáláját, és a textúra sorainak számát is elküldöm a shader-nek (\texttt{fireShader.vs} és \texttt{fireShader.fs}) uniformként. Ezek után a lángok textúráját is átadom a \texttt{tex} uniform-ban. 
 
+Ha a részecskerendszernek megadtuk a háttér mélység textúráját is, akkor azt, és az emitter kamerától vett távolságát is átküldöm a shader-nek. Ezekre a \textit{post-processing} során lesz szükség.
 
-% additive(no sort, less particles) vs traditional blending
-% Depth-et kikapcsolni, mert a közeli particle-ök sorba rendezve is kitakarják egymást
-% glDepthMask(False) vs glBlendFunc(GL_ALWAYS)
-%Erre az egyik megoldás lehet a mélység puffer (depth buffer) írásának kikapcsolása a rajzolás idejére. A mélység puffer a színpufferhez hasonlóan pixelenként tárolja az információt. A feladata, hogy a nézőponthoz közelebbi objektumokat ne takarják ki az attól távolabbiak. Ha engedélyezve van a használata, akkor a fragment shader kimeneti értékének a mélységét összeveti a pufferben az annak megfelelő helyen tárolt értékkel. Ha az új kimenet értéke nagyobb, azaz távolabb van a kamerától, akkor nem íródik be az érték sem a mélység, sem a szín pufferbe. Ezt a funkcionalitást a glDepthMask(GL_FALSE) függvény segítségével lehet felfüggeszteni. Ekkor a színeket bármiféle vizsgálat nélkül írja a szín pufferbe.
+% additive(no sort, less particles) vs traditional blending, depth test
+Mivel a textúra az alfa csatornájának teljes skáláját használja, szükség van valamilyen blending funkcióra is. Ezt még az OpenGL inícializációja során érdemes beállítani. Kezdésnek a billboard alapú tűz esetén használt tradícionális függvényt használtam, így \aref{fig:particleFireBasic1}. ábrán látható eredményt kaptam.
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/particleFireBasic1.png}
+ \caption{Tradícionális blending és alapértelmezett mélységteszt (\texttt{GL\_LESS})}
+ \label{fig:particleFireBasic1}
+\end{figure}
+
+Két probléma is felvetődik: 
+\begin{itemize}
+\item A rendezés ellenére is vannak átlátszósággal történő kitakarások.
+\item A tűz túlságosan narancssárgának hat, és a kiindulásnál is furcsán robbanásszerű a részecskék kinézete.
+\end{itemize}
+
+Az első problémára nem találtam magyarázatot, lehetséges hogy a mélységben egymáshoz nagyon közel álló részecskék közt lép fel az anomália, bár ez csak nagyobb távolságokban jellemző. Az ilyen jelenséget egyébként \textit{z-fighting}-nak hívják, mely abból fakad, hogy a mélység puffer nem lineáris, így a közelebbi objektumok mélységét sokkal pontosabban méri, mint a távoliakét. De mivel esetemben közelről is jelentkezik a probléma, nem tartom valószínűnek, hogy ezzel állnék szemben. Megoldás azonban többféle is akad a problémámra.
+
+% glDepthMask(False) vs glDepthFunc(GL_ALWAYS)
+Az egyik lehet a mélység puffer (depth buffer) írásának kikapcsolása a rajzolás idejére. A mélység puffer a színpufferhez hasonlóan pixelenként tárolja az információt. A feladata, hogy a nézőponthoz közelebbi objektumokat ne takarják ki az attól távolabbiak. Ha engedélyezve van a használata, akkor a fragment shader kimeneti értékének a mélységét összeveti a pufferben az annak megfelelő helyen tárolt értékkel. Ha az új kimenet értéke nagyobb, azaz távolabb van a kamerától, akkor nem íródik be az érték sem a mélység, sem a szín pufferbe. 
+
+Ha viszont a kirajzolt objektum mélységét nem szeretnénk beírni a mélység pufferbe, akkor a \texttt{glDepthMask(GL\_FALSE)} hívás segítségével a mélység puffer írását kikapcsolhatjuk. A mélység teszt továbbra is működik, tehát a kitakart objektumok nem fognak látszódni. Azon objektumok azonban, melyek nincsenek takarásban kirajzolódnak, de a mélységük nem kerül be a pufferbe. Így tehát a föld felett lévő összes részecske színe bekerül a színpufferbe, illetve összemosódik az ott tárolt értékkel, tehát nem történik átlátszósággal való kitakarás. A kirajzolás után a mélységpuffer írását ekkor a \texttt{glDepthMask(GL\_TRUE)} hívással engedélyezhetjük megint.
+
+A másik hasonló megoldás a mélységteszt módszerének átállítása. Ezt a \texttt{glDepthFunc} függvény segítségével lehet manipulálni, az alapértelmezett tesztmód a \texttt{GL\_LESS}. Mikor a kirajzolandó fragment mélységértéke összehasonlításra kerül a mélségpuffer megfelelő helyén tárolt értékkel, akkor a \texttt{GL\_LESS} szerint a kisebbik érték lesz az érvényes, tehát a kamerához közelebbi fragment mélysége felülírja pufferben tároltat. Ellenkező esetben a fragment elvetésre kerül, sem a mélysége, sem a színe nem jelenik meg a pufferekben. Számomra viszont a \texttt{glDepthFunc(GL\_ALWAYS)} hívás nyújtja az elérni kívánt hatást. Ez azt eredményezi, hogy mikor a két érték összevetődik, az aktuálisan kirajzolni kívánt fragment értéke mindenképpen felülírja a mélységpufferben tárolt értéket, azaz a fragment (színnel együtt) elfogadásra kerül. Így megközelítőleg helyes mélységértékek szerepelnek majd a tűz helyén a mélységpufferben, amennyiben erre szükségünk van (a post-processing során lesz is). 
+
+Az utóbbi módszer hátránya viszont, hogy az így kirajzolt objektum minden mást kitakar, olyasmit is, ami előtte lenne. Ebben az esetben a tűz föld alatti része is ki fog látszani, illetve ha néhány farönk tetején égne, akkor azokat is csúnyán kitakarná. Így ha csak egyszerűen kirenderelünk mindent a képernyőre, és nincs szükségünk a kirajzolt objektum mélység értékeire, a mélység puffer kikapcsolása jelenti a jobb megoldást.
+
+% additive blending
+A második probléma (a tűz színe) okát a blending függvényben kell keresni. A tűz és hasonló jelenségek részecske rendszerrel történő megjelenítése során gyakran alaklmazzák az ún. additív blending-et, és az általam használt textúrát is valószínűleg erre tervezték. Ez a színkeverési módszer az alábbiak alapján keveri a színeket: 
+%TODO: go on
+
 
 % fire shader
 
