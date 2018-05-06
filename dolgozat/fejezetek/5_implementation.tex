@@ -468,7 +468,7 @@ A részecske rendszer egyik legmeghatározóbb paramétere tapasztalataim szerin
 $ \texttt{m\_fParticlesPerSecond} = \frac{\texttt{m\_iMaxParticles} \cdot 1000}{\texttt{m\_iParticleLifetime}}$
 \end{center}
 \endgroup
-Az 1000-el való szorzásra azért van szükség, mert az \texttt{m\_iParticleLifetime} mértékegysége ms.
+Minden részecske egyforma hosszú ideig él. Az indulás után pontosan \texttt{m\_iParticleLifetime} időnek kell eltelnie, mielőtt az első részecskék elkezdenek meghalni. Ez azt jelenti, hogy ennyi idő alatt pontosan annyi részecskét lehet indítani, amennyi a tárolóban elfér (\texttt{m\_iMaxParticles}). Ezt követően pedig már megközelítőleg olyan iramban haláloznak el a részecskék, amilyen iramban születnek, tehát a részecskeszám nagyjából a maximum közelében fog maradni. Az 1000-el való szorzásra azért van szükség, mert az \texttt{m\_iParticleLifetime} mértékegysége ms.
 
 A random generáló objektumok inícializáslása után a konstruktor utolsó lépése a \texttt{loadBaseVAO} metódus meghívása. Ez a metódus betölti a tűz animálásához szükséges textúrát, majd létrehozza a rendszer VAO-ját. Ebben tárolom azokat a VBO-kat a tulajdonságaikkal együtt, melyek segítségével a fentebb említett pufferekben tárolt adatokat juttatom el a shader-eknek. 
 
@@ -493,17 +493,99 @@ Egy érdekes hibára bukkantam azonban, mikor a textúrák sorszámát stream-el
 Így tehát a \texttt{loadBaseVAO} metódus előkészítette a szükséges VAO-t és benne a VBO-kat, valamint tulajdonságaikat.
 
 % update
+\subsubsection{A részecskék aktualizálása}
+A részecskék frame-enkénti frissítéséért az \texttt{update} metódus felel. Itt történik a részecskék teremtése és pusztítása, a tulajdonságaik puffereinek aktualizálása illetve a szél, mint külső erő kalkulálása.
 
+Első lépésként lekérdezem a \texttt{m\_pCamera} objektumtól az utolsó kirajzolás óta eltelt időt (ms). Ezt hozzáadom az utolsó részecske születése óta eltelt időhöz, hogy kiderüljön, eltelt-e már elég idő ahhoz, hogy új részecskét indítson útnak az emitter. A születendő részecskék számát úgy kapom, hogy az eltelt másodpercek számát megszorzom a másodpercenként kibocsátandó részecskék számával, és letárolom a szám egész részét a \texttt{newParticlesCount} lokális változóba.
+
+Ezt követően aktualizálom a szélerőt a \texttt{calculateWindForce(elapsedTime)} metódushívással. Ez csupán annyit tesz, hogy amennyiben a szél ereje nem maximális, vagy a éppen lassuló fázisban van (\texttt{m\_bStoppingWind} = true), akkor az állapotának megfelelően csökkenti, vagy növeli azt. Amennyiben a szél sebessége (\texttt{m\_fWindSpeed}) kisebb, mint $0$, akkor kikapcsolja a szelet(\texttt{m\_bWindIsBlowing} = false).
+
+Utána aktualizálom az élő részecskéket:
+\begin{cpp}
+for (int i = 0; i < m_iNumberOfParticles; i++)
+{
+	FireParticle &fp = m_pParticleContainer[i];
+	if (m_bWindIsBlowing) {
+		fp.applyForce(m_vWindDirection, m_fWindSpeed);
+	}
+	if (!fp.update(elapsedTime)) {
+		// if the particle died
+		killParticle(i);
+		// swap happend, 
+		//the element at this index should be updated again
+		i--;
+	}
+}
+\end{cpp}
+Ha fúj a szél, akkor beállítom azt, mint külső erőt minden aktív részecske esetén. A \texttt{FireParticle} osztály \texttt{update} metódusa igazzal tér vissza, ha a részecske még életben van, és hamissal, ha már nem. Utóbbi esetben a \texttt{killParticle} metódus segítségével meg kell szabadulni a részecskétől. 
 
 % particle container and management
+A részecskéket tároló \texttt{FireParticle} típusú tömb pontosan annyi elemből áll, amennyi a megengedett maximális részecskeszám. Így nem kell új elemeket beszúrni, sem régieket törölni, tehát a fix méretű tömb hatékonyabb, mint egy dinamikus lista. A könnyebb kezelhetőség érdekében az élő részecskéket a tömb első részében tartom, a holtakat pedig a végén, így nem kell az összes elemen végigiterálni frissítéskor, csak pontosan annyin, amennyi részecske életben van (\texttt{m\_iNumberOfParticles}). Ha egy részecske meghal, akkor kicserélem az utolsó élő elemmel. Részecske kibocsátáskor az új részecske az élő részecskék utáni első (halott) elem helyét veszi át. 
+
+\Aref{fig:particleArray}. ábrán láthatjuk, hogy a \texttt{killParticle} hatására a halott részecske az élők mögé kerül (\texttt{std::swap}) közvetlenül, az utolsó élő részecske viszont átveszi a helyét. Ezért kell az iterációs változót eggyel csökkenteni, különben az előre helyezett részecske nem lenne frissítve.
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=0.6\textwidth]{kepek/particleArray.png}
+ \caption{A részecske pusztulás és születés hatásai a tömbben.}
+ \label{fig:particleArray}
+\end{figure}
+
+Ezt követően a \texttt{newParticlesCount}-nak megfelelő számú részecskét hozzáadok a tömbhöz az \texttt{addParticle} metódus segítségével:
+\begin{cpp}
+if (m_iNumberOfParticles < m_iMaxParticles) {
+glm::vec3 initialSpeed(m_rRandomXZ(m_rGenerator), 
+	m_rRandomY(m_rGenerator), m_rRandomXZ(m_rGenerator));
+
+float alpha = m_rRandomAngle(m_rGenerator);
+float radius = m_rRandomRadius(m_rGenerator);
+glm::vec3 offset = glm::vec3(m_fScale * cos(alpha) * radius, 
+	0.f, m_fScale * sin(alpha) * radius);
+		
+m_pParticleContainer[m_iNumberOfParticles] = FireParticle(
+	m_vPosition + offset, initialSpeed, alpha, m_iParticleLifetime, 
+	m_pCamera, m_rRandomRotation(m_rGenerator));
+m_pParticleContainer[m_iNumberOfParticles].update(0.f);
+m_iNumberOfParticles++;
+m_fTimeSinceLastEmittedParticle = 0.f;
+}
+\end{cpp}
+Az \texttt{m\_rRandom} kezdetű adattagok csupán az értéktartományukban különböznek, a részecskék kiindulási paramétereinek véletlenszerűségével kapjuk a kellően kaotikus eredményeket. Az induló sebesség nem egységvektor, így a részecskék sebessége között még nagyobb különbségek keletkeznek. Az \texttt{offset} változó segítségével érem el, hogy a részecskék ne egy pontból induljanak ki, hanem az emitter pozíciójának adott sugarú körén belülről. Az \texttt{alpha} random változó a részecske kezdeti elfordulása is egyben. A \texttt{FireParticle} utolsó paramétere a részecske elfordulásának szögsebessége. Az új részecskét az \texttt{m\_iNumberOfParticles} indexű elem helyére rakom, ez ugyanis az első elem a halott részecskék közül (\ref{fig:particleArray}. ábra). Az \texttt{update} metódus azonnali meghívására azért van szükség, hogy a részecske megfelelő adattagjai is értéket kapjanak, például a kamerától vett távolság és a textúra sorszám.
+
+Az új részecskék tömbhöz adása után a kamerától vett távolság alapján sorba kell rendezni a tömb élő részecskéit. Ezt az \texttt{std::sort} függvény végzi el nekem a \texttt{FireParticle} osztály felüldefiniált $<$ oprtátora alapján. A függvénynek meg kell adni az adott tömb rendezni kívánt részének első és utolsó címét. Az utolsó címen található elem azonban nem kerül rendezésre, tehát valójában a még rendezni kívánt elem utáni címet kell megadni második paraméterként.
+
+A rendezés után a példányok tulajdonságait feltölthetjük az ezeknek fenntartott pufferekbe:
+\begin{cpp}
+for (int i = 0; i < m_iNumberOfParticles; i++)
+{
+	FireParticle &fp = m_pParticleContainer[i];
+	m_pPositionsBuffer[i*m_iPositionElementCount] = fp.getX();
+	m_pPositionsBuffer[i*m_iPositionElementCount + 1] = fp.getY();
+	m_pPositionsBuffer[i*m_iPositionElementCount + 2] = fp.getZ();
+	m_pPositionsBuffer[i*m_iPositionElementCount + 3] = fp.getScale();
+
+	m_pRotationAndBlendBuffer[i*m_iRotationAndBlendElements] = 
+						fp.getRotation();
+	m_pRotationAndBlendBuffer[i*m_iRotationAndBlendElements + 1] = 
+						fp.getCurrentBlend();
+
+	m_pTexturesBuffer[i] = fp.getCurrentTexture();
+}
+\end{cpp}
+Az ezekhez tartozó VBO-kat pedig frissítjük az új adatokkal a buffer re-specification módszernek megfelelően. Ez a textúra sorszámokat tartalmazó VBO esetén a következőképpen néz ki:
+\begin{cpp}
+glBindBuffer(GL_ARRAY_BUFFER, m_iTexturesVBO);
+glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * sizeof(int), 
+			NULL, GL_STREAM_DRAW);
+glBufferSubData(GL_ARRAY_BUFFER, 0, m_iMaxParticles * sizeof(int), 
+			m_pTexturesBuffer);
+\end{cpp}
+A \texttt{glBufferData} hívással reallokáljuk számár a helyet, majd a \texttt{glBufferSubData} segítségével rámásoljuk az adatokat. Így a kirajzolsához szükséges vertex adatok már készen állnak.
 
 % draw
 
-% instanced rendering
 
 % rotation with matrix tricks
 
-% cant pass GL_INT to shader problem
 
 % additive(no sort, less particles) vs traditional blending
 % Depth-et kikapcsolni, mert a közeli particle-ök sorba rendezve is kitakarják egymást
