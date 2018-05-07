@@ -620,22 +620,108 @@ Két probléma is felvetődik:
 Az első problémára nem találtam magyarázatot, lehetséges hogy a mélységben egymáshoz nagyon közel álló részecskék közt lép fel az anomália, bár ez csak nagyobb távolságokban jellemző. Az ilyen jelenséget egyébként \textit{z-fighting}-nak hívják, mely abból fakad, hogy a mélység puffer nem lineáris, így a közelebbi objektumok mélységét sokkal pontosabban méri, mint a távoliakét. De mivel esetemben közelről is jelentkezik a probléma, nem tartom valószínűnek, hogy ezzel állnék szemben. Megoldás azonban többféle is akad a problémámra.
 
 % glDepthMask(False) vs glDepthFunc(GL_ALWAYS)
-Az egyik lehet a mélység puffer (depth buffer) írásának kikapcsolása a rajzolás idejére. A mélység puffer a színpufferhez hasonlóan pixelenként tárolja az információt. A feladata, hogy a nézőponthoz közelebbi objektumokat ne takarják ki az attól távolabbiak. Ha engedélyezve van a használata, akkor a fragment shader kimeneti értékének a mélységét összeveti a pufferben az annak megfelelő helyen tárolt értékkel. Ha az új kimenet értéke nagyobb, azaz távolabb van a kamerától, akkor nem íródik be az érték sem a mélység, sem a szín pufferbe. 
+A mélység puffer a színpufferhez hasonlóan pixelenként tárolja az információt. A feladata, hogy a nézőponthoz közelebbi objektumokat ne takarják ki az attól távolabbiak. Ha engedélyezve van a használata, akkor a fragment shader kimeneti értékének a mélységét összeveti a pufferben az annak megfelelő helyen tárolt értékkel. Ha az új kimenet értéke nagyobb, azaz távolabb van a kamerától, akkor nem íródik be az érték sem a mélység, sem a szín pufferbe. 
 
-Ha viszont a kirajzolt objektum mélységét nem szeretnénk beírni a mélység pufferbe, akkor a \texttt{glDepthMask(GL\_FALSE)} hívás segítségével a mélység puffer írását kikapcsolhatjuk. A mélység teszt továbbra is működik, tehát a kitakart objektumok nem fognak látszódni. Azon objektumok azonban, melyek nincsenek takarásban kirajzolódnak, de a mélységük nem kerül be a pufferbe. Így tehát a föld felett lévő összes részecske színe bekerül a színpufferbe, illetve összemosódik az ott tárolt értékkel, tehát nem történik átlátszósággal való kitakarás. A kirajzolás után a mélységpuffer írását ekkor a \texttt{glDepthMask(GL\_TRUE)} hívással engedélyezhetjük megint.
+A kitakarás tehát a mélységtesztből fakad, ezt azonban nem érdemes kikapcsolni. Helyette az jelentené a megoldást, hogy kirajzoláskor az adott fragment mindenképpen átmegy a teszten. Az egyik lehetőség, hogy a részecskék mélységértékeit nem írjuk be a pufferbe, így nincs ami kitakarjon. A másik megoldás a mélységteszt összehasonlító funkciójának a megváltoztatása.
 
-A másik hasonló megoldás a mélységteszt módszerének átállítása. Ezt a \texttt{glDepthFunc} függvény segítségével lehet manipulálni, az alapértelmezett tesztmód a \texttt{GL\_LESS}. Mikor a kirajzolandó fragment mélységértéke összehasonlításra kerül a mélségpuffer megfelelő helyén tárolt értékkel, akkor a \texttt{GL\_LESS} szerint a kisebbik érték lesz az érvényes, tehát a kamerához közelebbi fragment mélysége felülírja pufferben tároltat. Ellenkező esetben a fragment elvetésre kerül, sem a mélysége, sem a színe nem jelenik meg a pufferekben. Számomra viszont a \texttt{glDepthFunc(GL\_ALWAYS)} hívás nyújtja az elérni kívánt hatást. Ez azt eredményezi, hogy mikor a két érték összevetődik, az aktuálisan kirajzolni kívánt fragment értéke mindenképpen felülírja a mélységpufferben tárolt értéket, azaz a fragment (színnel együtt) elfogadásra kerül. Így megközelítőleg helyes mélységértékek szerepelnek majd a tűz helyén a mélységpufferben, amennyiben erre szükségünk van (a post-processing során lesz is). 
+Ha a kirajzolt objektum mélységét nem szeretnénk beírni a mélység pufferbe, akkor a \texttt{glDepthMask(GL\_FALSE)} hívás segítségével a mélység puffer írását kikapcsolhatjuk. A mélység teszt továbbra is működik, tehát a kitakart objektumok nem fognak látszódni. Azon objektumok azonban, melyek nincsenek takarásban kirajzolódnak, de a mélységük nem kerül be a pufferbe. Így tehát a föld felett lévő összes részecske színe bekerül a színpufferbe, illetve összemosódik az ott tárolt értékkel, tehát nem történik átlátszósággal való kitakarás. A kirajzolás után a mélységpuffer írását ekkor a \texttt{glDepthMask(GL\_TRUE)} hívással engedélyezhetjük megint.
 
-Az utóbbi módszer hátránya viszont, hogy az így kirajzolt objektum minden mást kitakar, olyasmit is, ami előtte lenne. Ebben az esetben a tűz föld alatti része is ki fog látszani, illetve ha néhány farönk tetején égne, akkor azokat is csúnyán kitakarná. Így ha csak egyszerűen kirenderelünk mindent a képernyőre, és nincs szükségünk a kirajzolt objektum mélység értékeire, a mélység puffer kikapcsolása jelenti a jobb megoldást.
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/particleDepthComparison.png}
+ \caption{Bal oldalon a mélység puffer írása volt kikapcsolva, jobb oldalon az összehasonlító funkció \texttt{GL\_ALWAYS}-re lett beállítva.}
+ \label{fig:particleDepthComparison}
+\end{figure}
+
+A másik megoldás a mélységteszt módszerének átállítása. Ezt a \texttt{glDepthFunc} függvény segítségével lehet manipulálni, az alapértelmezett tesztmód a \texttt{GL\_LESS}. Mikor a kirajzolandó fragment mélységértéke összehasonlításra kerül a mélységpuffer megfelelő helyén tárolt értékkel, akkor a \texttt{GL\_LESS} szerint a kisebbik érték lesz az érvényes, tehát a kamerához közelebbi fragment mélysége felülírja pufferben tároltat. Ellenkező esetben a fragment elvetésre kerül, sem a mélysége, sem a színe nem jelenik meg a pufferekben. Számomra viszont a \texttt{glDepthFunc(GL\_ALWAYS)} hívás nyújtja az elérni kívánt hatást. Ez azt eredményezi, hogy mikor a két érték összevetődik, az aktuálisan kirajzolni kívánt fragment értéke mindenképpen felülírja a mélységpufferben tárolt értéket, azaz a fragment (színnel együtt) elfogadásra kerül. Így megközelítőleg helyes mélységértékek szerepelnek majd a tűz helyén a mélységpufferben, amennyiben erre szükségünk van (a post-processing során lesz is). 
+
+Az utóbbi módszer hátránya viszont, hogy az így kirajzolt objektum minden mást kitakar, olyasmit is, ami előtte lenne. Ebben az esetben a tűz föld alatti része is ki fog látszani (\ref{fig:particleDepthComparison}. ábra piros négyzet), illetve ha néhány farönk tetején égne, akkor azokat is csúnyán kitakarná. Így ha csak egyszerűen kirenderelünk mindent a képernyőre, és nincs szükségünk a kirajzolt objektum mélység értékeire, a mélység puffer kikapcsolása jelenti a jobb megoldást.
+
 
 % additive blending
-A második probléma (a tűz színe) okát a blending függvényben kell keresni. A tűz és hasonló jelenségek részecske rendszerrel történő megjelenítése során gyakran alaklmazzák az ún. additív blending-et, és az általam használt textúrát is valószínűleg erre tervezték. Ez a színkeverési módszer az alábbiak alapján keveri a színeket: 
-%TODO: go on
+A második probléma (a tűz színe) okát a blending függvényben kell keresni. A tűz és hasonló jelenségek részecske rendszerrel történő megjelenítése során gyakran alaklmazzák az ún. additív blending-et, és az általam használt textúrát is valószínűleg erre tervezték. Én az alábbi színkeverési funkciót alkalmaztam: 
+\begin{cpp}
+glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO); 
+\end{cpp}
+Mint azt már láthattuk, az első két paraméter a színek keverését befolyásolja, a második kettő pedig az alfa csatornákra vonatkozik. Akár csak a tradícionális blending esetén, a két művelet itt is összeadás. 
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/particleBlendingComparison.png}
+ \caption{Bal oldalon a tradícionális összemosás, jobb oldalon az additív.}
+ \label{fig:particleBlendingComparison}
+\end{figure}
 
+A fragment színe a saját alfa értékének arányában van elhalványítva, ezt adjuk hozzá a háttér változatlan színéhez. Ebből következik tehát, hogy a tradícionális blending-nél egy sokkal világosabb eredményt kapunk. Ha egy fragmenten több ilyen művelet is elvégződik, akkor az eredmény egyre fehérebb lesz, végül teljesen fehérré válhat. Ez különösen is hasznos a tűz esetén, ahol ha több részecske is van egymáshoz közel, akkor ott nagyobb is a jelenség ``hőmérséklete'', és -- ahogy annak lenni kell -- így fehérebb is lesz a színe (\ref{fig:particleBlendingComparison}.ábra jobb oldala).
+
+A kinézeten nem változtat, hogy az alfa csatornákat hogyan keverjük egymással, azonban a postprocessing során szükség lesz a láng részecske alfa értékére, így az aktuális fragment alfa csatornája az előtér megfelelő komponensét kapja.
+
+A mélységpuffer írásának kikapcsolása és a színkeverés engedélyezése után kirajzolhatjuk végre a részecske rendszert.
+\begin{cpp}
+glBindVertexArray(m_iParticleVAO);
+glDrawArraysInstanced(GL_TRIANGLES, 0, 6, m_iNumberOfParticles);
+\end{cpp}
+Az instancing módszernek megfelelően a hívás utolsó paramétereként meg kell adni, hogy hány példányt rajzoljon ki az OpenGL. Ezt követően vissza lehet kapcsolni a mélységpufferek írását, illetve ki kell kapcsolni a belnding-et is.
 
 % fire shader
+\subsection{Tűz árnyaló}
+A billboard alapú megjelenítéssel ellentétben az instanced render-elés miatt a shader-eknek itt már lényegesen több feladat jut. 
+
+\subsubsection{Vertex shader}
+A vertex árnyaló lesz felelős a példányok tulajdonságaiként megkapott eltolás, forgatás és skálázás elvégzése az adott ponton, valamint a hozzá tartozó textúra koordináták kiszámítása. Uniform-ként megkapja a transzformációs mátrixokat (view-projection és modell), a részecskerendszer skáláját, valamint a textúrán lévő állapotok sorainak számát (\texttt{rowCount}). Csúcsopntonként pedig megkapja az adott példány textúrájának sorszámát(\texttt{textureNr}), a pozícióját, a skáláját, az elfordulásának szögét és az összemosáshoz szükséges blend paramétert. 
+
+Elsőként a blend paramétert át is passzolom a fragment árnyalónak (\texttt{currentBlend}), mert csak ott lesz rá szükség. Ezt követően a textúra koordinátákat határozom meg. Hasonlóan történik billboard alapú tűznél alkalmazott módszerhez, de itt nem számoljuk ki a négyzet mind a 4 pontjához szükséges koordinátákat, csupán azt kapjuk meg, amelyik pontot éppen feldolgozza az árnyaló. Ezt a \texttt{vec2 getTextureCoord(int textureNr, float offset)} függvény számolja ki \aref{fig:particleBillboard}. ábrán látható értékeknek megfelelően.
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=0.7\textwidth]{kepek/particleBillboard.png}
+ \caption{A számok az $x$ és $y$ koordináták, a szöveges részek pedig a megfelelő állapot textúra koordinátái.}
+ \label{fig:particleBillboard}
+\end{figure}
+
+Az offset változó egy állapot szélességét adja meg a textúra koordinátáknak megfelelően ($\frac{1}{\texttt{rowCount}}$). Az \texttt{if} szerkezetekben lévő feltételek segítségével határolom be, hogy a négyzetnek éppen melyik sarkát dolgozza fel az árnyaló. A \texttt{textureNr} segítségével pedig kiszámolom, hogy hanyadik sor (\texttt{row}) hanyadik oszlopában (\texttt{column}) található a keresett rész.
+
+Ha a pillanatnyi textúra sorszáma nem a legutolsó textúrára mutat, akkor a következő állapot ezen ponthoz tartozó textúra koordinátáit is kiszámolom a \texttt{getTextureCoord} függvénnyel. Ezeket át is adom a fragment shader-nek a \texttt{fragTexCoord} és a \texttt{fragTexCoord2} változók segítségével. Ekkor a \texttt{smoke} változó 0, ez mutatja meg ugyanis, hogy a füst fázisban van-e az adott példány. Ezt a változót a \texttt{flat} módosító segítségével tudom átadni a fragment shadernek, ugyanis ez nem interpolálható. Ezzel szemben ha a pillanatnyi textúra állapot az utolsó, akkor a rákövetkezőt természetesen már nem számoltatom ki, és a \texttt{smoke} változó is megkapja az 1-es értéket.
+
+Mostmár csak a kapott csúcspont transzformációit kell elvégezni. A példány tulajdonságaiként kapott adatok segítségével előállítom a skála (\texttt{scalingMatrix}), a forgatás (\texttt{rotationMatrix}) és az eltolás (\texttt{translationMatrix}) mátrixokat, majd ezeket a megfelelő sorrendben összeszorzom:
+\begin{cpp}
+mat4 particleMatrix = translationMatrix * model * rotationMatrix
+							 * scalingMatrix;
+\end{cpp}
+Mint azt már korábban is tárgyaltuk, a model mátrix a kamera mozgásából fakadó forgatásokat küszöböli ki, tehát az is egy forgatás transzformációkat végez, így még az eltolás előtt kell azzal is szorozni.
+
+A transzformált csúcspontot végül a következőképpen kapjuk:
+\begin{cpp}
+gl_Position = viewProjection * particleMatrix * vec4(vert, 1);
+\end{cpp}
+
+
+\subsubsection{Fragment shader}
+A fragment shader feladata, hogy a bemenetként kapott, interpolált adatok segítségével mintavételezze a textúrát, és előállítsa a fragment színét. Ha a \texttt{smoke} változó nem 1, akkor a pillanatnyi és a következő állapot tetxtúra színeit keveri össze a \texttt{currentBlend} változó segítségével:
+\begin{cpp}
+finalColor = vec4(currentBlend * textureColor.rgba + (1 - currentBlend) * textureColor2.rgba);
+\end{cpp}
+
+Viszont ha a láng füst fázisban van, akkor az általam megadott szürke szín kerül az RGB komponensekbe, az A komponenst pedig a textúra alfa csatornája és a \texttt{currentBlend} szorzata adja: 
+\begin{cpp}
+finalColor = vec4(vec3(0.2f,0.2f,0.2f), currentBlend * textureColor.a);
+\end{cpp}
+
+Ezekkel eddig majdnem tökéletes az eredmény, de a narancs színű lángból való átmenet a szürke színű füstbe így hirtelen történik. Ennek csillapítását a következőképpen oldottam meg:
+\begin{cpp}
+float blendWithOldColor = currentBlend - 0.85f;
+if(blendWithOldColor > 0.f) {
+      blendWithOldColor = blendWithOldColor / 0.15f;
+      finalColor = vec4((1.f - blendWithOldColor) * vec3(0.2f,0.2f,0.2f) 
+      + blendWithOldColor * textureColor.rgb, currentBlend * textureColor.a);
+}
+\end{cpp}
+Ekkor a \texttt{currentBlend} tulajdonképpen a részecske kora a füstfázisban, mely $1$-ről indul és $0$-ig csökken folyamatosan. Így ebből az $1$ hosszúságú tartományból $0.15$ hosszúságnyit az összemosásra szántam. A \texttt{blendWithOldColor} változóban tartom számon, hogy menni van még hátra az átmeneti időszakből és annak arányában mosom össze a szürke színt a textúra színével egyszerű lineáris interpolációval.
+
+Ezek segítségével \aref{fig:particleBlendingComparison}. ábra jobb oldalán látható eredményt kapom.
 
 %%%%%%%%%%%%%%%% Post processing
+\section{Post-processing}
+
 
 % FBO
 
