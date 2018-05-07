@@ -651,7 +651,7 @@ Mint azt már láthattuk, az első két paraméter a színek keverését befoly�
  \label{fig:particleBlendingComparison}
 \end{figure}
 
-A fragment színe a saját alfa értékének arányában van elhalványítva, ezt adjuk hozzá a háttér változatlan színéhez. Ebből következik tehát, hogy a tradícionális blending-nél egy sokkal világosabb eredményt kapunk. Ha egy fragmenten több ilyen művelet is elvégződik, akkor az eredmény egyre fehérebb lesz, végül teljesen fehérré válhat. Ez különösen is hasznos a tűz esetén, ahol ha több részecske is van egymáshoz közel, akkor ott nagyobb is a jelenség ``hőmérséklete'', és -- ahogy annak lenni kell -- így fehérebb is lesz a színe (\ref{fig:particleBlendingComparison}.ábra jobb oldala).
+A fragment színe a saját alfa értékének arányában van elhalványítva, ezt adjuk hozzá a háttér változatlan színéhez. Ebből következik tehát, hogy a tradícionális blending-nél egy sokkal világosabb eredményt kapunk. Ha egy fragmenten több ilyen művelet is elvégződik, akkor az eredmény egyre fehérebb lesz, végül teljesen fehérré válhat. Ez különösen is hasznos a tűz esetén, ahol ha több részecske is van egymáshoz közel, akkor ott nagyobb is a jelenség ``hőmérséklete'', és -- ahogy annak lenni kell -- így fehérebb is lesz a színe (\ref{fig:particleBlendingComparison}.ábra jobb oldala). Mivel úgyis minden részecske színe hozzáadódik a színpufferhez, a részecskék kirajzolásának sorrendje a kinézeten nem változtat, tehát a sorbarendezést akár ki is hagyhatnánk. A post-processing során azonban a mélység értékekre is szükség lesz, tehát a rendezés a mélység buffer helyességét hivatott biztosítani ebben az esetben.
 
 A kinézeten nem változtat, hogy az alfa csatornákat hogyan keverjük egymással, azonban a postprocessing során szükség lesz a láng részecske alfa értékére, így az aktuális fragment alfa csatornája az előtér megfelelő komponensét kapja.
 
@@ -710,28 +710,73 @@ Ezekkel eddig majdnem tökéletes az eredmény, de a narancs színű lángból v
 \begin{cpp}
 float blendWithOldColor = currentBlend - 0.85f;
 if(blendWithOldColor > 0.f) {
-      blendWithOldColor = blendWithOldColor / 0.15f;
-      finalColor = vec4((1.f - blendWithOldColor) * vec3(0.2f,0.2f,0.2f) 
-      + blendWithOldColor * textureColor.rgb, currentBlend * textureColor.a);
+   blendWithOldColor = blendWithOldColor / 0.15f;
+   finalColor = vec4((1.f - blendWithOldColor) * vec3(0.2f,0.2f,0.2f) 
+   + blendWithOldColor * textureColor.rgb, currentBlend * textureColor.a);
 }
 \end{cpp}
 Ekkor a \texttt{currentBlend} tulajdonképpen a részecske kora a füstfázisban, mely $1$-ről indul és $0$-ig csökken folyamatosan. Így ebből az $1$ hosszúságú tartományból $0.15$ hosszúságnyit az összemosásra szántam. A \texttt{blendWithOldColor} változóban tartom számon, hogy menni van még hátra az átmeneti időszakből és annak arányában mosom össze a szürke színt a textúra színével egyszerű lineáris interpolációval.
 
-Ezek segítségével \aref{fig:particleBlendingComparison}. ábra jobb oldalán látható eredményt kapom.
+Ezek segítségével, és szél (mint külső erő) hozzáadásával \aref{fig:particleWind}. ábrán látható eredményt kapom.
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/particleWind.png}
+ \caption{A szél ereje fokozatosan nő, kikapcsolánál pedig fokozatosan csökken.}
+ \label{fig:particleWind}
+\end{figure}
 
 %%%%%%%%%%%%%%%% Post processing
-\section{Post-processing}
+\subsection{Post-processing}
+A hő hatásából fakadó fénytörés megjelenítéséhez egy újabb trükköt kell alkalmazni. A post-processing az a folyamat, melynek során a kirajzolt eredményt, mint képet módosítjuk. A jelenetet tehát nem a képernyőre, hanem egy textúrára kell render-elni, majd a textúrát egy billboardon kell megjeleníteni, mely az egész képernyőt befedi. Azonban ha mindent egyszere egy képre rajzolunk ki, akkor hátolságtól és takarástól függetlenül mindent csak egyszerre torzíthatunk. Így érdemesebb a jelenet külön részeit külön képekre kirajzolni, a megfelelőeket módosítani, majd összerakni a végeredményt elemenként.
 
+A fénytörés megvalósítását úgy képzeltem el, hogy a hátteret és a tüzet külön képekre renderelem ki, majd a háttér megfelelő részét módosítom, végül a torzított eredményre rárajzolom a tüzet is, így azt nem éri torzítás.
 
 % FBO
+\subsubsection{Frame buffer object}
+A textúrára való renderelést \textit{frame buffer object}-ek (FBO) segítségével végezhetjük el. Az FBO-k framebuffer-eket fognak egységbe, és lehetővé teszik az ezekre történő kirajzolást. Ilyenek lehetnek például a szín, mélység és stencil pufferek. Szín pufferből többet is tartalmazhat, mélység pufferből viszont csak egyet, de azt kötelezően, ha render-elni is szeretnénk rá. 
 
-% depth to texture as well
+A felhasználástól függően ezek a pufferek is különböző típusúak lehetnek. Ha csak render-elni szeretnénk rájuk, mintavételezni nem akarjuk őket, akkor az erre optimalizált \textit{renderbuffer} objektum a helyes választás. Azonban nekem szükségem lesz mind a mélység, mind a szín értékekre más helyeken is, tehát nekem mindkét pufferem textúra lesz. Így lehet őket árnyalóknak is átadni, és ott olvasni belőlük. 
+
+% PostProcessor class
+\subsubsection{PostProcessor osztály}
+A fénytörés megvalósítására készítettem egy osztályt, mely FBO-ként funkcionál. Több példányra is szükség lesz belőle, mindegyik más és más funkviót lát majd el.
+
+Az osztály konstruktorának meg kell adni a képernyő magasságát és szélességét, valamint a kirajzolásoz használandó shader fájlok nevét. Betölti az árnyalókat, majd meghívja az \texttt{initializeFBO} és \texttt{generateVAO} metódusokat.
+
+% render textures
+Az \texttt{initializeFBO} metódus legenerál egy, a képernyő méretnek megfelelő magasságú és szélességű kétdimenziós textúrát, mely a színpuffer szerepét veszi majd fel. Ez \texttt{RGBA} formátumú lesz, egyes elemei pedig \texttt{unsigned byte} típusúak. A mélység puffer számára is egy ugyanolyan méretű, de eltérő paraméterezésű kétdimenziós textúrát hoztam létre. Ennek formátuma \texttt{GL\_DEPTH\_COMPONENT} lesz. Ezen kívül további, a mélységpuffert jellemző paramétereket is be kellett állítani:
+\begin{cpp}
+glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+\end{cpp}
+Az első sor megadja, hogy a mélység értékeket hogyan kezelje az OpenGL mintavételezés során. A második hívás mondja ki, hogy az újonnan bekerülő értékeket össze kell hasonlítani a már jelenlevő értékekkel, az ezt követő hívás pedig az összehasonlítás módját adja meg.
+
+Utolsó lépésként a metódus legenerálja az FBO-t is, majd az imént létrehozott textúrákat csatolja hozzá, mint szín és mélység puffereket.
+
+A \texttt{generateVAO} metódus pedig legenerálja a megjelenítéshez szükséges négyzetet. Most csak négy csúcsot használtam fel, átlósan ellentétes csúcsai például a $(-1, -1)$ és $(1, 1)$ pontok.
+
+\subsubsection{Kirajzolás}
+Az osztályhoz hozzáadhatunk:
+\begin{itemize}
+\item Egy további textúrát, mint színes képet (\texttt{addTexture(GLuint textureId)}). Ez az árnyaló \texttt{tex2} uniform-jába kerül.
+\item Egy előtérhez és egy háttérhez tartozó mélység textúrát (\texttt{addBackgroundDepth(GLuint textureId)}, \texttt{addForegroundDepth(GLuint textureId)}).  Ezek az árnyaló \texttt{foregroundDepth} és \texttt{backgroundDepth} uniform-jaiba kerülnek.
+\item Végül pedig egy \texttt{float} típusú offszetet (\texttt{setOffset(float offset)}), mely a shader \texttt{offset} uniform-jába kerül.
+\end{itemize}
+Az ezek tárolására szolgáló adattagokat \texttt{NULL} értékkel inícializáltam, így a kirajzolsát végző \texttt{draw} metódus csak akkor adja át ezeket az árnyalóknak uniform-ként, ha az értékük ettől eltérő. 
+
+A \texttt{draw} metódus opcionális paramétere (\texttt{bool renderOwnTexture}) azt adja meg, hogy a kirajzolásnál textúraképpen a saját színpufferét használja-e, ugyanis szükség lesz majd arra is, hogy egy hozzáadott textúrát felhasználva a saját színpufferébe rajzolja ki a jelenetet.
+
+A metódus tehát a feltételes uniform beállítások után kirajzolja a VAO-jában tárolt $4$ pontot \texttt{GL\_TRIANGLE\_STRIP}-ként.
+
+A későbbiekben a \texttt{PostProcessor} osztályhoz rendelt vertex shader-ek mind ugyanolyanok. Bemenetként megkapják a csúcspontokat, melyeken nem is végeznek transzformációt, csupán kibővítik egy homogén koordinátával. Kimenetként produkálnak még egy \texttt{fragTexCoord} textúra koordinátát. Itt egyszerű dolga van az árnylónak, a pontok koordinátáinak az értéktartományát kell leszűkíteni $[-1, 1]$-ről $[0, 1]$-re. Hozzáad a vertex elemeihez 1-et, majd elosztja őket 2-vel, és meg is vannak a megfelelő textúra koordináták. A fragment shader-ek ellenben már bonyolultabbak lesznek, ezek végzik gyakorlatilag a képek módosítását. Minden művelethez más és más árnyalóra lesz majd szükség.
 
 %postprocessing steps and shaders
+\subsubsection{Fénytörés az FBO-k segítségével}
 
 %% TEST: scale++, speed++, x and z not slowed => explosion?
 
 
-
+%teljesítmény
 
 
