@@ -641,7 +641,8 @@ Az utóbbi módszer hátránya viszont, hogy az így kirajzolt objektum minden m
 % additive blending
 A második probléma (a tűz színe) okát a blending függvényben kell keresni. A tűz és hasonló jelenségek részecske rendszerrel történő megjelenítése során gyakran alaklmazzák az ún. additív blending-et, és az általam használt textúrát is valószínűleg erre tervezték. Én az alábbi színkeverési funkciót alkalmaztam: 
 \begin{cpp}
-glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO); 
+glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, 
+		    GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 \end{cpp}
 Mint azt már láthattuk, az első két paraméter a színek keverését befolyásolja, a második kettő pedig az alfa csatornákra vonatkozik. Akár csak a tradícionális blending esetén, a két művelet itt is összeadás. 
 \begin{figure}[h]
@@ -653,7 +654,7 @@ Mint azt már láthattuk, az első két paraméter a színek keverését befoly�
 
 A fragment színe a saját alfa értékének arányában van elhalványítva, ezt adjuk hozzá a háttér változatlan színéhez. Ebből következik tehát, hogy a tradícionális blending-nél egy sokkal világosabb eredményt kapunk. Ha egy fragmenten több ilyen művelet is elvégződik, akkor az eredmény egyre fehérebb lesz, végül teljesen fehérré válhat. Ez különösen is hasznos a tűz esetén, ahol ha több részecske is van egymáshoz közel, akkor ott nagyobb is a jelenség ``hőmérséklete'', és -- ahogy annak lenni kell -- így fehérebb is lesz a színe (\ref{fig:particleBlendingComparison}.ábra jobb oldala). Mivel úgyis minden részecske színe hozzáadódik a színpufferhez, a részecskék kirajzolásának sorrendje a kinézeten nem változtat, tehát a sorbarendezést akár ki is hagyhatnánk. A post-processing során azonban a mélység értékekre is szükség lesz, tehát a rendezés a mélység buffer helyességét hivatott biztosítani ebben az esetben.
 
-A kinézeten nem változtat, hogy az alfa csatornákat hogyan keverjük egymással, azonban a postprocessing során szükség lesz a láng részecske alfa értékére, így az aktuális fragment alfa csatornája az előtér megfelelő komponensét kapja.
+A kinézeten nem változtat, hogy az alfa csatornákat hogyan keverjük egymással, azonban a postprocessing során szükség lesz a láng részecske alfa értékére, így az aktuális fragment alfa csatornáját a saját értékét felhasználva keverem a háttér alfájával. Ha nem történne kitakarás szémomra tisztázatlan okokból kifolyólag, akkor elég lenne a láng alfáját venni, de a kitakarások miatt pont az alfa értékekben tükröződik a hiba. A háttér alfájával keverve azonban sikeresen elmosom a kitakarásokat.
 
 A mélységpuffer írásának kikapcsolása és a színkeverés engedélyezése után kirajzolhatjuk végre a részecske rendszert.
 \begin{cpp}
@@ -747,14 +748,15 @@ Az osztály konstruktorának meg kell adni a képernyő magasságát és széles
 Az \texttt{initializeFBO} metódus legenerál egy, a képernyő méretnek megfelelő magasságú és szélességű kétdimenziós textúrát, mely a színpuffer szerepét veszi majd fel. Ez \texttt{RGBA} formátumú lesz, egyes elemei pedig \texttt{unsigned byte} típusúak. A mélység puffer számára is egy ugyanolyan méretű, de eltérő paraméterezésű kétdimenziós textúrát hoztam létre. Ennek formátuma \texttt{GL\_DEPTH\_COMPONENT} lesz. Ezen kívül további, a mélységpuffert jellemző paramétereket is be kellett állítani:
 \begin{cpp}
 glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, 
+						GL_COMPARE_R_TO_TEXTURE);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 \end{cpp}
 Az első sor megadja, hogy a mélység értékeket hogyan kezelje az OpenGL mintavételezés során. A második hívás mondja ki, hogy az újonnan bekerülő értékeket össze kell hasonlítani a már jelenlevő értékekkel, az ezt követő hívás pedig az összehasonlítás módját adja meg.
 
 Utolsó lépésként a metódus legenerálja az FBO-t is, majd az imént létrehozott textúrákat csatolja hozzá, mint szín és mélység puffereket.
 
-A \texttt{generateVAO} metódus pedig legenerálja a megjelenítéshez szükséges négyzetet. Most csak négy csúcsot használtam fel, átlósan ellentétes csúcsai például a $(-1, -1)$ és $(1, 1)$ pontok.
+A \texttt{generateVAO} metódus pedig legenerálja a megjelenítéshez szükséges négyzetet. Az OpneGL-ben nézeti transzformációk nélkül a kamera a $(0, 0, 0)$ pzícióban van, és a $-Z$ tengely felé néz. Az OpenGL specifikáció szerint az alapértelmezett nézet egy 2x2-es mérteű kockát lát. Ebből következik, hogy a képernyő négy sarkában a $(-1, -1)$, $(1, 1)$, $(-1, 1)$, $(1, -1)$ pontok láthatóak. Tehát ha olyan négyzetet szeretnénk kirajzolni amely transzformációk nélkül pont beteríti a képernyőt, akkor annak pont ezek lesznek a csúcspontjai.
 
 \subsubsection{Kirajzolás}
 Az osztályhoz hozzáadhatunk:
@@ -773,6 +775,48 @@ A későbbiekben a \texttt{PostProcessor} osztályhoz rendelt vertex shader-ek m
 
 %postprocessing steps and shaders
 \subsubsection{Fénytörés az FBO-k segítségével}
+A fénytörés megvalósítását több lépésben képzeltem el. Egy textúrára ki kell rajzolni a hátteret (ég, domborzat), hogy azt később torzítani lehessen. Egy másik textúrára a tüzet rajzolom ki, hogy azt majd torzítás nélkül a torzított háttérre rajzolhassam. Ahhoz, hogy a háttér megfelelő (tűz mögötti) részét be tudjam határolni a torzításhoz, szükség van valamilyen maszkra. Erre a célra a kirajzolt tűz képét fogom módosítani, és azt, mint maszkot felhasználva torzítom majd el a hátteret. 
+
+A \texttt{PostProcessor} osztályt általában úgy használom fel, hogy kirajzolok a pufferébe egy jelenetet, majd ezt textúraként felhasználva az árnyalója segítségével valamilyen post-processing műveletet elvégezve kirajzolom a feldolgozott képet. Utóbbit a képernyőre, vagy egy másik FBO-ba objektumba is irányíthatom. Az effekt megvalósításához négy különböző \texttt{PostProcessor} objektumra van szükségem:
+\begin{itemize}
+\item  \texttt{renderedBackground}: Ebbe az objektumba rajzolom ki torzítás mentesen a hátteret, majd a \texttt{draw} metódusa segítségével a hozzáadott maszk textúra alapján képes torzítva kirenderelni azt. Ez az objektum a \texttt{postprocessor} árnyalót használja majd kirajzolás során.
+\item \texttt{renderedFire}: Ebbe az objektumba rajzolom a részecske rendszer alapú tüzet. A \texttt{noEffectFBO} shader segítségével ezt változatlanul rajzolja ki a \texttt{draw} metódusával.
+\item \texttt{distortionMap}: Ennek az objektumnak eltérő a felhasználása a többitől. Először hozzá csatolom textúraként a kirenderelt tüzet, ebből pedig a \texttt{createDistortionMap} árnyaló segítségével kirajzolja a maszkot a saját FBO-jába. Ezt aztán később csatolni lehet textúraként a \texttt{renderedBackground}-hoz.
+\item \texttt{finalPicture}: Ebbe az objektumba rajzolom ki a torzított hátteret, majd csatolom hozzá a kirajzolt tüzet, illetve az előtér (tűz) és háttér (domborzat) mélység puffereit textúraként. A \texttt{blendPictures} shader pedig a mélységteszt elvégzésének segítségével összevágva kirajzolja a végső jelenetet.
+\end{itemize}
+A lépéseket nagy vonalakban \aref{fig:postprocessing}. ábrán láthatjuk.
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/postprocessing.png}
+ \caption{A torzítást a hegy oldalán lehet észrevenni.}
+ \label{fig:postprocessing}
+\end{figure}
+
+A post-processing logikát a \texttt{main.cpp} fájlban a \texttt{display} függvényben implementáltam.
+
+Először tehát a \texttt{renderedBackground} objektumba kirajzolom a hátteret, majd a \texttt{renderedFire}-be a tüzet (\ref{fig:postprocessing}. ábra felső két képe). A \texttt{PostProcessor} típusú változóknak először a \texttt{startRenderingOnTexture} metódusát kell meghívni, hogy a megfelelő FBO-et a kirajzolás céljának beállítsuk. Ezt követően a \texttt{glClear(GL\_COLOR\_BUFFER\_BIT | GL\_DEPTH\_BUFFER\_BIT)} hívással visszaállítom a pufferek alapállapotát, majd mintha csak a képernyőre render-elnék, a kirajzolni kívánt objektumok \texttt{draw} metódusának hívásával megtörténik a textúrákra való rajzolás. Az FBO-k használatát ezután a \texttt{stopRenderingOnTexture} metódussal lehet felfüggeszteni.
+
+Következőként a torzításhoz szükséges maszkot kell előállítani (\ref{fig:postprocessing}. ábra középső képe). 
+\begin{cpp}
+distortionMap->addTexture(renderedFire->getTextureId());
+distortionMap->setOffset(particleFire->getDistance());
+distortionMap->startRenderingOnTexture();
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+distortionMap->draw(false);
+distortionMap->stopRenderingOnTexture();
+\end{cpp}
+Ehhez szükség van a kirajzolt tűz textúrára, így azt, és az emitter kamerától vett távolságát offszetként hozzáadom a \texttt{distortionMap} objektumhoz. A \texttt{createDistortionMap} árnyalóval történik majd a saját FBO-jába történő renderelés a hozzáadott textúra felhasználásával, ezért kellett a \texttt{draw} metódusának a \texttt{false} paramétert átadni. 
+
+A maszk tulajdonképpen a tűz hőjét igyekszik megjeleníteni. A hőt szürke színnel jelölöm, emellett az alfa csatorna is fontos szerepet játszik majd. Kiindulásnak tehát elég lenne a tűz képét szürkeskálássá tenni, majd azt használni mint maszkot, ám így az igazán forró részek a tűz takarásában maradnak, és a fénytörés nem lesz túlságosan szembetűnő. Ezért először el kell tolni a tüzet a képen felfelé. Ha ezt egy egyszerű konstanssal tennénk, akkor a képernyőn mindig ugyanannyival mozdulna el, de ez nagyobb távolságból helytelen eredményt ad. Minél messzebb vagyunk a tűztől, annál kisebb mértékben kell az eltolást végezni a képernyőn. Ezért van szükség az \texttt{offset}-re, melynek a reciprokát használjuk fel:
+\begin{cpp}
+float distanceFactor = 1.f / offset;
+float y = fragTexCoord.y - 0.5 * distanceFactor
+vec4 textureColor = texture2D(tex2, vec2(fragTexCoord.x, y));
+\end{cpp}
+Az $y$ koordináta eltolásával tehát a tűz ``hője'' kicsivel magasabban van, mint maguk a lángok, ami a valóságnak valamelyest meg is felel, a látványon pedig sokat javít. A szürkeárnyalatossá alakításhoz az ITU-R (BT.709) ajánlásban megfogalmazott súlyokkal átlagoltam az RGB komponenseket. Végül ez, és a textúra alfa csatornája adja a fragmentek színét.
+
+
 
 %% TEST: scale++, speed++, x and z not slowed => explosion?
 
