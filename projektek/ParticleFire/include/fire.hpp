@@ -10,8 +10,6 @@ class FireParticle
 public:
 	FireParticle();
 
-	//FireParticle(const FireParticle& other); // needs update anyway
-
 	FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection, float rotation, float lifeTime, Camera* camera, float rotationRate = 0.1f, float speedRate = 0.3f);
 
 	bool isAlive();
@@ -54,18 +52,18 @@ private:
 	// Data
 	float m_fDistanceToCamera;
 
+	// Rotation
+	float m_fRotation = 0.f;
+	float m_fRotationRate = 0.5f;
+
 	// Textures
 	GLubyte m_cNumberOfTextures = textureRowCount * textureRowCount - 1; // 2 textures are used at the same time, last texture is only for the fade out effect, no need to display it on its own
 	int m_cCurrentTexture;
 	float m_fSceneTime; // [milliseconds] shows how long 1 texturescene is alive
+	float m_fFireTimeRatio = 0.25f; // fire to smoke ratio = m_fFireTimeRatio : 1
 	float m_fCurrentBlend;
-	glm::vec4 m_vColor;
-	// fire to smoke ratio = m_fFireTimeRatio : 1
-	float m_fFireTimeRatio = 0.25f;
 
-	// Rotation
-	float m_fRotation = 0.f;
-	float m_fRotationRate = 0.5f;
+	glm::vec4 m_vColor;
 
 	// Extra forces
 	bool m_bForceApplied = false;
@@ -76,7 +74,7 @@ private:
 class FireParticleSystem 
 {
 public:
-	FireParticleSystem(Camera * camera, tdogl::Program* fireShader, glm::vec3 position, int maxParticles = 10000, float scale = 1.f);
+	FireParticleSystem(Camera * camera, tdogl::Program* fireShader, glm::vec3 position, int maxParticles = 450, float scale = 1.f);
 	// Clean buffers up
 	~FireParticleSystem();
 	void draw();
@@ -90,14 +88,13 @@ private:
 
 	FireParticle* m_pParticleContainer;
 
-	glm::vec3 m_vPosition;
-
+	// particle parameters
 	int m_iMaxParticles;
 	int m_iNumberOfParticles = 0;
 	float m_fParticlesPerSecond;
 	int m_iParticleLifetime = 3000;	// ms
 	float m_fTimeSinceLastEmittedParticle = 0.f;
-
+	glm::vec3 m_vPosition;
 	float m_fScale;
 
 	GLuint m_iBackgroundTexture = NULL;
@@ -105,6 +102,7 @@ private:
 	GLuint m_iParticleVAO;
 	// base mesh
 	GLuint m_iVertexVBO;
+
 	// center positions and sizes of the particles
 	GLuint m_iPositionsVBO;
 	int m_iPositionElementCount = 4; // x,y,z, size
@@ -113,7 +111,7 @@ private:
 	GLuint m_iTexturesVBO;
 	int *m_pTexturesBuffer;
 	GLuint m_iTextureID;
-	// rotations and current texture alpha
+	// rotations and current texture blend
 	GLuint m_iRotationAndBlendVBO;
 	int m_iRotationAndBlendElements = 2;
 	float *m_pRotationAndBlendBuffer;
@@ -130,12 +128,13 @@ private:
 	void loadBaseVAO();
 	// generates the sprite vertices
 	std::vector<glm::vec3> generateVertices();
+
 	// updates particle positions, sorts them
 	void update();
 	// swaps dead particle with the last active one
 	void killParticle(int index);
 	// adds new particle to the container
-	void addParticle(float elapsedTime);
+	void addParticle();
 
 	// Wind
 	bool m_bWindIsBlowing = false;
@@ -143,5 +142,5 @@ private:
 	glm::vec3 m_vWindDirection;
 	float m_fWindSpeed = 0.f;
 	// true if wind is blowing
-	bool calculateWindForce(float elapsedTime);
+	void calculateWindForce(float elapsedTime);
 };

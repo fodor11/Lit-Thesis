@@ -7,8 +7,8 @@ Camera::Camera(HeightMapLoader* heightMap, std::vector<tdogl::Program*> shaderPr
 #endif
 	m_pPrograms = shaderPrograms;
 	m_pHeightMap = heightMap;
-	m_fCameraX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
-	m_fCameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
+	m_fCameraX = (heightMap->getImageWidth()*heightMap->getScale()) / 2 + 2.5f;
+	m_fCameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2 + 10.f;
 }
 
 
@@ -20,10 +20,10 @@ void Camera::updateCamera()
 
 	m_mProjection = glm::perspective(glm::radians(m_fFieldOfView), m_fViewportAspectRatio, m_fNearPlane, m_fFarPlane);
 	m_mView = glm::rotate(glm::mat4(), m_fHorizonAngleRadian, glm::vec3(1, 0, 0));
-	// camera had to be rotated by 90 degrees to match the directions of m_fDirectionX and m_fDirectionZ
 	m_mView = glm::rotate(m_mView, (float)(m_fRotationAngleRadian + M_PI_2), glm::vec3(0, 1, 0));
 	m_mView = glm::translate(m_mView, glm::vec3(-m_fCameraX, -m_fCameraY, -m_fCameraZ));
-	//std::cout << "angle: " << glm::degrees(m_fRotationAngleRadian + M_PI_2) << "x,z: " << m_fCameraX<<", " <<m_fCameraZ << std::endl;
+	//std::cout << "angle: " << glm::degrees(m_fRotationAngleRadian) << " x,z: " << m_fCameraX<<", " <<m_fCameraZ << std::endl;
+	//std::cout << "angle: " << glm::degrees(m_fRotationAngleRadian) << std::endl;
 
 	glm::mat4 camera = m_mProjection * m_mView;
 	//set the "camera" uniform in the vertex shaders
@@ -159,13 +159,13 @@ void Camera::move()
 
 	if (m_bMoveForward)
 	{
-		m_fCameraX += m_fDirectionX * distance;
-		m_fCameraZ += m_fDirectionZ * distance;
+		m_fCameraX += cos(m_fRotationAngleRadian) * distance;
+		m_fCameraZ += sin(m_fRotationAngleRadian) * distance;
 	}
 	if (m_bMoveBackward)
 	{
-		m_fCameraX -= m_fDirectionX * distance;
-		m_fCameraZ -= m_fDirectionZ * distance;
+		m_fCameraX -= cos(m_fRotationAngleRadian) * distance;
+		m_fCameraZ -= sin(m_fRotationAngleRadian) * distance;
 	}
 	if (m_bMoveRight)
 	{
@@ -176,6 +176,7 @@ void Camera::move()
 	{
 		m_fCameraX -= cos(m_fRotationAngleRadian + M_PI_2) * distance;
 		m_fCameraZ -= sin(m_fRotationAngleRadian + M_PI_2) * distance;
+
 	}
 	if (m_bMoveUp)
 	{

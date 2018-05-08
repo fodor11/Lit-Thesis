@@ -11,21 +11,6 @@ FireParticle::FireParticle()
 	m_fAge = m_fLifeTime;
 }
 
-//FireParticle::FireParticle(const FireParticle & other)
-//{
-//	m_pCamera = other.m_pCamera;
-//	m_fAge = other.m_fAge;
-//	m_fDecayRate = other.m_fDecayRate;
-//	m_fDistanceToCamera = other.m_fDistanceToCamera;
-//	m_fLifeTime = other.m_fLifeTime;
-//	m_fRotation = other.m_fRotation;
-//	m_fScale = other.m_fScale;
-//	m_vSlowing = other.m_vSlowing;
-//	m_vColor = other.m_vColor;
-//	m_vPosition = other.m_vPosition;
-//	m_vSpeedDirection = other.m_vSpeedDirection;
-//}
-
 FireParticle::FireParticle(glm::vec3 startingPosition, glm::vec3 speedDirection, float rotation, float lifeTime, Camera* camera, float rotationRate, float speedRate)
 {
 	m_pCamera = camera;
@@ -50,11 +35,12 @@ bool FireParticle::update(float elapsedTime)
 {
 	// decay
 	m_fAge -= elapsedTime;
-	float step = elapsedTime * 0.01f;
 
 	// check if still alive
 	if (m_fAge > 0.f)
 	{
+		float step = elapsedTime * 0.01f;
+
 		// Ageing
 		float relativeAge = m_fAge / m_fLifeTime;
 		
@@ -74,7 +60,6 @@ bool FireParticle::update(float elapsedTime)
 		m_vPosition += m_vSpeedDirection * step * m_fSpeedRate;
 
 		// Expanding
-		//m_fScale += m_fScaleRate * step * relativeAge;
 		m_fScale += m_fScaleRate * step;
 
 		// Rotate
@@ -167,9 +152,11 @@ FireParticleSystem::FireParticleSystem(Camera * camera, tdogl::Program * fireSha
 	m_pRotationAndBlendBuffer = new float[maxParticles * m_iRotationAndBlendElements];
 	m_pTexturesBuffer = new int[maxParticles];
 	m_fParticlesPerSecond = ((float)m_iMaxParticles / ((float)m_iParticleLifetime / 1000.f));
+
 	std::cout << "max: " << m_iMaxParticles << std::endl;
 	std::cout << "life: " << (float)m_iParticleLifetime/1000.f << std::endl;
 	std::cout << "persec: " << m_fParticlesPerSecond << std::endl;
+
 	std::random_device randDev;
 	m_rGenerator = std::mt19937(randDev());
 	m_rRandomY = std::uniform_real_distribution<float>(0.5f, 1.0f);
@@ -224,7 +211,7 @@ void FireParticleSystem::draw()
 	}
 	
 	//draw
-	glDepthFunc(GL_ALWAYS); // blend is not quite right when 2 particles are close (like same z coord etc.), but still writing depth values
+	glDepthFunc(GL_ALWAYS); // blend is not quite right when 2 particles are close (like same z coord etc.), but we are still writing depth values
 	//glDepthMask(GL_FALSE);
 	glEnable(GL_BLEND);
 	glBindVertexArray(m_iParticleVAO);
@@ -359,7 +346,7 @@ void FireParticleSystem::update()
 	// add new particles
 	for (int i = 0; i < newParticlesCount; i++)
 	{
-		addParticle(0.f);
+		addParticle();
 	}
 
 	// sort furthest to closest from camera
@@ -380,10 +367,6 @@ void FireParticleSystem::update()
 
 		m_pRotationAndBlendBuffer[i*m_iRotationAndBlendElements] = fp.getRotation();
 		m_pRotationAndBlendBuffer[i*m_iRotationAndBlendElements + 1] = fp.getCurrentBlend();
-		if (m_pRotationAndBlendBuffer[i*m_iRotationAndBlendElements + 1] < 0.f)
-		{
-			std::cout << m_pRotationAndBlendBuffer[i*m_iRotationAndBlendElements + 1] << std::endl;
-		}
 
 		m_pTexturesBuffer[i] = fp.getCurrentTexture();
 	}
@@ -407,7 +390,7 @@ void FireParticleSystem::killParticle(int index)
 	m_iNumberOfParticles--;
 }
 
-void FireParticleSystem::addParticle(float elapsedTime)
+void FireParticleSystem::addParticle()
 {
 	if (m_iNumberOfParticles < m_iMaxParticles)
 	{
@@ -416,27 +399,26 @@ void FireParticleSystem::addParticle(float elapsedTime)
 
 		float alpha = m_rRandomAngle(m_rGenerator);
 		float radius = m_rRandomRadius(m_rGenerator);
-		// makes them start within a circle (helical coords), instead of 1 point
+		// makes them start from within a circle (helical coords), instead of 1 point
 		glm::vec3 offset = glm::vec3(m_fScale * cos(alpha) * radius, 0.f, m_fScale * sin(alpha) * radius);
 		// firewall
 		//glm::vec3 offset = glm::vec3(4*radius, 0.f,0.f);
 		
 		m_pParticleContainer[m_iNumberOfParticles] = FireParticle(m_vPosition + offset, initialSpeed, alpha, m_iParticleLifetime, m_pCamera, m_rRandomRotation(m_rGenerator));
-		m_pParticleContainer[m_iNumberOfParticles].update(elapsedTime);
+		m_pParticleContainer[m_iNumberOfParticles].update(0.f); // to get the distance from camera
 		m_iNumberOfParticles++;
 		m_fTimeSinceLastEmittedParticle = 0.f;
 	}
 }
 
-bool FireParticleSystem::calculateWindForce(float elapsedTime)
+void FireParticleSystem::calculateWindForce(float elapsedTime)
 {
-	// Apply wind forces
 	if (m_bWindIsBlowing)
 	{
-		float step = elapsedTime * 0.005f;
 		// wind is either slowing down or accelerating
 		if (m_fWindSpeed < 0.5f || m_bStoppingWind)
 		{
+			float step = elapsedTime * 0.005f;
 			// slowing wind to stop
 			if (m_bStoppingWind && m_fWindSpeed > 0.f)
 			{
@@ -456,5 +438,4 @@ bool FireParticleSystem::calculateWindForce(float elapsedTime)
 			}
 		}
 	}
-	return m_bWindIsBlowing;
 }

@@ -39,7 +39,7 @@ vec2 getTextureCoord(int textureNr, float offset){
 }
 
 void main() {
-	fragVert = vert;
+	//fragVert = vert;
 	currentBlend = angleAndBlend.y;
 
 	float offset = 1.0f / float(rowCount);

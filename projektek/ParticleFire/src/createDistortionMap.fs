@@ -10,7 +10,7 @@ out vec4 finalColor;
 
 void main() {
     float distanceFactor = 1.f / offset;
-    // TODO: push texture upwards by offset, average rgb
+    // push texture upwards by offset, average rgb
     float y = fragTexCoord.y - 0.5 * distanceFactor;
     //clamp(y, 0.f, 1.f);
 

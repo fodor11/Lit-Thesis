@@ -129,6 +129,7 @@ GLenum error;
 void display()
 {
 	camera->updateCamera();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Render to texture
 	// Render normal background
@@ -141,7 +142,7 @@ void display()
 	// Render normal fire
 	renderedFire->startRenderingOnTexture();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	particleFire->addBackgroundDepth(renderedBackground->getDepthId());
+	//particleFire->addBackgroundDepth(renderedBackground->getDepthId());
 	particleFire->draw();
 	renderedFire->stopRenderingOnTexture();
 
@@ -164,7 +165,6 @@ void display()
 	finalPicture->stopRenderingOnTexture();
 
 	// Render to screen
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// Render distorted bg and normal fire using depthtesting
 	// TODO: add these in the initialization step
 	finalPicture->addTexture(renderedFire->getTextureId());
@@ -422,12 +422,16 @@ void initialize()
 	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
 
 	// additive blending
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO); // taking the foregrounds alpha, because it is used in post processing
+	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO); 
+
+	// blending the foregrounds alpha with the background, to correct the z-fighting-like bug in the alpha channels
+	// it is used in post processing
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
 	glDisable(GL_BLEND);
 	///////////////////////////////////////////////////////////////////////////////////
 
-	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 
 	glMatrixMode(GL_PROJECTION);
 
@@ -466,7 +470,7 @@ int main(int argc, char* argv[])
 	int window = glutCreateWindow("GLUT Window");
 	glutSetWindow(window);
 
-	// initialise GLEW
+	// initialize GLEW
 	glewExperimental = GL_TRUE; //stops glew crashing on OSX :-/
 	if (glewInit() != GLEW_OK)
 		throw std::runtime_error("glewInit failed");

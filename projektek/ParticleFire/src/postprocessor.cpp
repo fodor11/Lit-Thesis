@@ -18,7 +18,7 @@ PostProcessor::PostProcessor(std::string shaderName, int screenWidth, int screen
 
 PostProcessor::~PostProcessor()
 {
-	glDeleteTextures(1, &m_iRbo_depth);
+	glDeleteTextures(1, &m_iFbo_depth);
 	glDeleteTextures(1, &m_iFbo_texture);
 	glDeleteFramebuffers(1, &m_iFbo);
 }
@@ -107,12 +107,12 @@ void PostProcessor::initializeFBO()
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Generate depth buffer
-	//glGenRenderbuffers(1, &m_iRbo_depth);
-	//glBindRenderbuffer(GL_RENDERBUFFER, m_iRbo_depth);
+	//glGenRenderbuffers(1, &m_iFbo_depth);
+	//glBindRenderbuffer(GL_RENDERBUFFER, m_iFbo_depth);
 	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, m_iScreenWidth, m_iScreenHeigth);
 	//glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glGenTextures(1, &m_iRbo_depth);
-	glBindTexture(GL_TEXTURE_2D, m_iRbo_depth);
+	glGenTextures(1, &m_iFbo_depth);
+	glBindTexture(GL_TEXTURE_2D, m_iFbo_depth);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -128,7 +128,7 @@ void PostProcessor::initializeFBO()
 	glGenFramebuffers(1, &m_iFbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_iFbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_iFbo_texture, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_iRbo_depth, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_iFbo_depth, 0);
 	// check if FBO is active
 	GLenum status;
 	if ((status = glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE) {
@@ -165,7 +165,7 @@ GLuint PostProcessor::getTextureId()
 
 GLuint PostProcessor::getDepthId()
 {
-	return m_iRbo_depth;
+	return m_iFbo_depth;
 }
 
 void PostProcessor::reshape(int newWidth, int newHeigth)
@@ -177,10 +177,10 @@ void PostProcessor::reshape(int newWidth, int newHeigth)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_iScreenWidth, m_iScreenHeigth, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	//glBindRenderbuffer(GL_RENDERBUFFER, m_iRbo_depth);
+	//glBindRenderbuffer(GL_RENDERBUFFER, m_iFbo_depth);
 	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, m_iScreenWidth, m_iScreenHeigth);
 	//glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glBindTexture(GL_TEXTURE_2D, m_iRbo_depth);
+	glBindTexture(GL_TEXTURE_2D, m_iFbo_depth);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, m_iScreenWidth, m_iScreenHeigth, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

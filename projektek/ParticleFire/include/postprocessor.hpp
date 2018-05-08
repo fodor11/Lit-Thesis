@@ -28,7 +28,7 @@ private:
 
 	GLuint m_iFbo;
 	GLuint m_iFbo_texture;
-	GLuint m_iRbo_depth;
+	GLuint m_iFbo_depth;
 
 	GLuint m_iAdditionalTexture = NULL;
 	GLuint m_iBackgroundDepth = NULL;

@@ -1,5 +1,5 @@
 #version 400
-#define SOFTPARTICLES
+//#define SOFTPARTICLES
 
 uniform sampler2D tex;
 uniform sampler2D backgroundDepth;

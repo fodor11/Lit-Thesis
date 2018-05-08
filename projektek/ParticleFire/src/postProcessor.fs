@@ -11,8 +11,8 @@ in vec2 fragTexCoord;
 out vec4 finalColor;
 
 void main() {
-
-    float distortionMap = texture2D(tex2, fragTexCoord).r;
+    vec4 distortionColor = texture(tex2, fragTexCoord);
+    float distortionMap = distortionColor.r * distortionColor.a;
     float bgDepth = texture2D(backgroundDepth, fragTexCoord).r;
     float fgDepth = texture2D(foregroundDepth, fragTexCoord).r;
 
@@ -25,10 +25,11 @@ void main() {
             float amplitude = 0.003f; // szethuz
             float frequency = 50.0f;  // osszenyom
             float distortion = sin(fragTexCoord.y * frequency + offset) * amplitude;
-            distortion = distortion * pow(distortionMap, 1/2);
+            distortion = distortion * pow(distortionMap, 0.45);
 
             textureColor = texture2D(tex, vec2(fragTexCoord.x + distortion, fragTexCoord.y));
-            //textureColor = vec4(1,0,0,1);
+            //TODO: ¢¢scr shot with that one¢¢
+            //textureColor = vec4(pow(distortionMap, .45),0,0,1);
         }
         else
         {

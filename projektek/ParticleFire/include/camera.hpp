@@ -79,10 +79,10 @@ private:
 	/// shader program
 	std::vector<tdogl::Program*> m_pPrograms;
 	/// rotation in the Y axis
-	float m_fRotationAngleRadian = 0.f;
+	float m_fRotationAngleRadian = -M_PI_2;
+	
 	/// horizon angle in radian
 	float m_fHorizonAngleRadian = 0.0f;
-
 	/// position of the camera
 	float m_fCameraX = 0.0f, 
 		  m_fCameraY = 1.0f, 
@@ -91,7 +91,7 @@ private:
 	float m_fCameraHeight = 1.f;
 	/// camera's direction (vector)
 	float m_fDirectionX = 0.0f,
-		  m_fDirectionZ = 0.0f;
+		  m_fDirectionZ = -1.0f;
 
 	/// previous positions (used in collision detection)
 	float m_fPrevCameraX = 0.0f,
