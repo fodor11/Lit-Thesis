@@ -1,9 +1,11 @@
 #version 400
-//#define SOFTPARTICLES
+#define SOFTPARTICLES
 
 uniform sampler2D tex;
 uniform sampler2D backgroundDepth;
 uniform float distanceToCamera;
+uniform float screenWidth;
+uniform float screenHeigth;
 
 in vec3 fragVert;
 in vec2 fragTexCoord;
@@ -38,7 +40,7 @@ void main() {
 
     #ifdef SOFTPARTICLES
 
-    float bgDepth = texture2D(backgroundDepth, gl_FragCoord.xy / vec2(860.f,640.f)).r;
+    float bgDepth = texture2D(backgroundDepth, gl_FragCoord.xy / vec2(screenWidth, screenHeigth)).r;
     if (bgDepth > gl_FragCoord.z){
         float distance = bgDepth - gl_FragCoord.z;
         float threshold = 0.1f / pow(distanceToCamera, 2);

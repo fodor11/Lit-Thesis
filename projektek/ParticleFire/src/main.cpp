@@ -142,7 +142,7 @@ void display()
 	// Render normal fire
 	renderedFire->startRenderingOnTexture();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//particleFire->addBackgroundDepth(renderedBackground->getDepthId());
+	particleFire->addBackgroundDepth(renderedBackground->getDepthId());
 	particleFire->draw();
 	renderedFire->stopRenderingOnTexture();
 
@@ -199,6 +199,7 @@ void reshape(GLsizei width, GLsizei height)
 	midY = height / 2;
 	camera->setAspectRatio((float) width / (float) height);
 	renderedBackground->reshape(width, height);
+	particleFire->updateScreenSize(width, height);
 }
 
 void mouseHandler(int button, int state, int x, int y)
@@ -426,7 +427,7 @@ void initialize()
 
 	// blending the foregrounds alpha with the background, to correct the z-fighting-like bug in the alpha channels
 	// it is used in post processing
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE);
 
 	glDisable(GL_BLEND);
 	///////////////////////////////////////////////////////////////////////////////////

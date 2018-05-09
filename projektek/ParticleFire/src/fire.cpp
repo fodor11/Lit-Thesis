@@ -248,6 +248,14 @@ void FireParticleSystem::addBackgroundDepth(GLuint texture)
 	m_iBackgroundTexture = texture;
 }
 
+void FireParticleSystem::updateScreenSize(int width, int heigth)
+{
+	m_pFireShader->use();
+	m_pFireShader->setUniform("screenWidth", 860.f);
+	m_pFireShader->setUniform("screenHeigth", 640.f);
+	m_pFireShader->stopUsing();
+}
+
 void FireParticleSystem::loadBaseVAO()
 {
 	// Load fire spritesheet

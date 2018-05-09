@@ -22,13 +22,12 @@ void main() {
     {
         if (distortionMap > 0.f)
         {
-            float amplitude = 0.003f; // szethuz
-            float frequency = 50.0f;  // osszenyom
+            float amplitude = 0.003f; 
+            float frequency = 50.0f;  
             float distortion = sin(fragTexCoord.y * frequency + offset) * amplitude;
             distortion = distortion * pow(distortionMap, 0.45);
 
             textureColor = texture2D(tex, vec2(fragTexCoord.x + distortion, fragTexCoord.y));
-            //TODO: ¢¢scr shot with that one¢¢
             //textureColor = vec4(pow(distortionMap, .45),0,0,1);
         }
         else

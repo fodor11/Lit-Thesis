@@ -81,6 +81,7 @@ public:
 	void toggleWind();
 	float getDistance();
 	void addBackgroundDepth(GLuint texture);
+	void updateScreenSize(int width, int heigth);
 	
 private:
 	Camera * m_pCamera;
