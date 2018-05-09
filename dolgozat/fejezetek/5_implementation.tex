@@ -641,8 +641,7 @@ Az utóbbi módszer hátránya viszont, hogy az így kirajzolt objektum minden m
 % additive blending
 A második probléma (a tűz színe) okát a blending függvényben kell keresni. A tűz és hasonló jelenségek részecske rendszerrel történő megjelenítése során gyakran alaklmazzák az ún. additív blending-et, és az általam használt textúrát is valószínűleg erre tervezték. Én az alábbi színkeverési funkciót alkalmaztam: 
 \begin{cpp}
-glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, 
-		    GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE);
 \end{cpp}
 Mint azt már láthattuk, az első két paraméter a színek keverését befolyásolja, a második kettő pedig az alfa csatornákra vonatkozik. Akár csak a tradícionális blending esetén, a két művelet itt is összeadás. 
 \begin{figure}[h]
@@ -654,7 +653,7 @@ Mint azt már láthattuk, az első két paraméter a színek keverését befoly�
 
 A fragment színe a saját alfa értékének arányában van elhalványítva, ezt adjuk hozzá a háttér változatlan színéhez. Ebből következik tehát, hogy a tradícionális blending-nél egy sokkal világosabb eredményt kapunk. Ha egy fragmenten több ilyen művelet is elvégződik, akkor az eredmény egyre fehérebb lesz, végül teljesen fehérré válhat. Ez különösen is hasznos a tűz esetén, ahol ha több részecske is van egymáshoz közel, akkor ott nagyobb is a jelenség ``hőmérséklete'', és -- ahogy annak lenni kell -- így fehérebb is lesz a színe (\ref{fig:particleBlendingComparison}.ábra jobb oldala). Mivel úgyis minden részecske színe hozzáadódik a színpufferhez, a részecskék kirajzolásának sorrendje a kinézeten nem változtat, tehát a sorbarendezést akár ki is hagyhatnánk. A post-processing során azonban a mélység értékekre is szükség lesz, tehát a rendezés a mélység buffer helyességét hivatott biztosítani ebben az esetben.
 
-A kinézeten nem változtat, hogy az alfa csatornákat hogyan keverjük egymással, azonban a postprocessing során szükség lesz a láng részecske alfa értékére, így az aktuális fragment alfa csatornáját a saját értékét felhasználva keverem a háttér alfájával. Ha nem történne kitakarás szémomra tisztázatlan okokból kifolyólag, akkor elég lenne a láng alfáját venni, de a kitakarások miatt pont az alfa értékekben tükröződik a hiba. A háttér alfájával keverve azonban sikeresen elmosom a kitakarásokat.
+A kinézeten nem változtat, hogy az alfa csatornákat hogyan keverjük egymással, azonban a postprocessing során részben pont az alfa értékek határozzák meg a torzítás mértékét, így az aktuális fragment alfa csatornáját ugyanúgy additívan keverem a háttér alfájával.
 
 A mélységpuffer írásának kikapcsolása és a színkeverés engedélyezése után kirajzolhatjuk végre a részecske rendszert.
 \begin{cpp}
@@ -785,17 +784,15 @@ A \texttt{PostProcessor} osztályt általában úgy használom fel, hogy kirajzo
 \item \texttt{finalPicture}: Ebbe az objektumba rajzolom ki a torzított hátteret, majd csatolom hozzá a kirajzolt tüzet, illetve az előtér (tűz) és háttér (domborzat) mélység puffereit textúraként. A \texttt{blendPictures} shader pedig a mélységteszt elvégzésének segítségével összevágva kirajzolja a végső jelenetet.
 \end{itemize}
 A lépéseket nagy vonalakban \aref{fig:postprocessing}. ábrán láthatjuk.
-
-\begin{figure}[h]
+\begin{figure}[h!]
  \centering
  \includegraphics[width=\textwidth]{kepek/postprocessing.png}
  \caption{A torzítást a hegy oldalán lehet észrevenni.}
  \label{fig:postprocessing}
 \end{figure}
-
 A post-processing logikát a \texttt{main.cpp} fájlban a \texttt{display} függvényben implementáltam.
 
-Először tehát a \texttt{renderedBackground} objektumba kirajzolom a hátteret, majd a \texttt{renderedFire}-be a tüzet (\ref{fig:postprocessing}. ábra felső két képe). A \texttt{PostProcessor} típusú változóknak először a \texttt{startRenderingOnTexture} metódusát kell meghívni, hogy a megfelelő FBO-et a kirajzolás céljának beállítsuk. Ezt követően a \texttt{glClear(GL\_COLOR\_BUFFER\_BIT | GL\_DEPTH\_BUFFER\_BIT)} hívással visszaállítom a pufferek alapállapotát, majd mintha csak a képernyőre render-elnék, a kirajzolni kívánt objektumok \texttt{draw} metódusának hívásával megtörténik a textúrákra való rajzolás. Az FBO-k használatát ezután a \texttt{stopRenderingOnTexture} metódussal lehet felfüggeszteni.
+Először tehát a \texttt{renderedBackground} objektumba kirajzolom a hátteret, majd a \texttt{renderedFire}-be a tüzet (\ref{fig:postprocessing}. ábra felső két képe). A \texttt{PostProcessor} típusú változóknak először a \texttt{startRenderingOnTexture} metódusát kell meghívni, hogy a megfelelő FBO-t a kirajzolás céljának beállítsuk. Ezt követően a \texttt{glClear(GL\_COLOR\_BUFFER\_BIT | GL\_DEPTH\_BUFFER\_BIT)} hívással visszaállítom a pufferek alapállapotát, majd mintha csak a képernyőre render-elnék, a kirajzolni kívánt objektumok \texttt{draw} metódusának hívásával megtörténik a textúrákra való rajzolás. Az FBO-k használatát ezután a \texttt{stopRenderingOnTexture} metódussal lehet felfüggeszteni.
 
 Következőként a torzításhoz szükséges maszkot kell előállítani (\ref{fig:postprocessing}. ábra középső képe). 
 \begin{cpp}
@@ -814,13 +811,85 @@ float distanceFactor = 1.f / offset;
 float y = fragTexCoord.y - 0.5 * distanceFactor
 vec4 textureColor = texture2D(tex2, vec2(fragTexCoord.x, y));
 \end{cpp}
-Az $y$ koordináta eltolásával tehát a tűz ``hője'' kicsivel magasabban van, mint maguk a lángok, ami a valóságnak valamelyest meg is felel, a látványon pedig sokat javít. A szürkeárnyalatossá alakításhoz az ITU-R (BT.709) ajánlásban megfogalmazott súlyokkal átlagoltam az RGB komponenseket. Végül ez, és a textúra alfa csatornája adja a fragmentek színét.
+Az $y$ koordináta eltolásával tehát a tűz ``hője'' kicsivel magasabban van, mint maguk a lángok, ami a valóságnak valamelyest meg is felel, a látványon pedig sokat javít. A szürkeárnyalatossá alakításhoz az ITU-R (BT.709) ajánlásban megfogalmazott súlyokkal átlagoltam az RGB komponenseket, melyek a végső színt adják. Itt van lényeges hatása a blending funkció alfa csatonákra vonatkozó részének, ugyanis az alfa érték a textúra alfáját veszi fel.
+
+Ennek segítségével már ki lehet render-elni a torzított hátteret a \texttt{finalPicture} objektum FBO-jába. A \texttt{renderedBackground}-nak meg kell adni az indulás óta eltelt idő (\texttt{glutGet(GLUT\_ELAPSED\_TIME)}) század részét offszetként, a tűzből készült maszkot, a domborzat valamint a tűz mélység pufferét textúraként. Ezután a \texttt{draw} metódusa kirajzolja a torzított hátteret a \texttt{postProcessor.fs} árnyaló segítségével.
+
+Az árnyaló először mintavételezi a maszk színét a megfelelő pozícióban, majd a \texttt{distortionMap} változóban a szín piros és alfa csatornájának a szorzatát tárolja. Így kajuk meg, hogy az adott pozícióban a maszk mekkora szürke árnyalatot vesz fel, ez lesz majd a torzítás mértéke. 
+Ezt követően lekérem az előtér (tűz) és a háttér (domborzat) mélység értékeit, és én magam végzem el a mélység tesztet. Ha az előtér mélysége nem kisebb, mint a háttéré, akkor a végső szín a háttér színe lesz, hiszen az van előrébb. Ellenkező esetben a tűz mögötti fragment-en dolgozunk, így itt lehetséges, hogy torzítást kell végezni. Mivel a mélység értékek nem veszik figyelembe az alfa csatornát, előfordulhat, hogy egy részecskének olyan része mögötti fragment-en dolgozunk, ahol a részecske egyébként teljesen áttetsző. Ekkor a \texttt{distortionMap} értéke $0$ kell hogy legyen, így ebben az esetben szintén a háttér megfelelő fragment-je lesz a végső szín. 
+
+Ha a \texttt{distortionMap} nagyobb, mint $0$, akkor a háttérnek egy másik fragmentjéből kell meríteni a színt. Ehhez az eltoláshoz egy szinusz függvényt használok, amplitúdó és frekvencia paraméterekkel. Az $x$ értékeket tolom el az $y$ ok függvényében, így szép hullámos lesz az eredmény. Az \texttt{offset} változó biztosítja, hogy időben változó legyen a torzítás.
+\begin{cpp}
+float distortion = sin(fragTexCoord.y * frequency + offset) * amplitude;
+distortion = distortion * pow(distortionMap, 0.45);
+\end{cpp}
+Az eltolás végső mértékét (\texttt{distortion}) végül úgy kapom, hogy a maszk megfelelő szürke értékével megszorzom, így ahol csak nagyon halványan van jelen a tűz ``hője'', ott kisebb az eltolás. A gyökvonásra azért van szükség, hogy nagyobb tartományban legyen látványos, de ne túl erős a torzítás. A háttér textúrájából pedig az eltolt $x$ koordináta segítségével merítem a végső színt. \Aref{fig:redDistortion}. ábrán a piros szín árnyalatai mutatják a \texttt{pow(distortionMap, 0.45)} eredményét, tehát ahol világosabb a piros szín, ott nagyobb mértékű a háttér torzítása.
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/redDistortion.png}
+ \caption{Gyökvonás nélkül a füstben nagyon gyenge lenne a torzítás.}
+ \label{fig:redDistortion}
+\end{figure}
+
+Ekkor a \texttt{finalPicture} objektum színpufferében ott van a torzított háttér, így már csak a kirajzolt tüzet kell hozzáadni textúraként. Hogy amélységtesztet is el tudjam végezni, az előtér és háttér mélységpuffereit is csatolni kell hozzá. A \texttt{draw} metódusa a képernyőre renderel ki a \texttt{blendPictures.fs} árnyaló segítségével. Az mintavételezi a háttér színét, illetve a két mélység értéket. Ha az előtér mélysége nagyobb mint a háttéré, akkor a háttér színe lesz a kimenet, mert az előtér takarásban van. Ha viszont nincs, akkor az előtér megfelelő fragmentjének színét is lekérem, majd azt a háttér színéhez adva (csak az \texttt{RGB} komponenseket) kapom a végső színt. Az alfa értéket a háttér adja.
+
+Így előállt a végső kép, melyen a tűz torzítatlan, a háttér pedig a tűz hőjének függvényében van torzítva (\ref{fig:postprocessing}. ábra jobb alsó képe). Mivel azonban a folyamat során úgyis szert tettünk a mélység értékekre, lehetőség nyílt még egy effekt megvalósítására.
 
 
+%Soft particles
+\subsubsection{Soft particles effekt}
+Ahol a tűz a földből előtör, a részecskék élesen ketté vannak vágva. A \textit{soft particles} effekt lényege, hogy az ilyen éles vágásokat kiküszöböljük. Ez akkor is kapóra jön, mikor a tűz nem a földből tör elő, hanem néhány farönkön ég, illetve mikor egy tárgy egésze vagy része a tűzben helyezkedik el. A megoldás nagyon egyszerű: Ahol a részecske mélységértéke közel van a háttere mélységéhez, akkor összemossuk vele.
 
-%% TEST: scale++, speed++, x and z not slowed => explosion?
+Ehhez kicsit ki kell bővíteni a \texttt{FireParticleSystem} osztályt. Szükség van egy \texttt{addBackgroundDepth} metódusra, mely segítségével a \texttt{renderedFire} FBO-ba való kirajzolás előtt hozzá tudjuk adni a háttér mélység textúrájának azonosítóját az osztályhoz, illetve az\texttt{updateScreenSize}, mely a képernyő méreteit állítja be a shader-nek. Emellett a \texttt{draw} metódusában gondoskodni kell róla, hogy ezt, és az emitter kamerától vett távolságát is átadjuk a \texttt{fireshader} árnyalónak uniform-ként.
 
+A shadert is ki kell egészíteni. Hozzá kell adni a uniform-okat, melyekbe a mélységet és a távolságot (\texttt{backgroundDepth}, \texttt{distanceToCamera}), valamint a képernyő méreteit (\texttt{screenWidth}, \texttt{screenHeigth}) kapjuk. Ezen felül egy fordítónak szóló \texttt{\#define} utasítás segítségével úgy alakítjuk át az árnyalót, hogy azt az effekt megvalósítása nélkül is lehessen használni:
+\begin{cpp}
+#ifdef SOFTPARTICLES
+float bgDepth = texture2D(backgroundDepth, 
+		    gl_FragCoord.xy / vec2(screenWidth, screenHeigth)).r;
+if (bgDepth > gl_FragCoord.z){
+    float distance = bgDepth - gl_FragCoord.z;
+    float threshold = 0.1f / pow(distanceToCamera, 2);
+    if(distance < threshold)
+    {
+        float blend = distance / threshold;
+        finalColor.a = blend * finalColor.a;
+    }
+}
+else{
+    discard;
+}
+#endif
+\end{cpp}
+Először a háttér mélységét kérdezem le. Ahhoz, hogy kiderüljön, hogy a képernyő melyik részén vagyunk, a \texttt{gl\_FragCoord} beépített változót hívom segítségül. Ennek $x$ és $y$ koordiánái megadják, hogy mely pixelen vagyunk. Az $x$ koordinátát a képernyő szélességével, az $y$-t a magasságával kell osztani, hogy a megfelelő textúra koordinátákat megkapjuk. A $z$ koordinátája az adott fragment mélységét tárolja, így ezt kell összevetni a mélységpufferből kiolvasott értékkel. Ha a fragment takarásban van akkor el is vethetjük. Ha viszont látszik, akkor ki kell számolni, hogy milyen közel van a háttérhez (\texttt{distance}). Meg kell határzni azt a határt, amin belül el szeretnénk halványítani a részecskét (\texttt{threshold}), azonban mint már említettem korábban, a mélység puffer nem lineáris. Nagyobb távolságok esetén tehát ennek a határnak kisebbnek kell lennie, hogy ne halványuljon el az egész tűz. Ha pedig határon belül vagyunk, akkor a kimenet alfa csatornáján keresztül tudjuk halványítani a részecskét a mélységek távolsága és a halványítási tartomány hányadosa segítségével.
 
+\Aref{fig:softParticle}. ábra felső sorában piros színnel jelöltem az elhalványítandó részeket, az alsó sorában pedig a végeredményt hasonlíthatjuk össze a kiindulási állapottal.
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=\textwidth]{kepek/softParticle.png}
+ \caption{A felső sorban láthatjuk, hogy nagyobb távolságból is megfelelő az elhalványított tartomány.}
+ \label{fig:softParticle}
+\end{figure}
+
+%% TEST: scale++, speed++, x and z not slowed => explosion? ->nope
 %teljesítmény
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
