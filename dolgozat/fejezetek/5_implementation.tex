@@ -876,11 +876,57 @@ Először a háttér mélységét kérdezem le. Ahhoz, hogy kiderüljön, hogy a
 %% TEST: scale++, speed++, x and z not slowed => explosion? ->nope
 %teljesítmény
 
+\subsection{Teljesítmény}
+A domborzat és az ég önmagában kirender-elve tehát $400-420$ fps körül teljesít.
 
+% mezei renderelés
+\subsubsection{Egyszerű kirajzolás}
+Az első részben közvetlenül a képernyőre rajzoltam, post-processing nélkül. A tapasztalatok alapján sokat számít az, hogy mennyi részecskéből áll, és a képernyő mekkora részét teszi ki a jelenet, illetve hogy ezeket mekkora távolságból látjuk. Így a következő táblázatot készítettem: 
 
+\begin{center}
+\begin{tabular}{ m{10em}|c|c|c|c|c|c|c|c| } 
+ $\frac{particle}{seconds}$ & $\frac{450}{3}$ & $\frac{450}{6}$ & $\frac{900}{3}$ & $\frac{900}{6}$ & $\frac{225}{3}$ & $\frac{1500}{3}$ & $\frac{5000}{3}$ & $\frac{10000}{3}$ \\  \hline
+ 
+ normál távolság ($8.3$) & 195 & 172 & 111 & 110 & 255 & 63 & 21 & 10.7\\  \hline
+ közvetlen közel ($1.2$) & 110 & 165 & 51 & 108 & 165 & 30 & 7.7 & 4.1\\  \hline
+ emitterből felfelé tekintve ($<0.4$) & 30 &  51 & 15.7 & 22.5 & 84 & 11 & 3.3 & 1.9\\ \hline
+ messziről ($65.1$) & 410 &  370 & 380 & 355 & 410 & 362 & 240 & 120\\ 
+ \hline
+\end{tabular}
+\end{center}
 
+A táblázat első sorában a $\frac{\text{maximum részecskeszám}}{\text{részecske élettartam}}$ hányados szerepel, mint változtatott paraméter, mely hányados ezzel egyidőben a másodpercenként kibocsátott részecskék száma is. Az ezt követő sorokban fps értékeket találunk adott távolságokból. A kamerát igyekeztem mindig úgy irányítani, hogy a tűz középen legyen, és a lehető legtöbb látszódjon belőle.
 
+Az első oszlopot ($\frac{450}{3}$ részecske/másodperc) választottam kinézet alapján az etalonnak. A normál távolság az a távolság, melyből ennek a tűznek a teteje és az alja nagyjából a képernyő tetejével és aljával esik egybe. A közvetlen közeli esetben vízszintesen nézünk át a jelenségen kamera magasságban ($1.0$), az emitterből felfelé tekintve pedig az egész jelenséget látjuk alulról. A messzi részt pedig egy meghatározott domb tetejéről mértem, ahonnan a tűz nagyjából a képernyő tizedét tette ki.\\
+Ezekből az adatokból azt a következtetést vonam le, hogy nem is az számít igazán, hogy mennyi részecske látszik egyszerre, hanem inkább az, hogy a képernyőnek mekkora részét borítják be.
 
+A második oszlopban a részecskék élettartamát megnöveltem a kétszeresére. Ennek következtében a normál távolságból kisebb a frame rate, de ahogy közeledünk az emitter felé, ez egyre csak nő kb. 3 egységnyi távolságig, majd onnantól kezd csökkenni. Ez azért lehetséges véleményem szerint, mert a képernyőn jobban eloszlanak a részecskék, így közelről kevesebb jelenik meg (így egy fragmentet átlagban kevesebbszer is kell feldolgozni), de nem foglalnak el nagyobb területet mint az etalon esetnél. Az emitterbpl felfelé tekintve is jobb teljesítményt kapunk, valószínűleg azért, mert a részecskék nagyobb magasságban vannak eloszlatva, és a távolabbiakat kisebb erőforrás igénnyel rajzolja ki. Nagy távolságból többet romlott a teljesítmény, de mivel tovább élnek a részecskék, ugyanakkora távolságból nagyobb területet fednek le a képernyőn.
+
+A harmadik oszlopban a részecskék maximális száma kétszer akkora, mint az etalon esetben. Ez már inkább meglátszik a teljesítményben, ugyanis az majdnem a felére esett vissza, kivéve nagyobb távolságból.
+
+A negyedik esetben az időt is megdupláztam, és hasonló jellegzetességelet mutat az első kettő és az utolsó két teszt. Csupán az élettartam növelésének hatására hatására ritkul a tűz, így közvetlen közelből jobb a teljesítmény, de messzebbről kicsivel rosszabb. 
+
+Az ötödik tesztben az etalon részecskék számát megfeleztem, ez jelentős teljesítménynövekedést okozott, főleg az emitterből felfelé tekintve.
+
+A hatodik esetben a maximális részecskeszám 1500 volt. Tisztes távolból még teljesen elfogadható teljesítményt nyújt, tekintve hogy egy monitor általában 60 Hz-es frekvencián frissíti a képet, 60 fps-nél többet nem is érdemes produkálni. Azonban ha azt tekintjük, hogy a domborzatot és az eget leszámítva a tűz mellett üres a tér, akkor egy díszítő funkciót ellátó objektum megjelenítésére ez egy kicsit drága választás.
+
+Az utolsó két oszlop már csak az érdekesség kedvéért készült. Az $5000$ részecskés esetben már normál távolságból is darabos a jelenet, az elfogadható sebesség nagyjából 30 fps körül van, amelyet minimum 10 egységnyi távolság esetén ér el. A részecskeszám kétszeresére növelése itt is durván a teljesítmény feleződését mutatta.
+
+% postprocessing
+\subsubsection{Kirajzolás és post-processing}
+A következő teszteket post-processing kíséretében végeztem el, azonos szempontok alapján.
+
+\begin{center}
+\begin{tabular}{ m{6em}|c|c|c|c|c|c|c|c| } 
+ $\frac{particle}{seconds}$ & $\frac{450}{3}$ & $\frac{450}{6}$ & $\frac{900}{3}$ & $\frac{225}{3}$ & $\frac{1500}{3}$ & $\frac{5000}{3}$ & $\frac{10000}{3}$ \\  \hline
+ 
+ normál távolság ($8.3$)                   & 124  (195) & 124 (172)  & 86 (111)     & 168 (255)  & 57 (63)     & 20 (21) & 10.5 (10.7) \\  \hline
+ közvetlen közel ($1.2$)                    & 89 (110)   & 120 (165)  & 45 (51)       & 115 (165)  & 29 (30)     & 8.8 (7.7) & 4.2 (4.1) \\  \hline
+ emitterből felfelé tekintve ($<0.4$) & 27 (30)     &  48 (51)    & 14.5 (15.7) & 58 (84)      & 10.2 (11)  & 3.2 (3.3) & 1.2 (1.9)  \\ \hline
+ messziről ($65.1$)                            & 230 (410) &  220 (370) & 225 (380)   & 232 (410)  & 205 (362)   & 180 (240) & 100 (120) \\ 
+ \hline
+\end{tabular}
+\end{center}
 
 
 
