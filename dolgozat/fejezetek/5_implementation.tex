@@ -881,9 +881,10 @@ A domborzat és az ég önmagában kirender-elve tehát $400-420$ fps körül te
 
 % mezei renderelés
 \subsubsection{Egyszerű kirajzolás}
-Az első részben közvetlenül a képernyőre rajzoltam, post-processing nélkül. A tapasztalatok alapján sokat számít az, hogy mennyi részecskéből áll, és a képernyő mekkora részét teszi ki a jelenet, illetve hogy ezeket mekkora távolságból látjuk. Így a következő táblázatot készítettem: 
+Az első részben közvetlenül a képernyőre rajzoltam, post-processing nélkül. A tapasztalatok alapján sokat számít az, hogy mennyi részecskéből áll, és a képernyő mekkora részét teszi ki a jelenet, illetve hogy ezeket mekkora távolságból látjuk. Az eredményeket \aref{table:1}. táblázatban gyűjtöttem össze.
 
-\begin{center}
+\begin{table}[h!]
+\centering
 \begin{tabular}{ m{10em}|c|c|c|c|c|c|c|c| } 
  $\frac{particle}{seconds}$ & $\frac{450}{3}$ & $\frac{450}{6}$ & $\frac{900}{3}$ & $\frac{900}{6}$ & $\frac{225}{3}$ & $\frac{1500}{3}$ & $\frac{5000}{3}$ & $\frac{10000}{3}$ \\  \hline
  
@@ -893,7 +894,9 @@ Az első részben közvetlenül a képernyőre rajzoltam, post-processing nélk�
  messziről ($65.1$) & 410 &  370 & 380 & 355 & 410 & 362 & 240 & 120\\ 
  \hline
 \end{tabular}
-\end{center}
+\caption{Teszt eredmények fps-ben mérve.}
+\label{table:1}
+\end{table}
 
 A táblázat első sorában a $\frac{\text{maximum részecskeszám}}{\text{részecske élettartam}}$ hányados szerepel, mint változtatott paraméter, mely hányados ezzel egyidőben a másodpercenként kibocsátott részecskék száma is. Az ezt követő sorokban fps értékeket találunk adott távolságokból. A kamerát igyekeztem mindig úgy irányítani, hogy a tűz középen legyen, és a lehető legtöbb látszódjon belőle.
 
@@ -914,10 +917,11 @@ Az utolsó két oszlop már csak az érdekesség kedvéért készült. Az $5000$
 
 % postprocessing
 \subsubsection{Kirajzolás és post-processing}
-A következő teszteket post-processing kíséretében végeztem el, azonos szempontok alapján.
+A következő teszteket post-processing kíséretében végeztem el, azonos szempontok alapján. Az eredményeket \aref{table:2}. táblázatban lehet megtekinteni.
 
-\begin{center}
-\begin{tabular}{ m{6em}|c|c|c|c|c|c|c|c| } 
+\begin{table}[h!]
+\centering
+\begin{tabular}{ m{10em}|C{1cm}|C{1cm}|C{1cm}|C{1cm}|C{1cm}|C{1cm}|C{1cm}|C{1cm}| } 
  $\frac{particle}{seconds}$ & $\frac{450}{3}$ & $\frac{450}{6}$ & $\frac{900}{3}$ & $\frac{225}{3}$ & $\frac{1500}{3}$ & $\frac{5000}{3}$ & $\frac{10000}{3}$ \\  \hline
  
  normál távolság ($8.3$)                   & 124  (195) & 124 (172)  & 86 (111)     & 168 (255)  & 57 (63)     & 20 (21) & 10.5 (10.7) \\  \hline
@@ -926,11 +930,17 @@ A következő teszteket post-processing kíséretében végeztem el, azonos szem
  messziről ($65.1$)                            & 230 (410) &  220 (370) & 225 (380)   & 232 (410)  & 205 (362)   & 180 (240) & 100 (120) \\ 
  \hline
 \end{tabular}
-\end{center}
+\caption{Zárójelben az előző teszt eredményei szerepelnek.}
+\label{table:2}
+\end{table}
 
+Ha össszevetjük az előző teszt eredményeivel a mostaniakat, akkor nem meglepő módon arra jutunk, hogy a teljesítmény egyértelműen romlott, ami viszont érdekesebb, hogy nem egyenlő arányban. Első ránézésre szembetűnő, hogy a részecskeszám növelése mellett a post-processing egyre kisebb arányban rontja a teljesítményt. Ez logikus, hiszen a post-processing műveletekre a részecskék száma nincs különösebb hatással, így azt tulajdonképpen konstans költségnek is tekinthetjük. Ez pedig eltörpül akkora költségek mellett, mint például $10000$ részecske kirajzolása.
 
+Ahogy pedig a tűz kirajzolásának költségei csökkennek (például messzebbről szemléljük a jelenséget), úgy egyre nagyobb arányban jelentkezik a post-processing számításigénye. Ezt láthatjuk az utolsó sorban, ahol a legnagyobb a teljesítmény abszolút értékű esése.
 
+Minél nagyobb felületet borít be a képernyőn a tűz, annál több fragment esetén kell elvégezni az eltolást, így elvileg nő a post-processing számításigénye. Ezt leginkább a középső két sorban lehetne tapasztalni, de a részecskék megjelenítésének annyival nő a költsége, hogy a post-processing többletköltsége nem mutatkozik jelentősen.
 
+Ha egy virtuális környezet hangulatát szeretnénk tűzzel javítani, akkor el kell dönteni, hogy mennyire fontos a valóságosság, és mekkora kapacitást szánunk a díszítő elemekre megjelenítésére. Véleményem szerint a látvány post-processing nélkül is elfogadható, 3 másodperces élettartam mellett pedig 225 részecskével is egészen reális tüzet lehet megjeleníteni anélkül, hogy súlyosabb erőforrásigényt rónánk a hardverre. Ha fontos a szép látvány, akkor 450 részecskével és post-processing effektekkel még továbbra is elfogadható marad a számításigény, főleg ha a környezetet és esetleg a tüzet is további lépésekkel egyszerűsítjük. Ilyen lépés lehet a tesszelláció, melynek során a távolabbi objektumok vertex számát és komplexitását csökkentjük. Kellő távolságból a részecskerendszert akár egy egyszerű, kétdimenziós billboard alapú tűzzel is helyettesíthetjük.
 
 
 
