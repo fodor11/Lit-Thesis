@@ -12,7 +12,7 @@ Az OpenGL egy platform- és nyelvfüggetlen, nyílt grafikus függvénykönyvtá
 
 \subsection{Freeglut}
 
-Az OpenGL Utility Toolkit (GLUT) egy olyan platformfüggetlen könyvtár, amely gondoskodik a rendszerspecifikus feladatokról, melyekre ablak kezelés, OpenGL kontextusok inícializálása és bemeneti események (billentyűzet, egér) kezelése esetén van szükség. Használata gyorsan elterjedt, ugyanis egyszerű, széles körben elérhető és hordozható volt. Azonban 1998 augusztusa óta nem fejlesztették tovább, így a kód elöregedett. A FreeGLUT egy ingyenes, nyílt forráskódú alternatíva ehhez. Továbbra is fejlesztés alatt áll, és a GLUT-hoz képest több funkcióval, és kevesebb hibával rendelkezik \cite{freeGlut}.
+Az OpenGL Utility Toolkit (GLUT) egy olyan platformfüggetlen könyvtár, amely gondoskodik a rendszerspecifikus feladatokról, melyekre ablak kezelés, OpenGL kontextusok inicializálása és bemeneti események (billentyűzet, egér) kezelése esetén van szükség. Használata gyorsan elterjedt, ugyanis egyszerű, széles körben elérhető és hordozható volt. Azonban 1998 augusztusa óta nem fejlesztették tovább, így a kód elöregedett. A FreeGLUT egy ingyenes, nyílt forráskódú alternatíva ehhez. Továbbra is fejlesztés alatt áll, és a GLUT-hoz képest több funkcióval, és kevesebb hibával rendelkezik \cite{freeGlut}.
 
 \subsection{OpenGL Extension Wrangler Library (GLEW)}
 
@@ -20,7 +20,7 @@ A GLEW egy platformfüggetlen C/C++ könyvtár, amely segíti az OpenGL bővítm
 
 \subsection{OpenGL Mathematics}
 
-Az OpenGL Mathematics (GLM) egy OpenGL Shading Language (GLSL) specifikációkon alapuló, csak header fájlokból álló C++ könyvtár a grafikus szoftverekhez. Olyan osztályokkal és függvényekkel szolgál, melyek elnevezési konvenciói és funkciói megegyeznek a GLSL-ben találhatókkal, íg aki a GLSL-t ismeri, az tudja használni a GLM-et is. Ezen felül azonban olyan bővítmény rendszerrel is bír, mely szintén megfelel a GLSL bővítmény konvencióknak, és ez további képességekkel szolgál: mátrix transzformációk, random számok, zaj, stb \cite{glm}.
+Az OpenGL Mathematics (GLM) egy OpenGL Shading Language (GLSL) specifikációkon alapuló, csak header fájlokból álló C++ könyvtár a grafikus szoftverekhez. Olyan osztályokkal és függvényekkel szolgál, melyek elnevezési konvenciói és funkciói megegyeznek a GLSL-ben találhatókkal, így aki a GLSL-t ismeri, az tudja használni a GLM-et is. Ezen felül azonban olyan bővítmény rendszerrel is bír, mely szintén megfelel a GLSL bővítmény konvencióknak, és ez további képességekkel szolgál: mátrix transzformációk, random számok, zaj, stb \cite{glm}.
 
 \subsection{Simple OpenGL Image Library}
 
@@ -31,7 +31,7 @@ A Simple OpenGL Image Library (SOIL) egy platformfüggetlen C könyvtár, melyet
 % domborzat
 Az következő implementációkat egy már elkészült, korábbi projekt keretein belül jelenítem meg. GLEW 2.0-t használtam, tehát az OpenGL 4.5-ös verziójának funkciói álltak rendelkezésemre. 
 
-A projekt egy általam készített domborzatot tölt be, melyhez az adatokat különböző képfájlokból olvassa be. A magasságértékeket egy szürkeárnyalatos kép képpontjaiban tároltam, a hozzájuk tartozó nedvesség értékeket pedig egy másik, szintén szürkeárnyalatos képfájlban. A színeket egy olyan képből olvastam ki, ahol az egyik tengely a magasságot, a másik pedig a nedvességet jelölte, így az adott csúcspont színe a magasság és nedvesség értékéből kapható meg. A domborzathoz 260100 darab csúcspontot használtam fel. Az égbolt és a hold is gömb alakú, melyekhez a csúcspontokat, textúra koordinátákat, normál vektorokat és az ezekhez szükséges indexeket is az általam készített Sphere osztály generálja. Az ég 4225, a hold 1089 csócspontból áll. Mindezek megjelnítéséért és aktualizálásáért az \texttt{Environment} osztály felel.
+A projekt egy általam készített domborzatot tölt be, melyhez az adatokat különböző képfájlokból olvassa be. A magasságértékeket egy szürkeárnyalatos kép képpontjaiban tároltam, a hozzájuk tartozó nedvesség értékeket pedig egy másik, szintén szürkeárnyalatos képfájlban. A színeket egy olyan képből olvastam ki, ahol az egyik tengely a magasságot, a másik pedig a nedvességet jelölte, így az adott csúcspont színe a magasság és nedvesség értékéből kapható meg. A domborzathoz 260100 darab csúcspontot használtam fel. Az égbolt és a hold is gömb alakú, melyekhez a csúcspontokat, textúra koordinátákat, normál vektorokat és az ezekhez szükséges indexeket is az általam készített Sphere osztály generálja. Az ég 4225, a hold 1089 csúcspontból áll. Mindezek megjelenítéséért és aktualizálásáért az \texttt{Environment} osztály felel.
 
 A program így 400 és 450 fps (frame per secundum) között fut, azaz másodpercenként nagyjából ennyiszer rajzolja ki a színteret.
 
@@ -49,13 +49,13 @@ A \texttt{loadImage} függvény segítségével lehet egyszerűen képeket beolv
 
 Az OpenGL renderelési pipeline-jának egyes részei a programozó által írt shader programok segítségével befolyásolható. A ``modern'' OpenGL-ben többféle shader is használható. Ezek közül a legalapvetőbbek a vertex és fragment shader-ek. A shadereknek vannak különféle be- és kimenetei, melyeket a programozó adhat meg. A feldolgozásuk is a programozóra van bízva, de a pipeline működéséhez néhány előre definiált változónak is értéket kell adni (pl.: \texttt{gl\_Position}). A vertex shader dolgozza fel a bemenetként kapott pontokat (vertex), tehát nagyjából annyiszor fut le, ahány pontot kirajzolunk. A kimenetként minimum produkálnia kell egy pontot, emellett pedig egyéb, a programozó által definiált információkat is továbbadhat a többi shader-nek. A fragment shader képpontonként fut le, ugyanis a bemenetei segítségével ez állítja elő a képpont végső színét.
 
-A shader-ek betöltésére és használatára egy külső könyvtárat használtam, melynek funkciói a \texttt{tdogl} névteren belül találhatóak. Ez elvégzi a szükséges OpenGL beállításokat, és nagyban leegyszerűsíti az árnyaló programok használatát. A shader-ek Phong-féle megvilágítási modellt valósítják meg. A szebb eredmény érdekében a számításokat képpontonként végzik, azaz a modellt a fragment shader-ben implementáltam. Ezen belül is kétféle változatot készítettem. Az egyikben csúcspontonként megadhatók különböző színek, ezt használtam a domborzat kirajzolásához. A másikban pedig egy objektum kirajzolásához egy szín adható meg uniform-ként, tehát így minden csúcspont színe egyforma. Utóbbit azon objektumokra alkalmaztam, melyek színét leginkább a textúra definiálja (az égbolt és a hold).
+A shader-ek betöltésére és használatára egy külső könyvtárat használtam, melynek funkciói a \texttt{tdogl} névtéren belül találhatóak. Ez elvégzi a szükséges OpenGL beállításokat, és nagyban leegyszerűsíti az árnyaló programok használatát. A shader-ek Phong-féle megvilágítási modellt valósítják meg. A szebb eredmény érdekében a számításokat képpontonként végzik, azaz a modellt a fragment shader-ben implementáltam. Ezen belül is kétféle változatot készítettem. Az egyikben csúcspontonként megadhatók különböző színek, ezt használtam a domborzat kirajzolásához. A másikban pedig egy objektum kirajzolásához egy szín adható meg uniform-ként, tehát így minden csúcspont színe egyforma. Utóbbit azon objektumokra alkalmaztam, melyek színét leginkább a textúra definiálja (az égbolt és a hold).
 
 \subsection{Camera osztály}
 
 % camera: transzformációk, ütközésvizsgálat, időmérés
 A nézeti és projekciós mátrixok transzformációit a Camera osztályban tartom számon. Ez az osztály felel a térben való mozgásért, illetve az $Y$ (jobbra/balra fordulás) és az $X$ (fel/le nézés) tengely mentén való forgatásért. 
-Az elfordulási szögek radiánban vannak számontartva, és a túlcsordulások elkerülése érdekében az $Y$ tengely menti fordulást a $[-\pi \cdot 2, \pi \cdot 2]$, az X tengely mentit pedig $\left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$ intervallumra szűkítem le. Nem tartom számon külön a nézeti, és külön a projekciós mátrixot, hanem a kettő szorzatából eredő \texttt{camera} mátrixot használom. Az \texttt{updateCamera} metódust minden kirajzolás elején meg kell hívni, ugyanis ez számolja ki a pillanatnyi camera mátrixot, és állítja be minden shader-ben uniform-ként. 
+Az elfordulási szögek radiánban vannak számon tartva, és a túlcsordulások elkerülése érdekében az $Y$ tengely menti fordulást a $[-\pi \cdot 2, \pi \cdot 2]$, az X tengely mentit pedig $\left[-\frac{\pi}{2}, \frac{\pi}{2}\right]$ intervallumra szűkítem le. Nem tartom számon külön a nézeti, és külön a projekciós mátrixot, hanem a kettő szorzatából eredő \texttt{camera} mátrixot használom. Az \texttt{updateCamera} metódust minden kirajzolás elején meg kell hívni, ugyanis ez számolja ki a pillanatnyi camera mátrixot, és állítja be minden shader-ben uniform-ként. 
 
 Egyszerű ütközésvizsgálatra is ebben az osztályban van lehetőség, ehhez meg kell adni az akadályok pozícióinak listáját, illetve egy akadály sugarát, melyet az alapjának a befoglaló köre határoz meg. Az ütközésvizsgálat csak kétdimenziós, az $XZ$ síkon történik. Eredetileg fákkal történő ütközésvizsgálathoz lett írva, de a tűzön való áthaladást is könnyedén meg lehet vele akadályozni, ha szükséges. A kamera új pozíciójának kiszámítása előtt letárolom a pillanatnyi pozíciót, és amennyiben az új pozícióban ütközés történik, az előző pozíció értéke marad meg. Az ütközést rendkívül egyszerűen állapítom meg: a kamera $(X, Z)$ pozíciója és az akadály $(X, Z)$ pozíciója közti távolságot számolom ki minden akadályra. Amennyiben ez a távolság kisebb, mint a megadott sugár, ütközés történt. Nem golyóálló a módszer, viszont rendkívül gyors.
 
@@ -71,13 +71,13 @@ Annak érdekében, hogy a kirajzolt jelenetek számításigényéről informáci
 \subsection{SpriteFire osztály}
 
 % sprite konstruktor
-A két kétdimenziós megvalósítások közül a sprite változat az alapvetőbb, így azzal kezdtem az implementációt. A \texttt{SpriteFire} osztály konstruktorának meg kell adni a tűz árnyalására készített shader program és a camera objektum pointerét, illetve a pozíciót, ahol szeretnénk megjeleníteni. Opcionális paraméterként megadható, hogy szeretnénk-e a 90 fokkal elfordítva is kirajzolni, illetve a mérték (scale/skála), amellyel nagyítani vagy kicsinyíteni szeretnénk a tüzet. Mivel az objektum magassága alapártelmezetten 1 lesz, utóbbi paraméterrel tulajdonképpen egyben a magasságát is megadjuk. A konstruktor letárolja ezen paramétereket, majd beállítja a modell transzformációs mátrixot (az egységmátrixot eltolja a pozíció vektorral) és a csúcspontok számát, végül meghívja a \texttt{loadVAO} metódust.
+A két kétdimenziós megvalósítások közül a sprite változat az alapvetőbb, így azzal kezdtem az implementációt. A \texttt{SpriteFire} osztály konstruktorának meg kell adni a tűz árnyalására készített shader program és a camera objektum pointerét, illetve a pozíciót, ahol szeretnénk megjeleníteni. Opcionális paraméterként megadható, hogy szeretnénk-e a 90 fokkal elfordítva is kirajzolni, illetve a mérték (scale/skála), amellyel nagyítani vagy kicsinyíteni szeretnénk a tüzet. Mivel az objektum magassága alapértelmezetten 1 lesz, utóbbi paraméterrel tulajdonképpen egyben a magasságát is megadjuk. A konstruktor letárolja ezen paramétereket, majd beállítja a modell transzformációs mátrixot (az egységmátrixot eltolja a pozíció vektorral) és a csúcspontok számát, végül meghívja a \texttt{loadVAO} metódust.
 
 % LoadVAO()
 Az internetről egy olyan textúrát töltöttem le, melyen egy tűz minden állapota egy képen szerepel. Összesen 32 jelenetből áll majd az animáció, így egészen folyékony hatást kelt. Ezt a loadVAO metódus a \texttt{TextureLoader} osztály \texttt{loadMipMappedTexture} metódusa segítségével tölti be. 
 
 % Vertex Array Object
-A \texttt{loadVAO} metódus elkészíti a vertex array object-et (VAO). A VAO egy olyan objektum az OpenGL-ben, amely eltárolja a pontok adatait, és a pontok kirajzolásához szükséges infromációkat. A pontok Vertex Buffer Object-ekben (VBO) vannak tárolva, egy VAO-hoz több VBO is tartozhat.
+A \texttt{loadVAO} metódus elkészíti a vertex array object-et (VAO). A VAO egy olyan objektum az OpenGL-ben, amely eltárolja a pontok adatait, és a pontok kirajzolásához szükséges információkat. A pontok Vertex Buffer Object-ekben (VBO) vannak tárolva, egy VAO-hoz több VBO is tartozhat.
 
 \begin{wrapfigure}{r}{0.25\textwidth}
  \centering
@@ -93,7 +93,7 @@ A pontok meghatározását a \texttt{calculateSpriteVertices} metódus végzi. A
 Mivel az alakzatot az $Y$ tengely körül kell majd a későbbiekben forgatni, érdemes úgy definiálni a pontokat, hogy a téglalap alsó élének középpontja az origóba essen, hogy az a forgatás során egy helyben maradjon. A téglalap síkja pedig az $XY$ síkkal esik majd egybe, mert így egyszerűbb definiálni. Konkrét koordinátákkal is meghatározhatnám a téglalapot, de akkor minden kirajzolás esetén a modellmátrixot a skála paraméternek megfelelően skálázni kell. Hogy ezt a műveletet megspóroljam, eleve a skála segítségével határozom meg a koordinátákat. Az $Y$ koordináták a 0 vagy a skála értékét veszik fel, az $X$ koordináták azonban a $\pm \frac{\text{skála paraméter}}{4}$ értékeket, hiszen a magasság felét még az origó is kettéosztja. A pontokat az óramutató járásának irányával ellentétes sorrendben érdemes megadni, hogy a későbbiekben szükség esetén könnyen lehessen belőlük normálvektort számítani. Így tehát az első háromszög pontjai az 1, 2, 3 pontok, a másodikéi pedig 1, 4, 2. A pontokat ebben a sorrendben kell tárolni, ehhez mindig a C++ standard könyvtárának vektor típusú tárolóját használom, ugyanis kezelése könnyű, dinamikus a mérete és felszabadítja a lefoglalt helyet maga után.
 
 %calculateNextTextureCoordinates()
-Az ezekhez a pontokhoz tartozó textúra koordinátákat a \texttt{calculateNextTextureCoordinates} metódussal állítom elő. Mivel egy képen van több állapotom, ezek az értékek állapotról állapotra változnak. Egy adattag (\texttt{m\_iActualFrame}) segítségével számon tartom, hogy éppen hanyadik állapotnál járok, és ebből a számból határozom meg a hozzá tartozó koordinátákat. A számozást 0-tól kezdem. Először a sor és oszlopszámot kell kiszámolni hozzá. A sort az $\frac{\text{állapot sorszáma}}{\text{oszlopok száma}}$ hányados egész része adja meg, az oszlopot pedig az előbbi osztás maradéka (modulo művelet). A textúra koordináták a bal felső sarokból $(0, 0)$ indulnak, és a jobb alsó sarok $(1, 1)$ felé nőnek. Az adattagok között számon tartom, hogy egy állapot a textúra koordináta-rendszernek megfelelően milyen széles (\texttt{m\_fColumnstep}), és milyen magas (m\_fRowstep). Ennek megfelelően például az állapot bal felső pontjának $(u, v)$ koordinátája az 
+Az ezekhez a pontokhoz tartozó textúra koordinátákat a \texttt{calculateNextTextureCoordinates} metódussal állítom elő. Mivel egy képen van több állapotom, ezek az értékek állapotról állapotra változnak. Egy adattag (\texttt{m\_iActualFrame}) segítségével számon tartom, hogy éppen hányadik állapotnál járok, és ebből a számból határozom meg a hozzá tartozó koordinátákat. A számozást 0-tól kezdem. Először a sor és oszlopszámot kell kiszámolni hozzá. A sort az $\frac{\text{állapot sorszáma}}{\text{oszlopok száma}}$ hányados egész része adja meg, az oszlopot pedig az előbbi osztás maradéka (modulo művelet). A textúra koordináták a bal felső sarokból $(0, 0)$ indulnak, és a jobb alsó sarok $(1, 1)$ felé nőnek. Az adattagok között számon tartom, hogy egy állapot a textúra koordináta-rendszernek megfelelően milyen széles (\texttt{m\_fColumnstep}), és milyen magas (m\_fRowstep). Ennek megfelelően például az állapot bal felső pontjának $(u, v)$ koordinátája az 
 \begin{align*}
 u &= \text{adott oszlop} \cdot \text{szélesség}, \\
 v &= \text{adott sor} \cdot \text{magasság}, 
@@ -103,10 +103,10 @@ a jobb alsó pedig az
 u &= (\text{adott oszlop} + 1) \cdot \text{szélesség}, \\
 v &= (\text{adott sor} + 1) \cdot \text{magasság} 
 \end{align*}
-egyenletek alapján kapható meg. Az így kapott $(u, v)$ koordinátákat a téglalap objektum pontjainak megfelelő sorrendben kell megadni, azaz 1, 2, 3, 1, 4, 2, ahol például 1 a bal alsó, 2 a jobb felső ponthoz tartozó koordináták. A metódus utolsó lépéseként növeljük az állapot sorszámát tároló adatag értékét eggyel, ügyelve arra, hogy az utolsó állapotot követően nullázzuk.
+egyenletek alapján kapható meg. Az így kapott $(u, v)$ koordinátákat a téglalap objektum pontjainak megfelelő sorrendben kell megadni, azaz 1, 2, 3, 1, 4, 2, ahol például 1 a bal alsó, 2 a jobb felső ponthoz tartozó koordináták. A metódus utolsó lépéseként növeljük az állapot sorszámát tároló adattag értékét eggyel, ügyelve arra, hogy az utolsó állapotot követően nullázzuk.
 
 %VAO generálás
-Ezek után generálunk egy VAO-t és a két vektort, melyeket az előbbi funkciókkal állítottunk elő, külön-külön VBO-k segítségével tároljuk a VAO-ban. A két VBO között fontos különbség, hogy amíg a pontokat statikus objektumként tároljuk le, addig a textúra koordinátákat dinamikusként kell, ugyanis ennek a VBO-nak a tartalma fog változni az animáció során. Ezt a \texttt{GL\_DYNAMIC\_DRAW} paraméter segítségével jelezhetjük a grafikus processzornak, amely így ennek megfelelően allokálja a buffer számára a helyet, például a saját memóriája helyett akár a gép memóriáját is használhatja.
+Ezek után generálunk egy VAO-t és a két vektort, melyeket az előbbi funkciókkal állítottunk elő, külön-külön VBO-k segítségével tároljuk a VAO-ban. A két VBO között fontos különbség, hogy amíg a pontokat statikus objektumként tároljuk le, addig a textúra koordinátákat dinamikusként kell, ugyanis ennek a VBO-nak a tartalma fog változni az animáció során. Ezt a \texttt{GL\_DYNAMIC\_DRAW} paraméter segítségével jelezhetjük a grafikus processzornak, amely így ennek megfelelően allokálja a puffer számára a helyet, például a saját memóriája helyett akár a gép memóriáját is használhatja.
 A VBO generálás a következőképpen néz ki:
 \begin{cpp}
 glGenBuffers(1, &m_iFireVBO);
@@ -118,12 +118,12 @@ glEnableVertexAttribArray(m_pFireShader->attrib("vertTexCoord"));
 glVertexAttribPointer(m_pFireShader->attrib("vertTexCoord"), 2, 
 	GL_FLOAT, GL_FALSE, 0, NULL);
 \end{cpp}
-A \texttt{glGenBuffers} generál egy VBO-t és az azonosítóját beírja a második paramétereként megadott helyre, melyet a \texttt{glBindBuffer}-nek átadva ``használatba helyezhetjük'' (bind-eljük) a buffert. A \texttt{glBufferData} függvénnyel definiálhatjuk a buffer tartalmát, jelen esetben a textúra koordinátákat tároljuk majd benne. Az első paramétere megadja a buffer fajtáját, itt most pontok tulajdonságára utaló adatokkal lesz feltöltve. A második paraméter a másolni kívánt adat méretét adja meg, a harmadik pedig a tároló objektum kezdőcímét. Az utolsó paraméter a VBO használatára utal. A példában \texttt{GL\_DYNAMIC\_DRAW} mellett még a \texttt{GL\_STATIC\_DRAW} konstanst használtam még az olyan a VBO-k esetén, melyek tartalmát nem változtatom. A \texttt{glEnableVertexAttribArray} függvény engedélyezi a megadott attribútum használatát a shader programban, a \texttt{glVertexAttribPointer} pedig megadja, hogy az adott VBO-t melyik attribútomon keresztül kapja meg a shader. Utóbbi függvény második paramétere adja meg, hogy hány komponensből áll egy csúcspont tulajdonság, ezt követi a komponensek típusa. A negyedik paraméter megadja, hogy az egész értékű adattípusokat normalizálja-e, vagy sem. Az utolsó előtti paraméter adja meg a pont tulajdonságok közti offset-et, végül pedig a bufferben az első tulajdonság előtti offset-et adjuk meg.
+A \texttt{glGenBuffers} generál egy VBO-t és az azonosítóját beírja a második paramétereként megadott helyre, melyet a \texttt{glBindBuffer}-nek átadva ``használatba helyezhetjük'' (bind-eljük) a puffert. A \texttt{glBufferData} függvénnyel definiálhatjuk a puffer tartalmát, jelen esetben a textúra koordinátákat tároljuk majd benne. Az első paramétere megadja a puffer fajtáját, itt most pontok tulajdonságára utaló adatokkal lesz feltöltve. A második paraméter a másolni kívánt adat méretét adja meg, a harmadik pedig a tároló objektum kezdőcímét. Az utolsó paraméter a VBO használatára utal. A példában \texttt{GL\_DYNAMIC\_DRAW} mellett még a \texttt{GL\_STATIC\_DRAW} konstanst használtam még az olyan a VBO-k esetén, melyek tartalmát nem változtatom. A \texttt{glEnableVertexAttribArray} függvény engedélyezi a megadott attribútum használatát a shader programban, a \texttt{glVertexAttribPointer} pedig megadja, hogy az adott VBO-t melyik attribútumon keresztül kapja meg a shader. Utóbbi függvény második paramétere adja meg, hogy hány komponensből áll egy csúcspont tulajdonság, ezt követi a komponensek típusa. A negyedik paraméter megadja, hogy az egész értékű adattípusokat normalizálja-e, vagy sem. Az utolsó előtti paraméter adja meg a pont tulajdonságok közti offset-et, végül pedig a pufferben az első tulajdonság előtti offset-et adjuk meg.
 
 A \texttt{loadVAO} metódus tehát betöltött minden szükséges adatot, amely a kirajzoláshoz szükséges.
 
 % DRAW
-A kirajzolást a \texttt{drawFire} metódus végzi. Először be kell állítani a használni kívánt shader-t, majd bind-elni kell a használni kívánt textúrát. Ezt át is kell adni a shader-nek, esetemben a tex uniform-on keresztül. Ezt követően bind-eljük a VAO-t, amelyben a pontok adatait tároljuk. Ha csupán egy sprite-ot szeretnénk kirajzolni, akkor megadjuk a shader-nek a modell mátrixot (amely az eltolást és az esetleges forgatást végzi el a pontokon), majd a \texttt{glDrawArrays} segítségével kirajzoljuk a háromszögeket. Ha szeretnénk 90 fokkal elforgatva is kirajzolni a sprite-ot, akkor a modell mátrixot még 90 fokkal elforgatjuk a GLM könyvtár \texttt{rotate} metódusának segítségével, ezt ismét átadjuk a shader-nek, eztán pedig megint kirajzoljuk a VAO-t. Az átlátszóság kezelése miatt itt már a sorrendre is figyelni kell, de ezt is a későbbiekben fejtem majd ki. A rajzolások után kikapcsoljuk az adott VAO, textúra és shader használatát. A \texttt{drawFire} metódus végén az \texttt{m\_fElapsedTime} adattaghoz hozzáadjuk az előző kirajzolás óta eltelt időt, melyet a camera objektumtól kérdezhetünk le. Ebben az adattagban számoljuk az előző állapotváltás óta eltelt időt. Amennyiben ez átlépi a határt (\texttt{m\_fAnimationSpeed}), a következő állapot textúra koordinátáit kell betöltenünk. Ehhez bind-elni kell az adott VBO-t, majd a \texttt{calculateNextTextureCoordinates} metódus segítségével előállítani a megfelelő textúra koordinátákat. A buffer tartalmát a \texttt{glBufferSubData} függvény segítségével írhatjuk át. Ezzel a buffer tartalmának egy részét is át lehetne írni, de nekem az egészet át kell. Ennek ellenére is hatásosabb ezt használni a \texttt{glBufferData} helyett, ugyanis így a szükséges memória újraallokálását el lehet kerülni. Végül nullázzuk az \texttt{m\_fElapsedTime} adattagot.
+A kirajzolást a \texttt{drawFire} metódus végzi. Először be kell állítani a használni kívánt shader-t, majd bind-elni kell a használni kívánt textúrát. Ezt át is kell adni a shader-nek, esetemben a tex uniform-on keresztül. Ezt követően bind-eljük a VAO-t, amelyben a pontok adatait tároljuk. Ha csupán egy sprite-ot szeretnénk kirajzolni, akkor megadjuk a shader-nek a modell mátrixot (amely az eltolást és az esetleges forgatást végzi el a pontokon), majd a \texttt{glDrawArrays} segítségével kirajzoljuk a háromszögeket. Ha szeretnénk 90 fokkal elforgatva is kirajzolni a sprite-ot, akkor a modell mátrixot még 90 fokkal elforgatjuk a GLM könyvtár \texttt{rotate} metódusának segítségével, ezt ismét átadjuk a shader-nek, eztán pedig megint kirajzoljuk a VAO-t. Az átlátszóság kezelése miatt itt már a sorrendre is figyelni kell, de ezt is a későbbiekben fejtem majd ki. A rajzolások után kikapcsoljuk az adott VAO, textúra és shader használatát. A \texttt{drawFire} metódus végén az \texttt{m\_fElapsedTime} adattaghoz hozzáadjuk az előző kirajzolás óta eltelt időt, melyet a camera objektumtól kérdezhetünk le. Ebben az adattagban számoljuk az előző állapotváltás óta eltelt időt. Amennyiben ez átlépi a határt (\texttt{m\_fAnimationSpeed}), a következő állapot textúra koordinátáit kell betöltenünk. Ehhez bind-elni kell az adott VBO-t, majd a \texttt{calculateNextTextureCoordinates} metódus segítségével előállítani a megfelelő textúra koordinátákat. A puffer tartalmát a \texttt{glBufferSubData} függvény segítségével írhatjuk át. Ezzel a puffer tartalmának egy részét is át lehetne írni, de nekem az egészet át kell. Ennek ellenére is hatásosabb ezt használni a \texttt{glBufferData} helyett, ugyanis így a szükséges memória újraallokálását el lehet kerülni. Végül nullázzuk az \texttt{m\_fElapsedTime} adattagot.
 
 % shaderek
 % TODO: Helyes ez így?
@@ -169,7 +169,7 @@ Amennyiben a két vektor normalizált, azaz a hosszuk egységnyi hosszú, az egy
 
 Ha a tűz állapotait tároló képen csak teljesen áttetsző, és teljesen átlátszatlan pixelek lennének, akkor az átlátszóságot egy egyszerű OpenGL-es alfa teszt funkció segítségével meg lehetne oldani. Ez a neki megadott paraméterek alapján bizonyos alfa értékek felett (vagy alatt) kirajzolja az adott pixelt, egyébként nem. Színkeverést tehát nem végez, így kicsivel gyorsabb is, mint a blending funkciók.
 
-Az általam letöltött textúra azonban az alfa csatorna teljes skáláját kihasználja, így muszáj valamilyen blending funkciót használni. A blending az OpenGL-ben a fragment shader kimeneti színét (forrás szín) keveri a színbufferben a megfelelő helyen található színnel (cél szín). Ennek működése két, paraméterekkel befolyásolható függvény segítségével adható meg. Mindenek előtt a \texttt{glEnable(GL\_BLEND)} parancs segítségével engedélyezni kell a blending-et.
+Az általam letöltött textúra azonban az alfa csatorna teljes skáláját kihasználja, így muszáj valamilyen blending funkciót használni. A blending az OpenGL-ben a fragment shader kimeneti színét (forrás szín) keveri a színpufferben a megfelelő helyen található színnel (cél szín). Ennek működése két, paraméterekkel befolyásolható függvény segítségével adható meg. Mindenek előtt a \texttt{glEnable(GL\_BLEND)} parancs segítségével engedélyezni kell a blending-et.
 
 A \texttt{glBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)} függvény határozza meg a keveréskor elvégzendő alapműveletet külön az RGB komponenseken, és külön az alfa csatornán. Az én esetemben a forrás és a cél színeket össze kell majd adni, így mindkét paraméternek a \texttt{GL\_FUNC\_ADD} konstanst kell átadni.
 
@@ -178,7 +178,7 @@ A \texttt{glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha,\\ G
 \text{OutputRGB} &= \texttt{srcRGB} \cdot \text{forrásRGB} + \texttt{dstRGB} \cdot \text{célRGB}, \\
 \text{OutputAlfa} &= \texttt{srcAlpha} \cdot \text{forrásAlfa} + \texttt{dstAlpha} \cdot \text{célAlfa}.
 \end{align*}
-A cél a tűz megjelenítése során, hogy a tűz pixelének a színe a saját (forrás) alfa komponensével legyen megszorozva, és hogy a $[0, 1]$ tartományon belül maradjon a kimeneti érték, a háttérszínt (cél) az 1 - forrás alfa komponenssel szorozzuk meg. Az alfa csatornák értéke ebben az esetben nem játszik sok szerepet, így a hagyományos blendingnek megfelelően a forrás alfa értéke lesz a kimeneti alfa is. A két függvény tehát a következőképpen fog kinézni:
+A cél a tűz megjelenítése során, hogy a tűz pixelének a színe a saját (forrás) alfa komponensével legyen megszorozva, és hogy a $[0, 1]$ tartományon belül maradjon a kimeneti érték, a háttérszínt (cél) az 1 - forrás alfa komponenssel szorozzuk meg. Az alfa csatornák értéke ebben az esetben nem játszik sok szerepet, így a hagyományos blending-nek megfelelően a forrás alfa értéke lesz a kimeneti alfa is. A két függvény tehát a következőképpen fog kinézni:
 \begin{cpp}
 glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
@@ -241,7 +241,7 @@ if (m_pCamera->getZ() < m_vPosition.z)
 	drawSecondary1VAO();
 }
 \end{cpp}
-Így már kirajzoláskor minden nézőpontből helyes képet kapunk.
+Így már kirajzoláskor minden nézőpontból helyes képet kapunk.
 
 Ha egymás mellé kirajzolunk egy billboard és egy kétsíkú sprite objektumot, akkor \aref{fig:billboardFinal1}. ábrán látható eredményt kapjuk.
 
@@ -270,7 +270,7 @@ Ha egymás mellé kirajzolunk egy billboard és egy kétsíkú sprite objektumot
  \label{fig:billboardFinal3}
 \end{figure}
 
-\Aref{fig:billboardFinal4}. ábrán pedig megfigyelhető a kétsíkú sprite másik gyengepontja. Ha valamelyik síkra nagy szögben tekintünk, akkor feltűnővé válhat a körvonala, rombolva ezzel a látványt.
+\Aref{fig:billboardFinal4}. ábrán pedig megfigyelhető a kétsíkú sprite másik gyenge pontja. Ha valamelyik síkra nagy szögben tekintünk, akkor feltűnővé válhat a körvonala, rombolva ezzel a látványt.
 
 \begin{figure}[h!]
  \centering
@@ -310,7 +310,7 @@ A részecskéket a következő fontosabb tulajdonságokkal vérteztem fel:
 \item Pozíció, mozgás irány, sebesség (\texttt{m\_vPosition}, \texttt{m\_vSpeedDirection}, \texttt{m\_fSpeedRate}): az irány nem egységvektor, így még nagyobb és véletlenszerűbb a különbség a részecskék mozgása között.
 \item Méret és növekedési ráta (\texttt{m\_fScale}, \texttt{m\_fScaleRate}): a növekedési ráta adja meg a részecske, mint gáz tágulásának a sebességét.
 \item A kamerától vett távolság (\texttt{m\_fDistanceToCamera}): ez alapján lesznek majd sorba rendezve a részecskék.
-\item $Z$ tengely menti elfordulás és szögsebesség (\texttt{m\_fRotation}, \texttt{m\_fRotationRate}): ezek segítségével keltek tubulens hatást az animáció során.
+\item $Z$ tengely menti elfordulás és szögsebesség (\texttt{m\_fRotation}, \texttt{m\_fRotationRate}): ezek segítségével keltek turbulens hatást az animáció során.
 \item Textúrák száma, pillanatnyi textúra sorszáma (\texttt{m\_cNumberOfTextures}, \\ \texttt{m\_cCurrentTexture}): a textúrák számozása $0$-tól indul.
 \item A láng és füst állapotok aránya, a pillanatnyi keverés aránya, egy jelenet ideje (\texttt{m\_fFireTimeRatio}, \texttt{m\_fCurrentBlend}, \texttt{m\_fSceneTime}): a későbbiekben kerülnek kifejtésre.
 \end{itemize}
@@ -321,7 +321,7 @@ Az osztály konstruktora paraméterként várja az adott részecske indulási po
 
 Ilyen az \texttt{m\_fSceneTime} adattag is, mely megadja, hogy a textúra sorozat egyes tagjai (melyek váltogatása a részecske animációját eredményezi) hány milliszekundumot (a továbbiakban \textit{ms}) szerepelnek. Ezt a textúrán szereplő állapotok száma és a részecske élettartamának a hányadosa adja meg. 
 
-A füsthöz nem készítettem külön emittert és osztályt. Egy részecske az életének egy bizonyos részét lángként, utána pedig füstként tölti. A füsthöz nem alkalmaztam külön textúrát, hanem a láng képsorozat utolsó tagját használtam fel kiszürkítve. Ebből következik, hogy az \texttt{m\_fSceneTime} adattagot még meg kell szorozni az \texttt{m\_fFireTimeRatio} adattaggal. Ez a $[0, 1]$ tartományon értelmezett szám adja meg, hogy a részecske az életének hanyad részét tölti láng fázisban. Egy állapot tehát rövidebb ideig szerepel majd, de az utolsó jelenetet leszámítva mind ugyanannyi időt töltenek majd a képernyőn. 
+A füsthöz nem készítettem külön emittert és osztályt. Egy részecske az életének egy bizonyos részét lángként, utána pedig füstként tölti. A füsthöz nem alkalmaztam külön textúrát, hanem a láng képsorozat utolsó tagját használtam fel kiszürkítve. Ebből következik, hogy az \texttt{m\_fSceneTime} adattagot még meg kell szorozni az \texttt{m\_fFireTimeRatio} adattaggal. Ez a $[0, 1]$ tartományon értelmezett szám adja meg, hogy a részecske az életének hányad részét tölti láng fázisban. Egy állapot tehát rövidebb ideig szerepel majd, de az utolsó jelenetet leszámítva mind ugyanannyi időt töltenek majd a képernyőn. 
 
 % update
 \subsubsection{Részecskék állapotának frissítése}
@@ -421,11 +421,11 @@ A \texttt{FireParticle} osztály rendelkezik még jó néhány ``getter'' metód
 \subsection{Instancing és buffer re-specification}
 Részecske rendszerek kirajzolásánál ugyanazt a ponthalmazt kell számtalanszor kirajzolni, csak más-más tulajdonságokkal. Az egyik lehetőség, hogy minden egyes részecskére meghívjuk a \texttt{glDrawArrays} metódust egy ciklusban. Ez egy működő megoldás, de ekkor minden hívás alkalmával a GPU teljes erejével azon lesz, hogy azt a 6 darab pontot megjelenítse, mely a billboard-hoz szükséges. Ennek kiküszöbölésére több megoldás is létezik, én az \textit{instancing} névre hallgató módszert választottam. 
 
-Ennek lényege, hogy egyetlen alap ponthalmaz van (esetemben négyzet 6 pontból), de abból rengeteg példányt rajzol ki a grafikus gyorsítókártya egyszerre. Ehhez szükség van az alap pontokat tartalmazó pufferre, emellé pedig csatolhatunk több puffert is, melyek az egyes példányok sajátos tulajdonságait írják le. Az OpenGL-nek minden egyes pufferről meg kell mondani, hogy 1 példányhoz hány elemet használjon fel belőle. Ezt a \texttt{glVertexAttribDivisor} metódus segítségével tehetjük meg. A kirajzolás pedig csupán annyiban különbözik a normálistól, hogy a \texttt{glDrawArraysInstanced} metódust kell használni, és megadni, hogy hány példányt kell majd létrehozni.
+Ennek lényege, hogy egyetlen alap ponthalmaz van (esetemben négyzet 6 pontból), de abból rengeteg példányt rajzol ki a grafikus gyorsítókártya egyszerre. Ehhez szükség van az alap pontokat tartalmazó pufferre, e mellé pedig csatolhatunk több puffert is, melyek az egyes példányok sajátos tulajdonságait írják le. Az OpenGL-nek minden egyes pufferről meg kell mondani, hogy 1 példányhoz hány elemet használjon fel belőle. Ezt a \texttt{glVertexAttribDivisor} metódus segítségével tehetjük meg. A kirajzolás pedig csupán annyiban különbözik a normálistól, hogy a \texttt{glDrawArraysInstanced} metódust kell használni, és megadni, hogy hány példányt kell majd létrehozni.
 
-A példányok tulajdonságainak fenntartott VBO-kat tehát minden kirajzolás előtt frissíteni kell, azaz folyamatosan stream-eljük az adatokat a videókártyának. Ez azt jelenti, hogy feltöltjük a puffert adatokkal, majd a kirajzoláskor a GPU kiolvassa ezeket, de közben mi már ismét küldhetünk adatokat arra a pufferre, ami éppen olvasás alatt áll. Ahhoz, hogy ez ne okozzon hibát, az OpenGL specifikáció az \textit{implicit szinkronizáció} segítségével garantálja, hogy amíg a puffert olvassák, addig ne kerülhessen rá új adat, addig ugyanis az író szál fel van függesztve. Ez lassulást eredményezhet a program futása során. Ennek elkerülésére is számos módszer létezik, én a \textit{buffer re-specification}-t választottam, melyet az OpenGL dokumentációjában\footnote{https://www.khronos.org/opengl/wiki/Buffer\_Object\_Streaming} találtam.
+A példányok tulajdonságainak fenntartott VBO-kat tehát minden kirajzolás előtt frissíteni kell, azaz folyamatosan stream-eljük az adatokat a videokártyának. Ez azt jelenti, hogy feltöltjük a puffert adatokkal, majd a kirajzoláskor a GPU kiolvassa ezeket, de közben mi már ismét küldhetünk adatokat arra a pufferre, ami éppen olvasás alatt áll. Ahhoz, hogy ez ne okozzon hibát, az OpenGL specifikáció az \textit{implicit szinkronizáció} segítségével garantálja, hogy amíg a puffert olvassák, addig ne kerülhessen rá új adat, addig ugyanis az író szál fel van függesztve. Ez lassulást eredményezhet a program futása során. Ennek elkerülésére is számos módszer létezik, én a \textit{buffer re-specification}-t választottam, melyet az OpenGL dokumentációjában\footnote{https://www.khronos.org/opengl/wiki/Buffer\_Object\_Streaming} találtam.
 
- Ez a megoldás újrafoglalja a VBO-nak fenntartott memória területet a módosítás előtt. Ahhoz, hogy ez hatékony legyen, a \texttt{glBufferData} metódusban a \texttt{GL\_STREAM\_DRAW} konstans segítségével kell a videókártyával tudatni, hogy az adott puffert sokszor tervezzük törölni, majd újra létrehozni. A reallokálást a úgy érhetjük el, hogy adott VBO-ra meghívjuk a \texttt{glBufferData} metódust a korábbiakkal egyező paraméterekkel és \texttt{NULL} pointert adunk át neki az adatokra mutató paraméter helyén. Az OpenGL dokumentáció szerint ez teljesítmény szempontjából valószínűleg sokkal előnyösebb megoldás, mint az implicit szinkronizálásra hagyatkozni.
+ Ez a megoldás újrafoglalja a VBO-nak fenntartott memória területet a módosítás előtt. Ahhoz, hogy ez hatékony legyen, a \texttt{glBufferData} metódusban a \texttt{GL\_STREAM\_DRAW} konstans segítségével kell a videokártyával tudatni, hogy az adott puffert sokszor tervezzük törölni, majd újra létrehozni. A reallokálást a úgy érhetjük el, hogy adott VBO-ra meghívjuk a \texttt{glBufferData} metódust a korábbiakkal egyező paraméterekkel és \texttt{NULL} pointert adunk át neki az adatokra mutató paraméter helyén. Az OpenGL dokumentáció szerint ez teljesítmény szempontjából valószínűleg sokkal előnyösebb megoldás, mint az implicit szinkronizálásra hagyatkozni.
 
 % FireParticleSystem
 \subsection{FireParticleSystem osztály}
@@ -436,7 +436,7 @@ A részecskék karbantartását végző emitter a \texttt{FireParticleSystem} os
 A tűz megjelenését a következő paraméterként is értelmezhető adattagok segítségével lehet befolyásolni:
 \begin{itemize}
 \item Maximális részecskeszám (\texttt{m\_iMaxParticles}): megadja, hogy maximum hány részecske lehet egyszerre életben.
-\item Részecske életartam (\texttt{m\_iParticleLifetime}): a részecskék élettartama ms-ban megadva. Minden részecske ennyi időt tölt majd a képernyőn, de mivel a sebességük eltérő, ez nem lesz feltűnő.
+\item Részecske élettartam (\texttt{m\_iParticleLifetime}): a részecskék élettartama ms-ban megadva. Minden részecske ennyi időt tölt majd a képernyőn, de mivel a sebességük eltérő, ez nem lesz feltűnő.
 \item Az emitter pozíciója (\texttt{m\_vPosition}): e térbeli pont környékéről indulnak majd a részecskék.
 \item A részecske rendszer skálája (\texttt{m\_fScale}): a részecskék méretére és a kiindulási terület nagyságára is hatással van.
 \item Random generátorok (\texttt{m\_rRandom(...)}): többféle értékhatárok között generálnak pszeudo-random számokat. A részecskék indításához és példányosításához használom őket, ezek adják a rendszer véletlenszerűségét. Mindegyik egyenletes eloszlású értékeket generál.
@@ -444,7 +444,7 @@ A tűz megjelenését a következő paraméterként is értelmezhető adattagok 
 
 % konstruktor
 \subsubsection{Konstruktor}
-A konstruktornak paraméterként meg kell adni a kamera és a tűz árnyaló objektumokra mutató pointereket és az emitter pozícióját. Opcionálisan megadható a maximális részecskeszám, illetve a skála paraméter is. Ezeket a megfelelő adattagokba lementem, majd emellett több más változó is inícializálásra kerül. 
+A konstruktornak paraméterként meg kell adni a kamera és a tűz árnyaló objektumokra mutató pointereket és az emitter pozícióját. Opcionálisan megadható a maximális részecskeszám, illetve a skála paraméter is. Ezeket a megfelelő adattagokba lementem, majd emellett több más változó is inicializálásra kerül. 
 
 Az \texttt{m\_pParticleContainer} tárolja majd a \texttt{FireParticle} típusú részecskéket, tehát akkorának kell lennie, hogy az összes részecskét egyszerre képes legyen tárolni:
 \begin{cpp}
@@ -470,7 +470,7 @@ $ \texttt{m\_fParticlesPerSecond} = \frac{\texttt{m\_iMaxParticles} \cdot 1000}{
 \endgroup
 Minden részecske egyforma hosszú ideig él. Az indulás után pontosan \texttt{m\_iParticle\-Lifetime} időnek kell eltelnie, mielőtt az első részecskék elkezdenek meghalni. Ez azt jelenti, hogy ennyi idő alatt pontosan annyi részecskét lehet indítani, amennyi a tárolóban elfér (\texttt{m\_iMaxParticles}). Ezt követően pedig már megközelítőleg olyan iramban haláloznak el a részecskék, amilyen iramban születnek, tehát a részecskeszám nagyjából a maximum közelében fog maradni. Az 1000-el való szorzásra azért van szükség, mert az \texttt{m\_iParticleLifetime} mértékegysége ms.
 
-A random generáló objektumok inícializáslása után a konstruktor utolsó lépése a \texttt{loadBaseVAO} metódus meghívása. Ez a metódus betölti a tűz animálásához szükséges textúrát, majd létrehozza a rendszer VAO-ját. Ebben tárolom azokat a VBO-kat a tulajdonságaikkal együtt, melyek segítségével a fentebb említett pufferekben tárolt adatokat juttatom el a shader-eknek. 
+A random generáló objektumok inicializálása után a konstruktor utolsó lépése a \texttt{loadBaseVAO} metódus meghívása. Ez a metódus betölti a tűz animálásához szükséges textúrát, majd létrehozza a rendszer VAO-ját. Ebben tárolom azokat a VBO-kat a tulajdonságaikkal együtt, melyek segítségével a fentebb említett pufferekben tárolt adatokat juttatom el a shader-eknek. 
 
 %VBO-k betöltése
 Az alap mesh-t tartalmazó VBO létrehozása hasonlít a billboard alapú tűznél alkalmazott módszerhez. Ezek a részecskék azonban minden irányba forgatva lesznek, így a négyzet középpontjának egybe kell esni az origóval, hogy az a transzformációnál ne mozduljon el. Az oldalak hossza 1, tehát a négy pont koordinátái: $(-0.5, -0.5, 0)$, $(0.5, 0.5, 0)$, $(-0.5, 0.5, 0)$, $(0.5, -0.5, 0)$.
@@ -490,7 +490,7 @@ glVertexAttribDivisor(m_pFireShader->attrib("positionAndSize"), 1);
 \end{cpp}
 Ahogy azt a buffer re-specification módszernél már említettem, a \texttt{glBufferData} metódust csak allokálásra használjuk, és \texttt{ GL\_STREAM\_DRAW} konstanssal hívjuk meg. Az instancing módszerhez szükséges \texttt{glVertexAttribDivisor} metódus segítségével pedig jelezzük az OpenGL-nek, hogy példányonként 1 elemre van szükség az adott pufferből. A többi VBO előkészítése is hasonló módon néz ki, de természetesen a foglalt területek mérete eltér.
 
-Egy érdekes hibára bukkantam azonban, mikor a textúrák sorszámát stream-elő VBO-t hoztam létre. A sorszámokat integerként tárolom, ennek megfelelően pedig jeleztem a videókártya felé a \texttt{glVertexAttribPointer}-en keresztül, hogy a pufferben tárolt adatok \texttt{GL\_INT} típusúak. A shader-ekbe azonban teljesen más számok érkeztek, mint amiket küldtem. A \textit{stackoverflow.com} oldalon már más is találkozott ezzel a problémával.\footnote{https://stackoverflow.com/questions/6578026/cant-get-integer-vertex-attributes-working-in-glsl-1-5} Itt arról ír a felhasználó, hogy annak ellenére, hogy a \texttt{GL\_INT} konstanst megadta, a kapott érték átkonvertálódik \texttt{float} típusúvá, majd ezt az árnyaló integerként olvassa ki. A nem túl elegánsnak tűnő megoldás pedig az, hogy a \texttt{glVertexAttribPointer}-nek  \texttt{GL\_FLOAT} paramétert kell átadni, így az nem konvertálja át a kapott integer értéket, tehát a shader helyesen tudja majd \texttt{int}-ként olvasni.
+Egy érdekes hibára bukkantam azonban, mikor a textúrák sorszámát stream-elő VBO-t hoztam létre. A sorszámokat integerként tárolom, ennek megfelelően pedig jeleztem a videokártya felé a \texttt{glVertexAttribPointer}-en keresztül, hogy a pufferben tárolt adatok \texttt{GL\_INT} típusúak. A shader-ekbe azonban teljesen más számok érkeztek, mint amiket küldtem. A \textit{stackoverflow.com} oldalon már más is találkozott ezzel a problémával.\footnote{https://stackoverflow.com/questions/6578026/cant-get-integer-vertex-attributes-working-in-glsl-1-5} Itt arról ír a felhasználó, hogy annak ellenére, hogy a \texttt{GL\_INT} konstanst megadta, a kapott érték átkonvertálódik \texttt{float} típusúvá, majd ezt az árnyaló integerként olvassa ki. A nem túl elegánsnak tűnő megoldás pedig az, hogy a \texttt{glVertexAttribPointer}-nek  \texttt{GL\_FLOAT} paramétert kell átadni, így az nem konvertálja át a kapott integer értéket, tehát a shader helyesen tudja majd \texttt{int}-ként olvasni.
 
 Így tehát a \texttt{loadBaseVAO} metódus előkészítette a szükséges VAO-t és benne a VBO-kat, valamint tulajdonságaikat.
 
@@ -583,31 +583,31 @@ glBufferData(GL_ARRAY_BUFFER, m_iMaxParticles * sizeof(int),
 glBufferSubData(GL_ARRAY_BUFFER, 0, m_iMaxParticles * sizeof(int), 
 			m_pTexturesBuffer);
 \end{cpp}
-A \texttt{glBufferData} hívással reallokáljuk számár a helyet, majd a \texttt{glBufferSubData} segítségével rámásoljuk az adatokat. Így a kirajzolsához szükséges vertex adatok már készen állnak.
+A \texttt{glBufferData} hívással reallokáljuk számár a helyet, majd a \texttt{glBufferSubData} segítségével rámásoljuk az adatokat. Így a kirajzoláshoz szükséges vertex adatok már készen állnak.
 
 % draw
 \subsubsection{Kirajzolás}
 A \texttt{draw} metódus hívásával történik meg a renderelés. Első lépésként az előbb tárgyalt \texttt{update} metódussal frissítem a részecskéket. 
 
 % rotation with matrix tricks
-Annak érdekében, hogy a billboard-ok mindig a kamera irányába forduljanak, az előző megoldástól eltérő módszert alkalmaztam. Ennek lényege, hogy a model és view mátrixok szorzatából (model-view) egy olyan transzformációs mátrixot kapjunk, melyben nincs forgatás. Ez azt jelenti, hogy a mátrix bal felső 3x3-as részmátrixa egységmátrix kell hogy legyen, amelyet úgy kaphatunk, hogy adott mátrixot a transzponáltjával szorzunk. A forgatások, melyeket ki szeretnénk küszöbölni a kamera mozgásából adódnak, és a view mátrixban találhatóak, tehát a model mátrix bal felső 3x3-as részmátrixa a view mátrix egyező részének a transzponátjának kell lennie (\ref{fig:matrixRotation}. ábra). Így a billboard-ok forgatás nélkül lesznek kirajzolva, tehát mindig a kamera felé néznek (hiszen az alap négyzet az $XY$ síkon fekszik).
+Annak érdekében, hogy a billboard-ok mindig a kamera irányába forduljanak, az előző megoldástól eltérő módszert alkalmaztam. Ennek lényege, hogy a model és view mátrixok szorzatából (model-view) egy olyan transzformációs mátrixot kapjunk, melyben nincs forgatás. Ez azt jelenti, hogy a mátrix bal felső 3x3-as részmátrixa egységmátrix kell hogy legyen, amelyet úgy kaphatunk, hogy adott mátrixot a transzponáltjával szorzunk. A forgatások, melyeket ki szeretnénk küszöbölni a kamera mozgásából adódnak, és a view mátrixban találhatóak, tehát a model mátrix bal felső 3x3-as részmátrixa a view mátrix egyező részének a transzponáltjának kell lennie (\ref{fig:matrixRotation}. ábra). Így a billboard-ok forgatás nélkül lesznek kirajzolva, tehát mindig a kamera felé néznek (hiszen az alap négyzet az $XY$ síkon fekszik).
 \begin{figure}[h]
  \centering
  \includegraphics[width=\textwidth]{kepek/matrixRotation.png}
  \caption{A view és model mátrix szorzata a forgatás kioltásával}
  \label{fig:matrixRotation}
 \end{figure}
-Ezt a két mátrixot azonban nem szorzat formájában adom át a tűz árnyalónak, mert további transzformációk is szükségesek még, melyekkel még a view mátrix előtt kell megszorozni a model mátrixot (skálázás, $Z$ tengely menti forgatás, eltolás). A nézeti és projeckciós mátrixot azonban átadhatom szorzatként, mellé pedig a modell mátrixot, a részecskerendszer skáláját, és a textúra sorainak számát is elküldöm a shader-nek (\texttt{fireShader.vs} és \texttt{fireShader.fs}) uniformként. Ezek után a lángok textúráját is átadom a \texttt{tex} uniform-ban. 
+Ezt a két mátrixot azonban nem szorzat formájában adom át a tűz árnyalónak, mert további transzformációk is szükségesek még, melyekkel még a view mátrix előtt kell megszorozni a model mátrixot (skálázás, $Z$ tengely menti forgatás, eltolás). A nézeti és projekciós mátrixot azonban átadhatom szorzatként, mellé pedig a modell mátrixot, a részecskerendszer skáláját, és a textúra sorainak számát is elküldöm a shader-nek (\texttt{fireShader.vs} és \texttt{fireShader.fs}) uniformként. Ezek után a lángok textúráját is átadom a \texttt{tex} uniform-ban. 
 
 Ha a részecskerendszernek megadtuk a háttér mélység textúráját is, akkor azt, és az emitter kamerától vett távolságát is átküldöm a shader-nek. Ezekre a \textit{post-processing} során lesz szükség.
 
 % additive(no sort, less particles) vs traditional blending, depth test
-Mivel a textúra az alfa csatornájának teljes skáláját használja, szükség van valamilyen blending funkcióra is. Ezt még az OpenGL inícializációja során érdemes beállítani. Kezdésnek a billboard alapú tűz esetén használt tradícionális függvényt használtam, így \aref{fig:particleFireBasic1}. ábrán látható eredményt kaptam.
+Mivel a textúra az alfa csatornájának teljes skáláját használja, szükség van valamilyen blending funkcióra is. Ezt még az OpenGL inicializációja során érdemes beállítani. Kezdésnek a billboard alapú tűz esetén használt tradicionális függvényt használtam, így \aref{fig:particleFireBasic1}. ábrán látható eredményt kaptam.
 
 \begin{figure}[h]
  \centering
  \includegraphics[width=\textwidth]{kepek/particleFireBasic1.png}
- \caption{Tradícionális blending és alapértelmezett mélységteszt (\texttt{GL\_LESS})}
+ \caption{Tradicionális blending és alapértelmezett mélységteszt (\texttt{GL\_LESS})}
  \label{fig:particleFireBasic1}
 \end{figure}
 
@@ -639,19 +639,19 @@ Az utóbbi módszer hátránya viszont, hogy az így kirajzolt objektum minden m
 
 
 % additive blending
-A második probléma (a tűz színe) okát a blending függvényben kell keresni. A tűz és hasonló jelenségek részecske rendszerrel történő megjelenítése során gyakran alaklmazzák az ún. additív blending-et, és az általam használt textúrát is valószínűleg erre tervezték. Én az alábbi színkeverési funkciót alkalmaztam: 
+A második probléma (a tűz színe) okát a blending függvényben kell keresni. A tűz és hasonló jelenségek részecske rendszerrel történő megjelenítése során gyakran alkalmazzák az ún. additív blending-et, és az általam használt textúrát is valószínűleg erre tervezték. Én az alábbi színkeverési funkciót alkalmaztam: 
 \begin{cpp}
 glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE);
 \end{cpp}
-Mint azt már láthattuk, az első két paraméter a színek keverését befolyásolja, a második kettő pedig az alfa csatornákra vonatkozik. Akár csak a tradícionális blending esetén, a két művelet itt is összeadás. 
+Mint azt már láthattuk, az első két paraméter a színek keverését befolyásolja, a második kettő pedig az alfa csatornákra vonatkozik. Akár csak a tradicionális blending esetén, a két művelet itt is összeadás. 
 \begin{figure}[h]
  \centering
  \includegraphics[width=\textwidth]{kepek/particleBlendingComparison.png}
- \caption{Bal oldalon a tradícionális összemosás, jobb oldalon az additív.}
+ \caption{Bal oldalon a tradicionális összemosás, jobb oldalon az additív.}
  \label{fig:particleBlendingComparison}
 \end{figure}
 
-A fragment színe a saját alfa értékének arányában van elhalványítva, ezt adjuk hozzá a háttér változatlan színéhez. Ebből következik tehát, hogy a tradícionális blending-nél egy sokkal világosabb eredményt kapunk. Ha egy fragmenten több ilyen művelet is elvégződik, akkor az eredmény egyre fehérebb lesz, végül teljesen fehérré válhat. Ez különösen is hasznos a tűz esetén, ahol ha több részecske is van egymáshoz közel, akkor ott nagyobb is a jelenség ``hőmérséklete'', és -- ahogy annak lenni kell -- így fehérebb is lesz a színe (\ref{fig:particleBlendingComparison}.ábra jobb oldala). Mivel úgyis minden részecske színe hozzáadódik a színpufferhez, a részecskék kirajzolásának sorrendje a kinézeten nem változtat, tehát a sorbarendezést akár ki is hagyhatnánk. A post-processing során azonban a mélység értékekre is szükség lesz, tehát a rendezés a mélység buffer helyességét hivatott biztosítani ebben az esetben.
+A fragment színe a saját alfa értékének arányában van elhalványítva, ezt adjuk hozzá a háttér változatlan színéhez. Ebből következik tehát, hogy a tradicionális blending-nél egy sokkal világosabb eredményt kapunk. Ha egy fragmenten több ilyen művelet is elvégződik, akkor az eredmény egyre fehérebb lesz, végül teljesen fehérré válhat. Ez különösen is hasznos a tűz esetén, ahol ha több részecske is van egymáshoz közel, akkor ott nagyobb is a jelenség ``hőmérséklete'', és -- ahogy annak lenni kell -- így fehérebb is lesz a színe (\ref{fig:particleBlendingComparison}.ábra jobb oldala). Mivel úgyis minden részecske színe hozzáadódik a színpufferhez, a részecskék kirajzolásának sorrendje a kinézeten nem változtat, tehát a sorbarendezést akár ki is hagyhatnánk. A post-processing során azonban a mélység értékekre is szükség lesz, tehát a rendezés a mélység puffer helyességét hivatott biztosítani ebben az esetben.
 
 A kinézeten nem változtat, hogy az alfa csatornákat hogyan keverjük egymással, azonban a post-processing során részben pont az alfa értékek határozzák meg a torzítás mértékét, így az aktuális fragment alfa csatornáját ugyanúgy additívan keverem a háttér alfájával.
 
@@ -667,7 +667,7 @@ Az instancing módszernek megfelelően a hívás utolsó paramétereként meg ke
 A billboard alapú megjelenítéssel ellentétben az instanced renderelés miatt a shader-eknek itt már lényegesen több feladat jut. 
 
 \subsubsection{Vertex shader}
-A vertex árnyaló lesz felelős a példányok tulajdonságaiként megkapott eltolás, forgatás és skálázás elvégzéséért az adott ponton, valamint a hozzá tartozó textúra koordináták kiszámításáért. Uniform-ként megkapja a transzformációs mátrixokat (view-projection és model), a részecskerendszer skáláját, valamint a textúrán lévő állapotok sorainak számát (\texttt{rowCount}). Csúcsopntonként pedig megkapja az adott példány textúrájának sorszámát(\texttt{textureNr}), a pozícióját, a skáláját, az elfordulásának szögét és az összemosáshoz szükséges blend paramétert. 
+A vertex árnyaló lesz felelős a példányok tulajdonságaiként megkapott eltolás, forgatás és skálázás elvégzéséért az adott ponton, valamint a hozzá tartozó textúra koordináták kiszámításáért. Uniform-ként megkapja a transzformációs mátrixokat (view-projection és model), a részecskerendszer skáláját, valamint a textúrán lévő állapotok sorainak számát (\texttt{rowCount}). Csúcspontonként pedig megkapja az adott példány textúrájának sorszámát(\texttt{textureNr}), a pozícióját, a skáláját, az elfordulásának szögét és az összemosáshoz szükséges blend paramétert. 
 
 Elsőként a blend paramétert át is passzolom a fragment árnyalónak (\texttt{currentBlend}), mert csak ott lesz rá szükség. Ezt követően a textúra koordinátákat határozom meg. Hasonlóan történik billboard alapú tűznél alkalmazott módszerhez, de itt nem számoljuk ki a négyzet mind a 4 pontjához szükséges koordinátákat, csupán azt kapjuk meg, amelyik pontot éppen feldolgozza az árnyaló. Ezt a \texttt{vec2 getTextureCoord(int textureNr, float offset)} függvény számolja ki \aref{fig:particleBillboard}. ábrán látható értékeknek megfelelően.
 
@@ -678,11 +678,11 @@ Elsőként a blend paramétert át is passzolom a fragment árnyalónak (\texttt
  \label{fig:particleBillboard}
 \end{figure}
 
-Az \texttt{offset} változó egy állapot szélességét adja meg a textúra koordinátáknak megfelelően $(\frac{1}{\texttt{rowCount}})$. Azt, hogy a négyzetnek éppen melyik sarkát dolgozza fel az árnyaló, \texttt{if} szerkezetekben lévő feltételek segítségével határolom be. A \texttt{textureNr} segítségével a billboard alapú tűznél alkalmazott képlet segítségével kiszámolom, hogy hanyadik sor (\texttt{row}) hanyadik oszlopában (\texttt{column}) található a keresett rész, majd \aref{fig:particleBillboard}. ábrán látható számolások után visszatérek a megfelelő textúra koordinátákkal.
+Az \texttt{offset} változó egy állapot szélességét adja meg a textúra koordinátáknak megfelelően $(\frac{1}{\texttt{rowCount}})$. Azt, hogy a négyzetnek éppen melyik sarkát dolgozza fel az árnyaló, \texttt{if} szerkezetekben lévő feltételek segítségével határolom be. A \texttt{textureNr} segítségével a billboard alapú tűznél alkalmazott képlet segítségével kiszámolom, hogy hányadik sor (\texttt{row}) hányadik oszlopában (\texttt{column}) található a keresett rész, majd \aref{fig:particleBillboard}. ábrán látható számolások után visszatérek a megfelelő textúra koordinátákkal.
 
 Ha a pillanatnyi textúra sorszáma nem a legutolsó textúrára mutat, akkor a következő állapot ezen ponthoz tartozó textúra koordinátáit is kiszámolom a \texttt{getTextureCoord} függvénnyel. Ezeket át is adom a fragment shader-nek a \texttt{fragTexCoord} és a \texttt{fragTexCoord2} változók segítségével. Ekkor a \texttt{smoke} változó 0, ez mutatja meg ugyanis, hogy a füst fázisban van-e az adott példány. Ezt a változót a \texttt{flat} módosító segítségével tudom átadni a fragment shadernek, ugyanis ez nem interpolálható. Ezzel szemben ha a pillanatnyi textúra állapot az utolsó, akkor a rákövetkezőt természetesen már nem számoltatom ki, és a \texttt{smoke} változó is megkapja az 1-es értéket.
 
-Mostmár csak a kapott csúcspont transzformációit kell elvégezni. A példány tulajdonságaiként kapott adatok segítségével előállítom a skála (\texttt{scalingMatrix}), a forgatás (\texttt{rotationMatrix}) és az eltolás (\texttt{translationMatrix}) mátrixokat, majd ezeket a megfelelő sorrendben összeszorzom:
+Most már csak a kapott csúcspont transzformációit kell elvégezni. A példány tulajdonságaiként kapott adatok segítségével előállítom a skála (\texttt{scalingMatrix}), a forgatás (\texttt{rotationMatrix}) és az eltolás (\texttt{translationMatrix}) mátrixokat, majd ezeket a megfelelő sorrendben összeszorzom:
 \begin{cpp}
 mat4 particleMatrix = translationMatrix * model * rotationMatrix
 							 * scalingMatrix;
@@ -716,13 +716,13 @@ if(blendWithOldColor > 0.f) {
    + blendWithOldColor * textureColor.rgb, currentBlend * textureColor.a);
 }
 \end{cpp}
-Ekkor a \texttt{currentBlend} tulajdonképpen a részecske kora a füstfázisban, mely $1$-ről indul és $0$-ig csökken folyamatosan. Így ebből az $1$ hosszúságú tartományból $0.15$ hosszúságnyit az összemosásra szántam. A \texttt{blendWithOldColor} változóban tartom számon, hogy mennyi van még hátra az átmeneti időszakből és annak arányában mosom össze a szürke színt a textúra színével egyszerű lineáris interpolációval.
+Ekkor a \texttt{currentBlend} tulajdonképpen a részecske kora a füstfázisban, mely $1$-ről indul és $0$-ig csökken folyamatosan. Így ebből az $1$ hosszúságú tartományból $0.15$ hosszúságnyit az összemosásra szántam. A \texttt{blendWithOldColor} változóban tartom számon, hogy mennyi van még hátra az átmeneti időszakból és annak arányában mosom össze a szürke színt a textúra színével egyszerű lineáris interpolációval.
 
 Ezek segítségével, és szél (mint külső erő) hozzáadásával \aref{fig:particleWind}. ábrán látható eredményt kapom.
 \begin{figure}[h]
  \centering
  \includegraphics[width=\textwidth]{kepek/particleWind.png}
- \caption{A szél ereje fokozatosan nő, kikapcsolánál pedig fokozatosan csökken.}
+ \caption{A szél ereje fokozatosan nő, kikapcsolásnál pedig fokozatosan csökken.}
  \label{fig:particleWind}
 \end{figure}
 
@@ -742,7 +742,7 @@ A felhasználástól függően ezek a pufferek is különböző típusúak lehet
 \subsubsection{PostProcessor osztály}
 A fénytörés megvalósítására készítettem egy osztályt, mely FBO-ként funkcionál. Több példányra is szükség lesz belőle, mindegyik más és más funkciót lát majd el.
 
-Az osztály konstruktorának meg kell adni a képernyő magasságát és szélességét, valamint a kirajzolásoz használandó shader fájlok nevét. Betölti az árnyalókat, majd meghívja az \texttt{initializeFBO} és \texttt{generateVAO} metódusokat.
+Az osztály konstruktorának meg kell adni a képernyő magasságát és szélességét, valamint a kirajzoláshoz használandó shader fájlok nevét. Betölti az árnyalókat, majd meghívja az \texttt{initializeFBO} és \texttt{generateVAO} metódusokat.
 
 % render textures
 Az \texttt{initializeFBO} metódus legenerál egy, a képernyő méretnek megfelelő magasságú és szélességű kétdimenziós textúrát, mely a színpuffer szerepét veszi majd fel. Ez \texttt{RGBA} formátumú lesz, egyes elemei pedig \texttt{unsigned byte} típusúak. A mélység puffer számára is egy ugyanolyan méretű, de eltérő paraméterezésű kétdimenziós textúrát hoztam létre. Ennek formátuma \texttt{GL\_DEPTH\_COMPONENT} lesz. Ezen kívül további, a mélységpuffert jellemző paramétereket is be kellett állítani:
@@ -756,7 +756,7 @@ Az első sor megadja, hogy a mélység értékeket hogyan kezelje az OpenGL mint
 
 Utolsó lépésként a metódus legenerálja az FBO-t is, majd az imént létrehozott textúrákat csatolja hozzá, mint szín és mélység puffereket.
 
-A \texttt{generateVAO} metódus legenerálja a megjelenítéshez szükséges négyzetet. Az OpneGL-ben nézeti transzformációk nélkül a kamera a $(0, 0, 0)$ pozícióban van, és a $-Z$ tengely felé néz. Az OpenGL specifikáció szerint az alapértelmezett nézet egy 2x2-es mérteű kockát lát. Ebből következik, hogy a képernyő négy sarkában a $(-1, -1)$, $(1, 1)$, $(-1, 1)$, $(1, -1)$ pontok láthatóak. Tehát ha olyan négyzetet szeretnénk kirajzolni amely transzformációk nélkül pont beteríti a képernyőt, akkor annak pont ezek lesznek a csúcspontjai.
+A \texttt{generateVAO} metódus legenerálja a megjelenítéshez szükséges négyzetet. Az OpneGL-ben nézeti transzformációk nélkül a kamera a $(0, 0, 0)$ pozícióban van, és a $-Z$ tengely felé néz. Az OpenGL specifikáció szerint az alapértelmezett nézet egy 2x2-es méretű kockát lát. Ebből következik, hogy a képernyő négy sarkában a $(-1, -1)$, $(1, 1)$, $(-1, 1)$, $(1, -1)$ pontok láthatóak. Tehát ha olyan négyzetet szeretnénk kirajzolni amely transzformációk nélkül pont beteríti a képernyőt, akkor annak pont ezek lesznek a csúcspontjai.
 
 \subsubsection{Kirajzolás}
 Az osztályhoz hozzáadhatunk:
@@ -765,7 +765,7 @@ Az osztályhoz hozzáadhatunk:
 \item Egy előtérhez és egy háttérhez tartozó mélység textúrát (\texttt{addBackgroundDepth\\(GLuint textureId)}, \texttt{addForegroundDepth(GLuint textureId)}).  Ezek az árnyaló \texttt{foreground\-Depth} és \texttt{backgroundDepth} uniform-jaiba kerülnek.
 \item Végül pedig egy \texttt{float} típusú offszetet (\texttt{setOffset(float offset)}), mely a shader \texttt{offset} uniform-jába kerül.
 \end{itemize}
-Az ezek tárolására szolgáló adattagokat \texttt{NULL} értékkel inícializáltam, így a kirajzolsát végző \texttt{draw} metódus csak akkor adja át ezeket az árnyalóknak uniform-ként, ha az értékük ettől eltérő. 
+Az ezek tárolására szolgáló adattagokat \texttt{NULL} értékkel inicializáltam, így a kirajzolást végző \texttt{draw} metódus csak akkor adja át ezeket az árnyalóknak uniform-ként, ha az értékük ettől eltérő. 
 
 A \texttt{draw} metódus opcionális paramétere (\texttt{bool renderOwnTexture}) azt adja meg, hogy a kirajzolásnál textúraképpen a saját színpufferét is csatolja-e, ugyanis szükség lesz majd arra is, hogy egy hozzáadott textúrát felhasználva a saját színpufferébe rajzolja ki a jelenetet.
 
@@ -812,11 +812,11 @@ float distanceFactor = 1.f / offset;
 float y = fragTexCoord.y - 0.5 * distanceFactor
 vec4 textureColor = texture2D(tex2, vec2(fragTexCoord.x, y));
 \end{cpp}
-Az $y$ koordináta eltolásával tehát a tűz ``hője'' kicsivel magasabban van, mint maguk a lángok, ami a valóságnak valamelyest meg is felel, a látványon pedig sokat javít. A szürkeárnyalatossá alakításhoz az ITU-R (BT.709) ajánlásban megfogalmazott súlyokkal átlagoltam az RGB komponenseket, melyek a végső színt adják. Itt van lényeges hatása a blending funkció alfa csatonákra vonatkozó részének, ugyanis az alfa érték a textúra alfáját veszi fel.
+Az $y$ koordináta eltolásával tehát a tűz ``hője'' kicsivel magasabban van, mint maguk a lángok, ami a valóságnak valamelyest meg is felel, a látványon pedig sokat javít. A szürkeárnyalatossá alakításhoz az ITU-R (BT.709) ajánlásban megfogalmazott súlyokkal átlagoltam az RGB komponenseket, melyek a végső színt adják. Itt van lényeges hatása a blending funkció alfa csatornákra vonatkozó részének, ugyanis az alfa érték a textúra alfáját veszi fel.
 
 Ennek segítségével már ki lehet renderelni a torzított hátteret a \texttt{finalPicture} objektum FBO-jába. A \texttt{renderedBackground}-nak meg kell adni az indulás óta eltelt idő (\texttt{glutGet(GLUT\_ELAPSED\_TIME)}) század részét offszetként, a tűzből készült maszkot, a domborzat valamint a tűz mélység pufferét textúraként. Ezután a \texttt{draw} metódusa kirajzolja a torzított hátteret a \texttt{postProcessor.fs} árnyaló segítségével.
 
-Az árnyaló először mintavételezi a maszk színét a megfelelő pozícióban, majd a \texttt{distortionMap} változóban a szín piros és alfa csatornájának a szorzatát tárolja. Így kajuk meg, hogy az adott pozícióban a maszk mekkora szürke árnyalatot vesz fel, ez lesz majd a torzítás mértéke. 
+Az árnyaló először mintavételezi a maszk színét a megfelelő pozícióban, majd a \texttt{distortionMap} változóban a szín piros és alfa csatornájának a szorzatát tárolja. Így kapjuk meg, hogy az adott pozícióban a maszk mekkora szürke árnyalatot vesz fel, ez lesz majd a torzítás mértéke. 
 Ezt követően lekérem az előtér (tűz) és a háttér (domborzat) mélység értékeit, és én magam végzem el a mélység tesztet. Ha az előtér mélysége nem kisebb, mint a háttéré, akkor a végső szín a háttér színe lesz, hiszen az van előrébb. Ellenkező esetben a tűz mögötti fragment-en dolgozunk, így itt lehetséges, hogy torzítást kell végezni. Mivel a mélység értékek nem veszik figyelembe az alfa csatornát, előfordulhat, hogy egy részecskének olyan része mögötti fragment-en dolgozunk, ahol a részecske egyébként teljesen áttetsző. Ekkor a \texttt{distortionMap} értéke $0$ kell hogy legyen, így ebben az esetben szintén a háttér megfelelő fragment-je lesz a végső szín. 
 
 Ha a \texttt{distortionMap} nagyobb, mint $0$, akkor a háttérnek egy másik fragmentjéből kell meríteni a színt. Ehhez az eltoláshoz egy szinusz függvényt használok, amplitúdó és frekvencia paraméterekkel. Az $x$ értékeket tolom el az $y$-ok függvényében, így szép hullámos lesz az eredmény. Az \texttt{offset} változó biztosítja, hogy időben változó legyen a torzítás.
@@ -863,7 +863,7 @@ else{
 }
 #endif
 \end{cpp}
-Először a háttér mélységét kérdezem le. Ahhoz, hogy kiderüljön, hogy a képernyő melyik részén vagyunk, a \texttt{gl\_FragCoord} beépített változót hívom segítségül. Ennek $x$ és $y$ koordiánái megadják, hogy mely pixelen vagyunk. Az $x$ koordinátát a képernyő szélességével, az $y$-t a magasságával kell osztani, hogy a megfelelő textúra koordinátákat megkapjuk. A $z$ koordinátája az adott fragment mélységét tárolja, így ezt kell összevetni a mélységpufferből kiolvasott értékkel. Ha a fragment takarásban van akkor el is vethetjük. Ha viszont látszik, akkor ki kell számolni, hogy milyen közel van a háttérhez (\texttt{distance}). Meg kell határzni azt a határt, amin belül el szeretnénk halványítani a részecskét (\texttt{threshold}), azonban mint már említettem korábban, a mélység puffer nem lineáris. Nagyobb távolságok esetén tehát ennek a határnak kisebbnek kell lennie, hogy ne halványuljon el az egész tűz. Ha pedig határon belül vagyunk, akkor a kimenet alfa csatornáján keresztül tudjuk halványítani a részecskét a mélységek távolsága és a halványítási tartomány hányadosa segítségével.
+Először a háttér mélységét kérdezem le. Ahhoz, hogy kiderüljön, hogy a képernyő melyik részén vagyunk, a \texttt{gl\_FragCoord} beépített változót hívom segítségül. Ennek $x$ és $y$ koordinátái megadják, hogy mely pixelen vagyunk. Az $x$ koordinátát a képernyő szélességével, az $y$-t a magasságával kell osztani, hogy a megfelelő textúra koordinátákat megkapjuk. A $z$ koordinátája az adott fragment mélységét tárolja, így ezt kell összevetni a mélységpufferből kiolvasott értékkel. Ha a fragment takarásban van akkor el is vethetjük. Ha viszont látszik, akkor ki kell számolni, hogy milyen közel van a háttérhez (\texttt{distance}). Meg kell határozni azt a határt, amin belül el szeretnénk halványítani a részecskét (\texttt{threshold}), azonban mint már említettem korábban, a mélység puffer nem lineáris. Nagyobb távolságok esetén tehát ennek a határnak kisebbnek kell lennie, hogy ne halványuljon el az egész tűz. Ha pedig határon belül vagyunk, akkor a kimenet alfa csatornáján keresztül tudjuk halványítani a részecskét a mélységek távolsága és a halványítási tartomány hányadosa segítségével.
 
 \Aref{fig:softParticle}. ábra felső sorában piros színnel jelöltem az elhalványítandó részeket, az alsó sorában pedig a végeredményt hasonlíthatjuk össze a kiindulási állapottal.
 
@@ -899,16 +899,16 @@ Az első részben közvetlenül a képernyőre rajzoltam, post-processing nélk�
 \label{table:1}
 \end{table}
 
-A táblázat első sorában a $\frac{\text{maximum részecskeszám}}{\text{részecske élettartam}}$ hányados szerepel, mint változtatott paraméter, mely hányados ezzel egyidőben a másodpercenként kibocsátott részecskék száma is. Az ezt követő sorokban fps értékeket találunk adott távolságokból. A kamerát igyekeztem mindig úgy irányítani, hogy a tűz középen legyen, és a lehető legtöbb látszódjon belőle.
+A táblázat első sorában a $\frac{\text{maximum részecskeszám}}{\text{részecske élettartam}}$ hányados szerepel, mint változtatott paraméter, mely hányados ezzel egy időben a másodpercenként kibocsátott részecskék száma is. Az ezt követő sorokban fps értékeket találunk adott távolságokból. A kamerát igyekeztem mindig úgy irányítani, hogy a tűz középen legyen, és a lehető legtöbb látszódjon belőle.
 
 Az első oszlopot ($\frac{450}{3}$ részecske/másodperc) választottam kinézet alapján az etalonnak. A normál távolság az a távolság, melyből ennek a tűznek a teteje és az alja nagyjából a képernyő tetejével és aljával esik egybe. A közvetlen közeli esetben vízszintesen nézünk át a jelenségen kamera magasságban ($1.0$), az emitterből felfelé tekintve pedig az egész jelenséget látjuk alulról. A messzi részt pedig egy meghatározott domb tetejéről mértem, ahonnan a tűz magassága nagyjából a képernyő magasságának tizedét tette ki.\\
-Ezekből az adatokból azt a következtetést vonam le, hogy nem is az számít igazán, hogy mennyi részecske látszik egyszerre, hanem inkább az, hogy a képernyőnek mekkora részét borítják be.
+Ezekből az adatokból azt a következtetést vonom le, hogy nem is az számít igazán, hogy mennyi részecske látszik egyszerre, hanem inkább az, hogy a képernyőnek mekkora részét borítják be.
 
 A második oszlopban a részecskék élettartamát megnöveltem a kétszeresére. Ennek következtében a normál távolságból kisebb a frame rate, de ahogy közeledünk az emitter felé, ez egyre csak nő kb. 3 egységnyi távolságig, majd onnantól kezd csökkenni. Ez azért lehetséges véleményem szerint, mert a képernyőn jobban eloszlanak a részecskék, így közelről kevesebb jelenik meg (így egy fragmentet átlagban kevesebbszer is kell feldolgozni), de nem foglalnak el nagyobb területet mint az etalon esetnél. Az emitterből felfelé tekintve is jobb teljesítményt kapunk, valószínűleg azért, mert a részecskék nagyobb magasságban vannak eloszlatva, és a távolabbiakat kisebb erőforrás igénnyel rajzolja ki. Nagy távolságból többet romlott a teljesítmény, ami azért lehetséges, mert tovább élnek a részecskék, nagyobb utat tesznek meg, így ugyanakkora távolságból nagyobb területet fednek le a képernyőn.
 
 A harmadik oszlopban a részecskék maximális száma kétszer akkora, mint az etalon esetben. Ez már inkább meglátszik a teljesítményben, ugyanis az majdnem a felére esett vissza, kivéve nagyobb távolságból.
 
-A negyedik esetben az időt is megdupláztam, és hasonló jellegzetességelet mutat az első kettő és az utolsó két teszt. Csupán az élettartam növelésének hatására ritkul a tűz, így közvetlen közelből jobb a teljesítmény, de messzebbről kicsivel rosszabb. 
+A negyedik esetben az időt is megdupláztam, és hasonló jellegzetességeket mutat az első kettő és az utolsó két teszt. Csupán az élettartam növelésének hatására ritkul a tűz, így közvetlen közelből jobb a teljesítmény, de messzebbről kicsivel rosszabb. 
 
 Az ötödik tesztben az etalon részecskék számát megfeleztem, ez jelentős teljesítménynövekedést okozott, főleg az emitterből felfelé tekintve.
 
@@ -935,7 +935,7 @@ A következő teszteket post-processing kíséretében végeztem el, azonos szem
 \label{table:2}
 \end{table}
 
-Ha össszevetjük az előző teszt eredményeivel a mostaniakat, akkor nem meglepő módon arra jutunk, hogy a teljesítmény egyértelműen romlott, ami viszont érdekesebb, hogy nem egyenlő arányban. Első ránézésre szembetűnő, hogy a részecskeszám növelése mellett a post-processing egyre kisebb arányban rontja a teljesítményt. Ez logikus, hiszen a post-processing műveletekre a részecskék száma nincs különösebb hatással, így azt tulajdonképpen konstans költségnek is tekinthetjük. Ez pedig eltörpül akkora költségek mellett, mint például $10000$ részecske kirajzolása.
+Ha összevetjük az előző teszt eredményeivel a mostaniakat, akkor nem meglepő módon arra jutunk, hogy a teljesítmény egyértelműen romlott, ami viszont érdekesebb, hogy nem egyenlő arányban. Első ránézésre szembetűnő, hogy a részecskeszám növelése mellett a post-processing egyre kisebb arányban rontja a teljesítményt. Ez logikus, hiszen a post-processing műveletekre a részecskék száma nincs különösebb hatással, így azt tulajdonképpen konstans költségnek is tekinthetjük. Ez pedig eltörpül akkora költségek mellett, mint például $10000$ részecske kirajzolása.
 
 Ahogy pedig a tűz kirajzolásának költségei csökkennek (például messzebbről szemléljük a jelenséget), úgy egyre nagyobb arányban jelentkezik a post-processing számításigénye. Ezt láthatjuk az utolsó sorban, ahol a legnagyobb a teljesítmény abszolút értékű esése.
 
