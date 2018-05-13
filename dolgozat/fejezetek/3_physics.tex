@@ -20,22 +20,19 @@ Ezen régió felett pedig az égés már lezajlott, így itt a kémiai reakció 
 
 Habár nem könnyű észrevenni, de a lángok is tágulnak, akárcsak más gázok. Ezt részben azért nehéz észlelni, mert a lángnak csak azon részeit látjuk, melyek elég forróak ahhoz, hogy fényt bocsátsanak ki. Azért nem gömb alakúak, mert a környező levegőnél kevésbé sűrűbbek, így felszállnak.
 
-A lángok színe a hőmérsékletüket és az üzemanyag kémiai összetételét jelzi. A láng izzó fényt bocsát ki, ahol a kék szín a legnagyobb energiájú fényt jelzi (ahol a legforróbb a láng), a kisebb energiájú fény (ahol a láng hűvösebb) pedig vörösebb.
+A lángok színe a hőmérsékletüket és az üzemanyag kémiai összetételét jelzi. A láng izzó fényt bocsát ki, ahol a kék szín a legnagyobb energiájú fényt jelzi (ahol a legforróbb a láng), a kisebb energiájú fény (ahol a láng hűvösebb) pedig vörösebb \cite{firePhysics1}.
 
-\cite{firePhysics1}
+A lángokban a fénytörés általában kis mértékű, az elhajlás szöge kisebb mint 0.1$^{\circ}$. Ennek ellenére azonban néha ekkora fénytörés is elegendő ahhoz, hogy vizuálisan jelentős torzítást okozzon a háttér képében, hasonlóan a délibábhoz a forró aszfalt felett. Ez a jelenség még szembetűnőbb mikor hosszabb időn át figyeljük meg a tüzet, ekkor ugyanis a fénytörő mező turbulens természete felfedi magát a háttér kaotikus hullámzásán keresztül \cite{swhThreeDimensionalReconst}.
 
-A lángokban a fénytörés általában kis mértékű, az elhajlás szöge kisebb mint 0.1$^{\circ}$. Ennek ellenére azonban néha ekkora fénytörés is elegendő ahhoz, hogy vizuálisan jelentős torzítást okozzon a háttér képében, hasonlóan a délibábhoz a forró aszfalt felett. Ez a jelenség még szembetűnőbb mikor hosszabb időn át figyeljük meg a tüzet, ekkor ugyanis a fénytörő mező turbulens természete felfedi magát a háttér kaotikus hullámzásán keresztül\cite{swhThreeDimensionalReconst}.
+A számítógépi grafikában a tűz és egyéb gázok legkorrektebb fizikai modelljét olyan módszerek segítségével érhetjük el, amelyek az áramlástan elvein alapulnak. Ezek a modellek kellően élethű látványt biztosítanak, viszont a tűz feletti kontrollt csökkentik. Az általános megközelítés az, hogy az értelmezési tartományt diszkretizáljuk, és véges elemű metódusok segítségével megoldjuk a Navier-Stokes egyenletek egy egyszerűsített formáját. Habár a szimuláció rendkívül számítás igényes, már van lehetőség az áramlás szimulációjának párhuzamosítására a videokártya segítségével, lehetővé téve a valós idejű megjelenítést felhasználói szintű számítógépeken is \cite{texturedForces, swhThreeDimensionalReconst}.
 
-A számítógépi grafikában a tűz és egyéb gázok legkorrektebb fizikai modelljét olyan módszerek segítségével érhetjük el, amelyek az áramlástan elvein alapulnak. Ezek a modellek kellően élethű látványt biztosítanak, viszont a tűz feletti kontrollt csökkentik. Az általános megközelítés az, hogy az értelmezési tartományt diszkretizáljuk, és véges elemű metódusok segítségével megoldjuk a Navier-Stokes egyenletek egy egyszerűsített formáját. Habár a szimuláció rendkívül számítás igényes, már van lehetőség az áramlás szimulációjának párhuzamosítására a videokártya segítségével, lehetővé téve a valós idejű megjelenítést felhasználói szintű számítógépeken is \cite{texturedForces}.  
-\cite{swhThreeDimensionalReconst}
-
-A numerikus módszerek nagyban egyszerűsödnek, ha feltesszük, hogy a folyadékok összepréselhetetlenek, és állandó a sűrűségük. Tűz esetén viszont problematikus ez a feltételezés, mivel a fűtőanyag tágulása – amint az forró végtermékeket képez – fontos látványelemnek számít. A hatékonyság érdekében a forró gázok tágulását külső erők segítségével érik el. Feltételezve, hogy nincs viszkozitás, és a sűrűséget 1-nek véve a Navier-Stokes egyenletek folyadékokra a következőképpen egyszerűsödnek:
+A numerikus módszerek nagyban egyszerűsödnek, ha feltesszük, hogy a folyadékok összepréselhetetlenek, és állandó a sűrűségük. Tűz esetén viszont problematikus ez a feltételezés, mivel a fűtőanyag tágulása -- amint az forró végtermékeket képez -- fontos látványelemnek számít. A hatékonyság érdekében a forró gázok tágulását külső erők segítségével érik el. Feltételezve, hogy nincs viszkozitás, és a sűrűséget 1-nek véve a Navier-Stokes egyenletek folyadékokra a következőképpen egyszerűsödnek:
 \begin{align*}
 \nabla \cdot \textbf{u} &= 0, \\
 \frac{\partial \textbf{u}}{\partial t} &= -(\textbf{u} \cdot \nabla)\textbf{u} - \nabla \textit{p} + \textbf{f} , 
 \end{align*}
-ahol u a sebesség, p a nyomás, és f felel a külső hatásokért. E két egyenlet felel azért, hogy a tömeg és a lendület megmaradjon. 
-\cite{swhThreeDimensionalReconst}
+ahol \textbf{u} a sebesség, $p$ a nyomás, és \textbf{f} felel a külső hatásokért. E két egyenlet felel azért, hogy a tömeg és a lendület megmaradjon 
+\cite{swhThreeDimensionalReconst}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{A tűz természetéből fakadó nehézségek}
@@ -56,7 +53,7 @@ Más-más alkalmazási területek különféle szempontokat tartanak szem előtt
 
 \begin{itemize}
 \item
-Egy videojátékban az elsődleges szempont hogy valós időben (25-60 frame per secundum) lehessen renderelni a jelenséget, a kinézetnek is a lehetőségek szerint valóságosnak kell tűnnie. A legtöbb esetben csupán díszítő funkciót tölt be, így a terjedés fizikája és az interakció kevésbé lényeges.
+Egy videojátékban az elsődleges szempont hogy valós időben (25-60 képkockával másodpercenként) lehessen renderelni a jelenséget, a kinézetnek is a lehetőségek szerint valóságosnak kell tűnnie. A legtöbb esetben csupán díszítő funkciót tölt be, így a terjedés fizikája és az interakció kevésbé lényeges.
 \item
 Egy mozifilmben a legfontosabb, hogy minél élethűbb legyen, és esetlegesen lehessen kontrollálni a kinézetét. A renderelésnek itt már nem kell valós idejűnek lennie, illetve sem a tűz terjedésének fizikája, sem a vele való interakció nem játszik szerepet.
 \item

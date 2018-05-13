@@ -8,7 +8,7 @@
 
 % NOTE: Az OpenGL alapvetően egy nyílt grafikus függvénykönyvtár (library).
 
-Az OpenGL egy platform- és nyelvfüggetlen, nyílt grafikus függvénykönyvtár (\textit{library}) 2 és 3D-s vektorgrafikus megjelenítéshez. Az API használatán keresztül elérhetjük a grafikus kártyát, így hardveresen gyorsított megjelenítést valósíthatunk meg a számítógépen. A Silicon Graphics Inc. kezdte fejleszteni, majd 1992-ben adták ki először. Széles körben alkalmazzák az iparban, többek között számítógéppel segített tervezésben (CAD), virtuális valóságokban, tudományos vizualizációk során, információ szemléltetésben, repülő szimulátorokban és végül, de nem utolsó sorban a számítógépes játékokban. 2006 óta a nonprofit Khronos csoport vette át a fejlesztését \cite{wikiOGL}.
+Az OpenGL egy platform- és nyelvfüggetlen, nyílt grafikus függvénykönyvtár (\textit{library}) két és háromdimenziós megjelenítéshez. Az API használatán keresztül elérhetjük a grafikus kártyát, így hardveresen gyorsított megjelenítést valósíthatunk meg a számítógépen. A Silicon Graphics Inc. kezdte fejleszteni, majd 1992-ben adták ki először. Széles körben alkalmazzák az iparban, többek között számítógéppel segített tervezésben (CAD), virtuális valóságokban, tudományos vizualizációk során, információ szemléltetésben, repülő szimulátorokban és végül, de nem utolsó sorban a számítógépes játékokban. 2006 óta a nonprofit Khronos csoport vette át a fejlesztését \cite{wikiOGL}.
 
 \subsection{Freeglut}
 
@@ -71,7 +71,7 @@ Annak érdekében, hogy a kirajzolt jelenetek számításigényéről informáci
 \subsection{SpriteFire osztály}
 
 % sprite konstruktor
-A két kétdimenziós megvalósítások közül a sprite változat az alapvetőbb, így azzal kezdtem az implementációt. A \texttt{SpriteFire} osztály konstruktorának meg kell adni a tűz árnyalására készített shader program és a camera objektum pointerét, illetve a pozíciót, ahol szeretnénk megjeleníteni. Opcionális paraméterként megadható, hogy szeretnénk-e a 90 fokkal elfordítva is kirajzolni, illetve a mérték (scale/skála), amellyel nagyítani vagy kicsinyíteni szeretnénk a tüzet. Mivel az objektum magassága alapértelmezetten 1 lesz, utóbbi paraméterrel tulajdonképpen egyben a magasságát is megadjuk. A konstruktor letárolja ezen paramétereket, majd beállítja a modell transzformációs mátrixot (az egységmátrixot eltolja a pozíció vektorral) és a csúcspontok számát, végül meghívja a \texttt{loadVAO} metódust.
+A két kétdimenziós megvalósítások közül a sprite változat az egyszerűbb, így azzal kezdtem az implementációt. A \texttt{SpriteFire} osztály konstruktorának meg kell adni a tűz árnyalására készített shader program és a camera objektum pointerét, illetve a pozíciót, ahol szeretnénk megjeleníteni. Opcionális paraméterként megadható, hogy szeretnénk-e a 90 fokkal elfordítva is kirajzolni, illetve a mérték (scale/skála), amellyel nagyítani vagy kicsinyíteni szeretnénk a tüzet. Mivel az objektum magassága alapértelmezetten 1 lesz, utóbbi paraméterrel tulajdonképpen egyben a magasságát is megadjuk. A konstruktor letárolja ezen paramétereket, majd beállítja a modell transzformációs mátrixot (az egységmátrixot eltolja a pozíció vektorral) és a csúcspontok számát, végül meghívja a \texttt{loadVAO} metódust.
 
 % LoadVAO()
 Az internetről egy olyan textúrát töltöttem le, melyen egy tűz minden állapota egy képen szerepel. Összesen 32 jelenetből áll majd az animáció, így egészen folyékony hatást kelt. Ezt a loadVAO metódus a \texttt{TextureLoader} osztály \texttt{loadMipMappedTexture} metódusa segítségével tölti be. 
@@ -93,7 +93,8 @@ A pontok meghatározását a \texttt{calculateSpriteVertices} metódus végzi. A
 Mivel az alakzatot az $Y$ tengely körül kell majd a későbbiekben forgatni, érdemes úgy definiálni a pontokat, hogy a téglalap alsó élének középpontja az origóba essen, hogy az a forgatás során egy helyben maradjon. A téglalap síkja pedig az $XY$ síkkal esik majd egybe, mert így egyszerűbb definiálni. Konkrét koordinátákkal is meghatározhatnám a téglalapot, de akkor minden kirajzolás esetén a modellmátrixot a skála paraméternek megfelelően skálázni kell. Hogy ezt a műveletet megspóroljam, eleve a skála segítségével határozom meg a koordinátákat. Az $Y$ koordináták a 0 vagy a skála értékét veszik fel, az $X$ koordináták azonban a $\pm \frac{\text{skála paraméter}}{4}$ értékeket, hiszen a magasság felét még az origó is kettéosztja. A pontokat az óramutató járásának irányával ellentétes sorrendben érdemes megadni, hogy a későbbiekben szükség esetén könnyen lehessen belőlük normálvektort számítani. Így tehát az első háromszög pontjai az 1, 2, 3 pontok, a másodikéi pedig 1, 4, 2. A pontokat ebben a sorrendben kell tárolni, ehhez mindig a C++ standard könyvtárának vektor típusú tárolóját használom, ugyanis kezelése könnyű, dinamikus a mérete és felszabadítja a lefoglalt helyet maga után.
 
 %calculateNextTextureCoordinates()
-Az ezekhez a pontokhoz tartozó textúra koordinátákat a \texttt{calculateNextTextureCoordinates} metódussal állítom elő. Mivel egy képen van több állapotom, ezek az értékek állapotról állapotra változnak. Egy adattag (\texttt{m\_iActualFrame}) segítségével számon tartom, hogy éppen hányadik állapotnál járok, és ebből a számból határozom meg a hozzá tartozó koordinátákat. A számozást 0-tól kezdem. Először a sor és oszlopszámot kell kiszámolni hozzá. A sort az $\frac{\text{állapot sorszáma}}{\text{oszlopok száma}}$ hányados egész része adja meg, az oszlopot pedig az előbbi osztás maradéka (modulo művelet). A textúra koordináták a bal felső sarokból $(0, 0)$ indulnak, és a jobb alsó sarok $(1, 1)$ felé nőnek. Az adattagok között számon tartom, hogy egy állapot a textúra koordináta-rendszernek megfelelően milyen széles (\texttt{m\_fColumnstep}), és milyen magas (m\_fRowstep). Ennek megfelelően például az állapot bal felső pontjának $(u, v)$ koordinátája az 
+Az ezekhez a pontokhoz tartozó textúra koordinátákat a \\
+\texttt{calculateNextTextureCoordinates} metódussal állítom elő. Mivel egy képen van több állapotom, ezek az értékek állapotról állapotra változnak. Egy adattag (\texttt{m\_iActualFrame}) segítségével számon tartom, hogy éppen hányadik állapotnál járok, és ebből a számból határozom meg a hozzá tartozó koordinátákat. A számozást 0-tól kezdem. Először a sor és oszlopszámot kell kiszámolni hozzá. A sort az $\frac{\text{állapot sorszáma}}{\text{oszlopok száma}}$ hányados egész része adja meg, az oszlopot pedig az előbbi osztás maradéka (modulo művelet). A textúra koordináták a bal felső sarokból $(0, 0)$ indulnak, és a jobb alsó sarok $(1, 1)$ felé nőnek. Az adattagok között számon tartom, hogy egy állapot a textúra koordináta-rendszernek megfelelően milyen széles (\texttt{m\_fColumnstep}), és milyen magas (m\_fRowstep). Ennek megfelelően például az állapot bal felső pontjának $(u, v)$ koordinátája az 
 \begin{align*}
 u &= \text{adott oszlop} \cdot \text{szélesség}, \\
 v &= \text{adott sor} \cdot \text{magasság}, 
@@ -156,11 +157,10 @@ else
 
 return angle;
 \end{cpp}
-Mivel a tűz alap esetben a $-Z$ tengely felé néz, ehhez a tengelyhez kell mérni az elfordulást is. Ehhez szükség van a kamera és a tűz $XZ$ sík menti pozícióira (\texttt{cameraPos}, \texttt{firePos}). Az \texttt{eye} vektor a tűz pozíciójából a kamera pozíciójába bocsátott vektor. Az $\bar{a}$ és $\bar{b}$ vektor által bezárt szög koszinuszát a következő egyenlet alapján kaphatjuk meg: 
+Mivel a tűz alap esetben a $-Z$ tengely felé néz, ehhez a tengelyhez kell mérni az elfordulást is. Ehhez szükség van a kamera és a tűz $XZ$ sík menti pozícióira (\texttt{cameraPos}, \texttt{firePos}). Az \texttt{eye} vektor a tűz pozíciójából a kamera pozíciójába bocsátott vektor. Az $\textbf{a}$ és $\textbf{b}$ vektor által bezárt szög koszinuszát a következő egyenlet alapján kaphatjuk meg: 
 $$
-\cos \alpha = \frac{\bar{a} \cdot \bar{b}}{|\bar{a}| \cdot |\bar{b}|}
+\cos \alpha = \frac{\textbf{a} \cdot \textbf{b}}{|\textbf{a}| \cdot |\textbf{b}|}.
 $$
-% TODO: Nyomtatásban félkövérrel szokták jelölni inkább a vektorokat.
 
 Amennyiben a két vektor normalizált, azaz a hosszuk egységnyi hosszú, az egyenletben az osztó értéke 1, tehát azt el is hagyhatjuk, ha normalizált vektorokkal számolunk. Ezért a \texttt{cosAlpha} változó értékéhez elég a két vektor (\texttt{eye} és $-Z$) skaláris szorzatát venni. Mivel a két vektor által bezárt szög definíció szerint kisebb, vagy egyenlő, mint 180$^{\circ}$, a két pozíció $X$ tengely menti helyzetéhez viszonyítva el kell dönteni, hogy mikor kell a szög -1-szeresével számolni. 
 
@@ -465,7 +465,7 @@ A részecske rendszer egyik legmeghatározóbb paramétere tapasztalataim szerin
 \begingroup
 \Large
 \begin{center}
-$ \texttt{m\_fParticlesPerSecond} = \frac{\texttt{m\_iMaxParticles} \cdot 1000}{\texttt{m\_iParticleLifetime}}$
+$ \texttt{m\_fParticlesPerSecond} = \dfrac{\texttt{m\_iMaxParticles} \cdot 1000}{\texttt{m\_iParticleLifetime}}$
 \end{center}
 \endgroup
 Minden részecske egyforma hosszú ideig él. Az indulás után pontosan \texttt{m\_iParticle\-Lifetime} időnek kell eltelnie, mielőtt az első részecskék elkezdenek meghalni. Ez azt jelenti, hogy ennyi idő alatt pontosan annyi részecskét lehet indítani, amennyi a tárolóban elfér (\texttt{m\_iMaxParticles}). Ezt követően pedig már megközelítőleg olyan iramban haláloznak el a részecskék, amilyen iramban születnek, tehát a részecskeszám nagyjából a maximum közelében fog maradni. Az 1000-el való szorzásra azért van szükség, mert az \texttt{m\_iParticleLifetime} mértékegysége ms.
@@ -590,7 +590,7 @@ A \texttt{glBufferData} hívással reallokáljuk számár a helyet, majd a \text
 A \texttt{draw} metódus hívásával történik meg a renderelés. Első lépésként az előbb tárgyalt \texttt{update} metódussal frissítem a részecskéket. 
 
 % rotation with matrix tricks
-Annak érdekében, hogy a billboard-ok mindig a kamera irányába forduljanak, az előző megoldástól eltérő módszert alkalmaztam. Ennek lényege, hogy a model és view mátrixok szorzatából (model-view) egy olyan transzformációs mátrixot kapjunk, melyben nincs forgatás. Ez azt jelenti, hogy a mátrix bal felső 3x3-as részmátrixa egységmátrix kell hogy legyen, amelyet úgy kaphatunk, hogy adott mátrixot a transzponáltjával szorzunk. A forgatások, melyeket ki szeretnénk küszöbölni a kamera mozgásából adódnak, és a view mátrixban találhatóak, tehát a model mátrix bal felső 3x3-as részmátrixa a view mátrix egyező részének a transzponáltjának kell lennie (\ref{fig:matrixRotation}. ábra). Így a billboard-ok forgatás nélkül lesznek kirajzolva, tehát mindig a kamera felé néznek (hiszen az alap négyzet az $XY$ síkon fekszik).
+Annak érdekében, hogy a billboard-ok mindig a kamera irányába forduljanak, az előző megoldástól eltérő módszert alkalmaztam. Ennek lényege, hogy a model és view mátrixok szorzatából (\textit{model-view}) egy olyan transzformációs mátrixot kapjunk, melyben nincs forgatás. Ez azt jelenti, hogy a mátrix bal felső $3 \times 3$-as részmátrixa egységmátrix kell hogy legyen, amelyet úgy kaphatunk, hogy adott mátrixot a transzponáltjával szorzunk. A forgatások, melyeket ki szeretnénk küszöbölni a kamera mozgásából adódnak, és a view mátrixban találhatóak, tehát a model mátrix bal felső $3 \times 3$-as részmátrixa a view mátrix egyező részének a transzponáltjának kell lennie (\ref{fig:matrixRotation}. ábra). Így a billboard-ok forgatás nélkül lesznek kirajzolva, tehát mindig a kamera felé néznek (hiszen az alap négyzet az $XY$ síkon fekszik).
 \begin{figure}[h]
  \centering
  \includegraphics[width=\textwidth]{kepek/matrixRotation.png}
@@ -651,7 +651,7 @@ Mint azt már láthattuk, az első két paraméter a színek keverését befoly�
  \label{fig:particleBlendingComparison}
 \end{figure}
 
-A fragment színe a saját alfa értékének arányában van elhalványítva, ezt adjuk hozzá a háttér változatlan színéhez. Ebből következik tehát, hogy a tradicionális blending-nél egy sokkal világosabb eredményt kapunk. Ha egy fragmenten több ilyen művelet is elvégződik, akkor az eredmény egyre fehérebb lesz, végül teljesen fehérré válhat. Ez különösen is hasznos a tűz esetén, ahol ha több részecske is van egymáshoz közel, akkor ott nagyobb is a jelenség ``hőmérséklete'', és -- ahogy annak lenni kell -- így fehérebb is lesz a színe (\ref{fig:particleBlendingComparison}.ábra jobb oldala). Mivel úgyis minden részecske színe hozzáadódik a színpufferhez, a részecskék kirajzolásának sorrendje a kinézeten nem változtat, tehát a sorbarendezést akár ki is hagyhatnánk. A post-processing során azonban a mélység értékekre is szükség lesz, tehát a rendezés a mélység puffer helyességét hivatott biztosítani ebben az esetben.
+A fragment színe a saját alfa értékének arányában van elhalványítva, ezt adjuk hozzá a háttér változatlan színéhez. Ebből következik tehát, hogy a tradicionális blending-nél egy sokkal világosabb eredményt kapunk. Ha egy fragmenten több ilyen művelet is elvégződik, akkor az eredmény egyre fehérebb lesz, végül teljesen fehérré válhat. Ez különösen is hasznos a tűz esetén, ahol ha több részecske is van egymáshoz közel, akkor ott nagyobb is a jelenség ``hőmérséklete'', és -- ahogy annak lenni kell -- így fehérebb is lesz a színe (\ref{fig:particleBlendingComparison}. ábra jobb oldala). Mivel úgyis minden részecske színe hozzáadódik a színpufferhez, a részecskék kirajzolásának sorrendje a kinézeten nem változtat, tehát a sorbarendezést akár ki is hagyhatnánk. A post-processing során azonban a mélység értékekre is szükség lesz, tehát a rendezés a mélység puffer helyességét hivatott biztosítani ebben az esetben.
 
 A kinézeten nem változtat, hogy az alfa csatornákat hogyan keverjük egymással, azonban a post-processing során részben pont az alfa értékek határozzák meg a torzítás mértékét, így az aktuális fragment alfa csatornáját ugyanúgy additívan keverem a háttér alfájával.
 
@@ -684,8 +684,8 @@ Ha a pillanatnyi textúra sorszáma nem a legutolsó textúrára mutat, akkor a 
 
 Most már csak a kapott csúcspont transzformációit kell elvégezni. A példány tulajdonságaiként kapott adatok segítségével előállítom a skála (\texttt{scalingMatrix}), a forgatás (\texttt{rotationMatrix}) és az eltolás (\texttt{translationMatrix}) mátrixokat, majd ezeket a megfelelő sorrendben összeszorzom:
 \begin{cpp}
-mat4 particleMatrix = translationMatrix * model * rotationMatrix
-							 * scalingMatrix;
+mat4 particleMatrix =
+    translationMatrix * model * rotationMatrix * scalingMatrix;
 \end{cpp}
 Mint azt már korábban is tárgyaltuk, a \texttt{model }mátrix a kamera mozgásából fakadó forgatásokat küszöböli ki, tehát az is forgatás transzformációkat végez, így még az eltolás előtt kell vele is szorozni.
 
@@ -756,7 +756,7 @@ Az első sor megadja, hogy a mélység értékeket hogyan kezelje az OpenGL mint
 
 Utolsó lépésként a metódus legenerálja az FBO-t is, majd az imént létrehozott textúrákat csatolja hozzá, mint szín és mélység puffereket.
 
-A \texttt{generateVAO} metódus legenerálja a megjelenítéshez szükséges négyzetet. Az OpneGL-ben nézeti transzformációk nélkül a kamera a $(0, 0, 0)$ pozícióban van, és a $-Z$ tengely felé néz. Az OpenGL specifikáció szerint az alapértelmezett nézet egy 2x2-es méretű kockát lát. Ebből következik, hogy a képernyő négy sarkában a $(-1, -1)$, $(1, 1)$, $(-1, 1)$, $(1, -1)$ pontok láthatóak. Tehát ha olyan négyzetet szeretnénk kirajzolni amely transzformációk nélkül pont beteríti a képernyőt, akkor annak pont ezek lesznek a csúcspontjai.
+A \texttt{generateVAO} metódus legenerálja a megjelenítéshez szükséges négyzetet. Az OpneGL-ben nézeti transzformációk nélkül a kamera a $(0, 0, 0)$ pozícióban van, és a $-Z$ tengely felé néz. Az OpenGL specifikáció szerint az alapértelmezett nézet egy $2 \times 2$-es méretű kockát lát. Ebből következik, hogy a képernyő négy sarkában a $(-1, -1)$, $(1, 1)$, $(-1, 1)$, $(1, -1)$ pontok láthatóak. Tehát ha olyan négyzetet szeretnénk kirajzolni amely transzformációk nélkül pont beteríti a képernyőt, akkor annak pont ezek lesznek a csúcspontjai.
 
 \subsubsection{Kirajzolás}
 Az osztályhoz hozzáadhatunk:
@@ -809,7 +809,7 @@ Ehhez szükség van a kirajzolt tűz textúrára, így azt, és az emitter kamer
 A maszk tulajdonképpen a tűz hőjét igyekszik megjeleníteni. A hőt szürke színnel jelölöm, emellett az alfa csatorna is fontos szerepet játszik majd. Kiindulásnak tehát elég lenne a tűz képét szürkeskálássá tenni, majd azt használni mint maszkot, ám így az igazán forró részek a tűz takarásában maradnak, és a fénytörés nem lesz túlságosan szembetűnő. Ezért először el kell tolni a tüzet a képen felfelé. Ha ezt egy egyszerű konstanssal tennénk, akkor a képernyőn mindig ugyanannyival mozdulna el, de ez nagyobb távolságból helytelen eredményt ad. Minél messzebb vagyunk a tűztől, annál kisebb mértékben kell az eltolást végezni a képernyőn. Ezért van szükség az \texttt{offset}-re, melynek a reciprokát használjuk fel:
 \begin{cpp}
 float distanceFactor = 1.f / offset;
-float y = fragTexCoord.y - 0.5 * distanceFactor
+float y = fragTexCoord.y - 0.5 * distanceFactor;
 vec4 textureColor = texture2D(tex2, vec2(fragTexCoord.x, y));
 \end{cpp}
 Az $y$ koordináta eltolásával tehát a tűz ``hője'' kicsivel magasabban van, mint maguk a lángok, ami a valóságnak valamelyest meg is felel, a látványon pedig sokat javít. A szürkeárnyalatossá alakításhoz az ITU-R (BT.709) ajánlásban megfogalmazott súlyokkal átlagoltam az RGB komponenseket, melyek a végső színt adják. Itt van lényeges hatása a blending funkció alfa csatornákra vonatkozó részének, ugyanis az alfa érték a textúra alfáját veszi fel.
@@ -849,16 +849,15 @@ A shadert is ki kell egészíteni. Hozzá kell adni a uniform-okat, melyekbe a m
 #ifdef SOFTPARTICLES
 float bgDepth = texture2D(backgroundDepth, 
 		    gl_FragCoord.xy / vec2(screenWidth, screenHeigth)).r;
-if (bgDepth > gl_FragCoord.z){
+if (bgDepth > gl_FragCoord.z) {
     float distance = bgDepth - gl_FragCoord.z;
     float threshold = 0.1f / pow(distanceToCamera, 2);
-    if(distance < threshold)
-    {
+    if(distance < threshold) {
         float blend = distance / threshold;
         finalColor.a = blend * finalColor.a;
     }
 }
-else{
+else {
     discard;
 }
 #endif
