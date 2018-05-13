@@ -102,7 +102,7 @@ void printFps()
 		fpsSum = 0.0;
 		timeSinceLastUpdate = 0;
 
-		std::cout << "fps: " << currentFPS << std::endl;
+		std::cout << "fps: " << currentFPS << std::endl << "dist.: " << particleFire->getDistance() << std::endl;
 	}
 
     //std::stringstream fpsStream;
@@ -423,8 +423,6 @@ void initialize()
 	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE);
 
 	// additive blending
-	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO); 
-
 	// blending the foregrounds alpha with the background, to correct the z-fighting-like bug in the alpha channels
 	// it is used in post processing
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE);
