@@ -1,0 +1,43 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage{dolgozat}
+
+\usepackage{hyperref}
+
+\usepackage{listings}
+\usepackage{python}
+\usepackage{cpp}
+
+\usepackage{wrapfig}
+
+\linespread{1.2}
+
+\begin{document}
+
+\section*{Összegzés}
+
+
+%feladat
+A dolgozat fő célja a tűz és a hozzá kapcsolódó jelenségek megvalósításának áttekintése volt a számítógépi grafikában. Az elérhető játékmotorok vizsgálatán keresztül próbáltam betekintést nyerni a tűz megjelenítéssel kapcsolatos problémáinak megoldásaira, illetve ezeket vizsgáltam valószerűség és számításigény tekintetében. Elsősorban a valós idejű megjelenítéssel foglalkoztam, de kitértem néhány valós időben nem feldogozható módszerre is. Egyes módszereket magam is implementáltam.
+
+%eredmények
+% néhány motor áttekintve, történeti ismeretek, praktikák megismerése
+%tűz fizikájának, folyamatainak megismerése
+% különböző módszerek és lehetőségek feltárása, ötletelés szintjén
+% billboard tűz, particle system, post processing implementáció
+A legkorábbi játékmotorok vizsgálatával kezdtem, majd időrendben haladtam a modernebb, számításigényesebb megvalósítások irányába. A kutatás során a motorokkal kapcsolatban történeti ismeretekre is szert tettem, illetve több, grafikában alkalmazott praktikát megismertem a számításigény csökkentése érdekében, habár ezek minden részletét már nem fejtettem ki a dolgozatban. 
+
+Megismertem a tűz fizikai és kémiai hátterét, mely segített, hogy a jelenséget kód formájában is meg tudjam fogalmazni. Különféle módszereket mutattam be a megvalósításra vonatkozóan, ezeken elmélkedve és saját ötletekkel kiegészítve több lehetőséget is feltártam az adott módszerekkel kapcsolatban a valószerűség javítása érdekében.
+Ezek közül néhányat magam is sikeresen implementáltam, melyet részletesen dokumentáltam a rész- és végeredmények bemutatásával egyetemben. 
+
+%tapasztalatok
+% játékmotorokon elmenni nem piskóta, árnyalók végtelen lehetőségei, nehézkes debuggolása, átlátszóság és kirajzolás sorrendje kemény dió, jobb teljesítményhez hardverközelebbi megoldások, ismeretek szükségesek, kreativitás > erőforrások
+A dolgozat írása közben azt tapasztaltam, hogy a legapróbb részletekben rejlő hiba is komoly akadályokat jelenthet. Ezen hibák feltárása rengeteg utánajárást és kutatást igényelt, legtöbbször a dokumentációknak, és néha a vak szerencsének köszönhettem a megoldást. A korábbi játékmotorok elemzése során rájöttem, hogy a kreativitás képes felülmúlni a hardver képességeit, azonban ehhez komoly jártasság szükséges az informatikai technológiák területén. 
+
+
+%fejlesztési lehetőségek
+%optimalizálás, tűz elmosás, volumetrikus/voxel tűz, fizikai modellek, tűz terjedés-gyulladás-kioltás, interakció más tárgyakkal, fény és hang jelenségek, parázs darabkák
+Számos lehetőség van még az implementációim javítására. A post-processing segítségével például a tűz kinézetén is lehetne javítani, a részecskék életciklusa pedig elbírna egy fizikailag élethűbb modellt. A fény és hangjelenségek csatolása, illetve a más objektumokkal történő interakció megvalósítása szintén segíthetné a hitelesebb megjelenítést. 
+
+
+\end{document}
